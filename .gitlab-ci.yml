@@ -5,7 +5,7 @@
 # markdown-link-check: https://github.com/tcort/markdown-link-check
 
 variables:
-  GITLAB_REPO: git@g.a-bug.org:maix_sw/k230_canmv_docs.git
+  GITLAB_REPO: git@g.a-bug.org:maix_sw/k230_rtos_sdk_docs.git
   GITHUB_REPO: git@github.com:kendryte/k230_canmv_docs.git
   GITEE_REPO: git@gitee.com:kendryte/k230_canmv_docs.git
 
@@ -127,9 +127,9 @@ markdownlint:
   script:
     - cd $CI_PROJECT_DIR
     - ls -alht
-    - rm -rf ./k230_canmv_docs/
-    - git clone ${GITLAB_REPO} k230_canmv_docs || exit 1
-    - cd k230_canmv_docs || exit 1
+    - rm -rf ./k230_rtos_sdk_docs/
+    - git clone ${GITLAB_REPO} k230_rtos_sdk_docs || exit 1
+    - cd k230_rtos_sdk_docs || exit 1
     - pwd
     - git checkout main
     - git branch -a
@@ -157,24 +157,22 @@ build web docs:
     - k230
   environment:
     name: dev
-    url: https://ai.b-bug.org/k230/k230_canmv_docs/dev/
+    url: https://ai.b-bug.org/k230/k230_rtos_sdk_docs/dev/
   script:
     - git fetch --tags
     - git branch main origin/main
     - git checkout main
-    - python3 preprocess.py
     - git config --global user.email "auto@canaan-creative.com"
     - git config --global user.name "GitLab CI"
     - git commit "*.md" -m "remove cover" || true
     - git checkout dev
     - git reset --hard origin/dev
-    - python3 preprocess.py
     - git config --global user.email "auto@canaan-creative.com"
     - git config --global user.name "GitLab CI"
     - git commit "*.md" -m "remove cover" || true
     - make mhtml
-    - rm -rf /data1/k230/k230_canmv_docs/*
-    - cp -r _build/* /data1/k230/k230_canmv_docs
+    - rm -rf /data1/k230/k230_rtos_sdk_docs/*
+    - cp -r _build/* /data1/k230/k230_rtos_sdk_docs
   artifacts:
     paths:
       - _build
@@ -190,10 +188,10 @@ deploy production:
     - k230
   environment:
     name: production
-    url: https://developer.canaan-creative.com/k230_canmv/dev/index.html
+    url: https://developer.canaan-creative.com/k230_rtos/dev/index.html
   retry: 2
   script:
-    - scp -P $AWS_PORT -C -r _build/* $AWS/data/webapp/k230_canmv/
+    - scp -P $AWS_PORT -C -r _build/* $AWS/data/webapp/k230_rtos
 
 
 # sync dev branch to main branch
