@@ -388,7 +388,7 @@ py::class_<interpreter>(m, "Simulator")
 
 **前置条件**: yolov5s_onnx.py脚本已编译过yolov5s.onnx模型。
 
-yolov5s_onnx_simu.py位于/path/to/k230_sdk/src/big/nncase/examples/scripts子目录，内容如下：
+yolov5s_onnx_simu.py位于src/rtsmart/libs/nncase/examples/scripts子目录，内容如下：
 
 ```python
 import os
@@ -465,9 +465,9 @@ if __name__ == '__main__':
 执行推理脚本
 
 ```shell
-root@5f718e19f8a7:/mnt/# cd src/big/nncase/examples
-root@5f718e19f8a7:/mnt/src/big/nncase/examples # export PATH=$PATH:/usr/local/lib/python3.8/dist-packages/
-root@5f718e19f8a7:/mnt/src/big/nncase/examples # python3 scripts/yolov5s_onnx_simu.py --model models/yolov5s.onnx --model_input object_detect/data/input_fp32.bin --kmodel tmp/yolov5s_onnx/test.kmodel --kmodel_input object_detect/data/input_uint8.bin
+root@5f718e19f8a7:/mnt/# cd rtos_sdk/src/rtsmart/libs/nncase/examples
+root@5f718e19f8a7:/mnt/rtos_sdk/src/rtsmart/libs/nncase/examples # export PATH=$PATH:/usr/local/lib/python3.8/dist-packages/
+root@5f718e19f8a7:/mnt/rtos_sdk/src/rtsmart/libs/nncase/examples # python3 scripts/yolov5s_onnx_simu.py --model models/yolov5s.onnx --model_input object_detect/data/input_fp32.bin --kmodel tmp/yolov5s_onnx/test.kmodel --kmodel_input object_detect/data/input_uint8.bin
 ```
 
 nncase simulator和CPU推理结果对比如下
