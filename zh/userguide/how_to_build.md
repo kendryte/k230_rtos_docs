@@ -68,6 +68,14 @@ source ~/.bashrc
 
 ## 代码获取与编译
 
+### 初始化git配置
+
+```bash
+#根据申请的git账号配置你的用户名和密码
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+```
+
 ### 下载 SDK 源码
 
 ```bash
@@ -83,7 +91,7 @@ repo init -u git@gitee.com:canmv-k230/manifest.git -m rtsmart.xml \
 #   --repo-url=https://github.com/canmv-k230/git-repo.git
 
 # 同步代码仓库
-repo sync -j8
+repo sync -j $(nproc)
 ```
 
 ### 初始化工具链
@@ -112,7 +120,7 @@ time make log
 
 **编译输出**  
 生成的固件镜像位于：  
-`~/rtos_k230/output/xxx_defconfig/k230_rtos.img`
+`./output/xxx_defconfig/****_v****.img`
 
 ## 目录结构说明
 
