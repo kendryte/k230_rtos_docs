@@ -1,6 +1,6 @@
 # 快速入门指南
 
-## 1. K230 介绍
+## K230 介绍
 
 嘉楠科技 Kendryte ® 系列 AIoT 芯片中的最新一代 AIoT SoC K230 芯片采用全新的多异构单元加速计算架构，集成了 2 个 RISC-V 高能效计算核心，内置新一代 KPU（ Knowledge Process Unit）智能计算单元，具备多精度 AI 算力，广泛支持通用的 AI 计算框架，部分典型网络的利用率超过了 70%。
 
@@ -8,7 +8,6 @@
 
 ![K230_block_diagram](https://developer.canaan-creative.com/api/post/attachment?id=466)
 
-## 2. 文档介绍
+## 文档介绍
 
 K230 提供多套软件解决方案，本文档主要讲诉如何使用纯 RTOS （RT-Smart） 进行开发，纯 RTOS 开发，可以让应用快速启动，上手容易，无需处理多核通信等问题。
-

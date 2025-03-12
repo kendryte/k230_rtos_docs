@@ -5,6 +5,8 @@
 
 quick_start.md
 userguide/index.md
+app_develop_guide/index.md
+advanced_development_guide/index.md
 api_reference/index.md
 faq.md
 ```

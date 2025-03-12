@@ -1,18 +1,18 @@
-# 2. Build Firmware
+# Build Firmware
 
-## 1. Overview
+## Overview
 
 K230 RTOS SDK is an SDK package managed by repo, including necessary uboot, opensbi, rtsmart, mpp and other repositories.
 
-## 2. Setting Up the Development Environment
+## Setting Up the Development Environment
 
 | Host Environment           | Description                                |
 | -------------------------- | ------------------------------------------ |
-| Ubuntu 20.04.4 LTS (x86_64) | The K230 CanMV compilation environment is suitable for Ubuntu 20.04 and above. |
+| Ubuntu 20.04.4 LTS (x86_64) | The K230 RTOS Only compilation environment is suitable for Ubuntu 20.04 and above. |
 
 Currently, the K230 RTOS Only SDK has only been verified to compile under Linux environment, other Linux versions have not been tested, so compatibility on other systems cannot be guaranteed.
 
-### 2.1 Local Build Environment
+### Local Build Environment
 
 - Update APT sources (optional)
 
@@ -60,9 +60,9 @@ echo 'export PATH="${HOME}/.bin:${PATH}"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## 3. Compilation Process
+## Compilation Process
 
-### 3.1 Source Code Download
+### Source Code Download
 
 The source code of K230-RTOS-Only is hosted on Github and Gitee. Users can download the source code using the repo tool.
 
@@ -80,7 +80,7 @@ repo init -u git@gitee.com:canmv-k230/manifest.git -b master --repo-url=git@gite
 repo sync
 ```
 
-### 3.2 Code Preparation
+### Code Preparation
 
 When compiling for the first time, you need to download the toolchain. The following command only needs to be executed once.
 
@@ -89,7 +89,7 @@ When compiling for the first time, you need to download the toolchain. The follo
 make dl_toolchain
 ```
 
-### 3.3 Compilation
+### Compilation
 
 Select the corresponding board configuration file according to actual needs, and then start compiling.
 
@@ -114,7 +114,7 @@ make menuconfig
 
 ![disable canmv](https://developer.canaan-creative.com/api/post/attachment?id=440)
 
-## 4. Code Directory Description
+## Code Directory Description
 
 ```sh
 canmv_k230

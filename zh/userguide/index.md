@@ -1,12 +1,10 @@
-# 实用教程
+# 用户指南
 
 ```{toctree}
 :maxdepth: 1
 
-boards/index.md
 how_to_build.md
-
-testcases/index.md
-practical_tutorial/index.md
-how_to_develop/index.md
+how_to_flash.md
+how_to_run_samples.md
+helloworld.md
 ```

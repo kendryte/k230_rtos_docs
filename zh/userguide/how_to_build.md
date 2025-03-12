@@ -1,142 +1,169 @@
-# 2. 编译镜像
+# 如何编译固件
 
-## 1. 概述
+## 概述
 
-K230 RTOS SDK 是使用 repo 进行管理的一个 SDK 包，包括必要的 uboot，opensbi，rtsmart，mpp 等仓库。
+K230 RTOS SDK 是基于 repo 管理的多仓库集成开发套件，包含 U-Boot、OpenSBI、RT-Smart、MPP 等核心组件。本文档提供完整的开发环境搭建、代码下载与编译流程说明。
 
-## 2. 开发环境搭建
+## 开发环境要求
 
-| 主机环境          | 描述                                |
-| ----------------- | ----------------------------------- |
-| Ubuntu 20.04.4 LTS (x86_64) | K230 CanMV 的编译环境适用于 Ubuntu 20.04 及以上版本。 |
+### 系统要求
 
-目前，K230 RTOS Only SDK 仅在 Linux 环境下验证编译，其他 Linux 版本未经过测试，因此无法保证在其他系统上的兼容性。
+- **操作系统**：Ubuntu 20.04 LTS (x86_64)  
+  *其他 Linux 发行版未经充分测试，可能存在兼容性问题。*
 
-### 2.1 本地构建环境
+### 硬件要求
 
-- 更新 APT 源（可选）
+- 内存：建议 ≥ 2GB
+- 磁盘空间：建议预留 ≥ 10GB
 
-```shell
-sudo bash -c 'cp /etc/apt/sources.list /etc/apt/sources_bak.list && \
-  sed -i "s/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list && \
-  sed -i "s/security.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list'
+## 开发环境搭建
+
+### 配置 APT 源（可选，推荐国内用户）
+
+```bash
+sudo cp /etc/apt/sources.list /etc/apt/sources_bak.list
+sudo sed -i "s/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list
+sudo sed -i "s/security.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list
+sudo apt update
 ```
 
-- 安装必要的依赖软件
+### 安装系统依赖
 
-```shell
+```bash
 # 添加 i386 架构支持
-sudo bash -c 'dpkg --add-architecture i386 && \
-  apt-get clean all && \
-  apt-get update && \
-  apt-get install -y --fix-broken --fix-missing --no-install-recommends \
-    sudo vim wget curl git git-lfs openssh-client net-tools sed tzdata expect mtd-utils inetutils-ping locales \
-    sed make cmake binutils build-essential diffutils gcc g++ bash patch gzip bzip2 perl tar cpio unzip rsync \
-    file bc findutils dosfstools mtools bison flex autoconf automake python3 python3-pip python3-dev python-is-python3 \
-    lib32z1 scons libncurses5-dev kmod fakeroot pigz tree doxygen gawk pkg-config libyaml-dev libconfuse2 libconfuse-dev \
-    libssl-dev libc6-dev-i386 libncurses5:i386'
+sudo dpkg --add-architecture i386
+sudo apt update
+
+# 安装编译工具链及依赖库
+sudo apt install -y --no-install-recommends \
+    sudo vim wget curl git git-lfs openssh-client net-tools sed tzdata expect \
+    make cmake binutils build-essential gcc g++ bash patch perl tar cpio unzip \
+    file bc bison flex autoconf automake python3 python3-pip python3-dev \
+    lib32z1 libncurses5-dev fakeroot pigz tree doxygen gawk pkg-config \
+    libssl-dev libc6-dev-i386 libncurses5:i386
+
+# 清理缓存
+sudo apt clean
 ```
 
-- 更新 PIP 源（可选）
+### 配置 Python 环境
 
-```shell
-pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
-pip3 config set global.extra-index-url "https://mirrors.aliyun.com/pypi/simple https://mirrors.cloud.tencent.com/pypi/simple"
-```
+```bash
+# 配置 PIP 国内镜像源（推荐）
+pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
-- 安装 Python 依赖
-
-```shell
+# 安装 Python 依赖库
 pip3 install -U pyyaml pycryptodome gmssl
 ```
 
-- 安装 repo 工具
+### 安装 repo 工具
 
-```shell
+```bash
 mkdir -p ~/.bin
 curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
 chmod a+rx ~/.bin/repo
-echo 'export PATH="${HOME}/.bin:${PATH}"' >> ~/.bashrc
+echo 'export PATH="$HOME/.bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## 3. 编译流程
+## 代码获取与编译
 
-### 3.1 源码下载
+### 下载 SDK 源码
 
-K230 RTOS SDK 的源码托管在 Github 和 Gitee 上，用户可以通过 repo 工具下载源码。
+```bash
+# 创建工作目录
+mkdir -p ~/rtos_k230 && cd ~/rtos_k230
 
-```shell
-# 推荐在用户根目录新建一个目录，再进行代码下载
-mkdir -p ~/canmv_k230 && cd ~/canmv_k230
+# 从 Gitee 下载代码（推荐国内用户，需配置 SSH 密钥）
+repo init -u git@gitee.com:canmv-k230/manifest.git -m rtsmart.xml \
+  --repo-url=git@gitee.com:canmv-k230/git-repo.git
 
-# 从github下载sdk，使用https协议
-repo init -u https://github.com/canmv-k230/manifest -b master --repo-url=https://github.com/canmv-k230/git-repo.git
+# 从 GitHub 下载代码（国际用户）
+# repo init -u https://github.com/canmv-k230/manifest -m rtsmart.xml \
+#   --repo-url=https://github.com/canmv-k230/git-repo.git
 
-# 或者从gitee下载sdk，使用ssh协议，gitee需要登陆账号，并上传ssh公钥，大陆用户推荐使用gitee
-repo init -u git@gitee.com:canmv-k230/manifest.git -b master --repo-url=git@gitee.com:canmv-k230/git-repo.git
-
-# 同步代码
-repo sync
+# 同步代码仓库
+repo sync -j8
 ```
 
-### 3.2 代码准备
+### 初始化工具链
 
-第一次编译时，需要下载工具链。以下命令仅需执行一次。
-
-```shell
-# 第一次执行时下载工具链
+```bash
+# 首次编译需下载工具链（仅需执行一次）
 make dl_toolchain
 ```
 
-### 3.3 编译
+### 选择目标硬件配置
 
-根据实际需求选择对应的板子配置文件，然后开始编译。
+```bash
+# 查看所有支持的硬件配置
+make list-def
 
-```shell
-# 列出可用的配置选项
-make list_def
-# 选择对应的板子配置文件
-make xxxx_defconfig
-# 开始编译
+# 示例：选择 K230 默认配置
+make xxx_defconfig
+```
+
+### 执行编译
+
+```bash
+# 开始完整编译（耗时较长，建议使用 `time` 记录时间）
 time make log
 ```
 
-编译完成后，镜像文件将生成在 `~/canmv_k230/output/xxxx/xxx.img` 目录下。
+**编译输出**  
+生成的固件镜像位于：  
+`~/rtos_k230/output/xxx_defconfig/k230_rtos.img`
 
-```shell
-# 如果编译因为找不到而canmv报错，可以在menuconfig中去掉 CanMV 模块使能
+## 目录结构说明
 
-make menuconfig
+```text
+rtos_k230/
+├── boards/          # 硬件板级支持文件
+├── configs/         # 编译配置文件（如 xxxx_defconfig）
+├── output/          # 编译输出目录（镜像、临时文件）
+├── src/
+│   ├── applications # 用户应用程序
+│   ├── opensbi/     # OpenSBI 引导程序
+│   ├── rtsmart/     # RT-Smart 实时操作系统
+│   └── uboot/       # U-Boot 引导加载程序
+└── tools/           # 编译工具链与脚本
 ```
 
-![disable canmv](https://developer.canaan-creative.com/api/post/attachment?id=440)
+## 常见问题
 
-## 4. 代码目录说明
+### 代码同步失败
 
-```sh
-canmv_k230
-.
-├── boards
-├── configs
-├── include
-├── output
-├── src
-│   ├── applications
-│   ├── opensbi
-│   ├── rtsmart
-│   └── uboot
-└── tools
-```
+- **现象**：`repo sync` 报错或卡顿  
+- **解决方案**：  
+  1. 检查网络连接，国内用户优先使用 Gitee 仓库。  
+  1. 重试命令：`repo sync -j4 --fail-fast`。
 
-目录结构说明：
+### 编译工具链缺失
 
-1. `boards`：板子相关文件
-1. `configs`：配置文件列表
-1. `include`：自动生成的头文件
-1. `output`：编译生成的文件，包括镜像和临时文件
-1. `src/applications`：用户应用程序
-1. `src/opensbi`：OpenSBI 相关文件
-1. `src/rtsmart`：RT-Smart 和 MPP 相关文件
-1. `src/uboot`：U-Boot 相关文件
-1. `scripts`：编译系统相关脚本
+- **现象**：`make` 报错提示工具链未找到  
+- **解决方案**：  
+  确保已执行 `make dl_toolchain`，并检查 `~/.kendryte/k230_toolchains` 目录下是否包含工具链文件。
+
+### 依赖冲突
+
+- **现象**：编译过程中提示库版本不兼容  
+- **解决方案**：  
+  1. 使用 `apt list --installed` 检查依赖版本。  
+  1. 通过 `sudo apt install <package>=<version>` 安装指定版本。
+
+### 打包镜像失败
+
+- **现象**：最后打包提示分区太小
+- **解决方案**：减少使能的 example ，或者修改对应板子的镜像配置文件，增大对应分区的文件大小
+
+### 修改了 MPP 目录下的文件，没有重新编译
+
+- **现象**：修改了 `src/rtsmart/mpp` 目录下的源码，或者 sample，执行 `make` 生成新镜像但是没有更新
+- **解决方案**：执行一次 `make rtsmart-clean` 然后再执行 `make` ，这个设计是因为 MPP 编译较慢，但是改动的较少，因此仅主动编译一次。
+
+## 下一步
+
+- [烧录固件至开发板](./how_to_flash.md)  
+- [运行示例程序](./how_to_run_samples.md)
+
+通过本指南，您已完成 K230 RTOS SDK 的开发环境搭建与固件编译。如有其他问题，请参考官方文档或提交 Issue 至代码仓库。
