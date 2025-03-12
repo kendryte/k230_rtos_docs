@@ -132,4 +132,4 @@ int main(int argc, char *argv[])
 
 ## 注意事项
 
-K230共有6个PWM通道，其中channel 0 ~ 2（pwm 0 ~ 2）同属一路PWM，channel 3 ~ 5（pwm 3 ~ 5）同属一路PWM，在同时使用多通道PWM时，同属一路的PWM，仅需任意使能其中一个channel即可。
+K230共有6个PWM通道，其中channel 0 ~ 2（pwm 0 ~ 2）同属一路PWM，channel 3 ~ 5（pwm 3 ~ 5）同属一路PWM，在同时使用多通道PWM时，同属一路的PWM，仅需任意使能其中一个channel即可（如上述代码使能channel 3 和channel 4，仅调用一次enable），另外注意同一路PWM只能使用相同的频率，但是占空比可以不同。
