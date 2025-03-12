@@ -150,7 +150,7 @@ DSI中也会用到这些参数、配置的时序和屏幕一致即可。
 
 需要dsi 先进入lp模式、然后就可以发送命令，需要的api如下：
 
-- [kd_mpi_dsi_set_lp_mode_send_cmd](#kd_mpi_dsi_set_lp_mode_send_cmd)
+- [kd_mpi_dsi_set_attr](#kd_mpi_dsi_set_attr)
 - [kd_mpi_dsi_send_cmd](#kd_mpi_dsi_send_cmd)
 
 发送的数据是按照8位发送的，会根据数量自动选择发送长包还是短包。
@@ -220,7 +220,7 @@ k_s32 kd_mpi_set_mipi_phy_attr(k_vo_mipi_phy_attr \*attr)
 
 | 参数名称 | 描述               | 输入/输出 |
 |----------|--------------------|-----------|
-| attr     | Phy 的频率结构描述 | 输入      |
+| attr     | Phy 的频率结构描述 [k_vo_mipi_phy_attr](#k_vo_mipi_phy_attr) | 输入      |
 
 【返回值】
 
@@ -259,7 +259,6 @@ k_s32 kd_mpi_set_mipi_phy_attr(k_vo_mipi_phy_attr \*attr)
 - [kd_mpi_dsi_send_cmd](#kd_mpi_dsi_send_cmd)
 - [kd_mpi_dsi_read_pkg](#kd_mpi_dsi_read_pkg)
 - [kd_mpi_dsi_set_test_pattern](#kd_mpi_dsi_set_test_pattern)
-- [kd_mpi_dsi_set_lp_mode_send_cmd](#kd_mpi_dsi_set_lp_mode_send_cmd)
 
 #### kd_mpi_dsi_set_attr
 
@@ -269,7 +268,7 @@ k_s32 kd_mpi_set_mipi_phy_attr(k_vo_mipi_phy_attr \*attr)
 
 【语法】
 
-k_s32 kd_mpi_dsi_set_attr(k_display_mode \*attr)【参数】
+k_s32 kd_mpi_dsi_set_attr(k_display_mode \*attr)
 
 | 参数名称 | 描述         | 输入/输出 |
 |----------|--------------|-----------|
@@ -311,11 +310,13 @@ k_s32 kd_mpi_dsi_set_attr(k_display_mode \*attr)【参数】
 
 【语法】
 
-k_s32 kd_mpi_dsi_enable(void)
+k_s32 kd_mpi_dsi_enable(k_u32 enable)
 
 【参数】
 
-无
+| 参数名称 | 描述         | 输入/输出 |
+|----------|--------------|-----------|
+| enable     | dsi 使能状态（1：enable，0：disble） | 输入      |
 
 【返回值】
 
@@ -398,14 +399,15 @@ Dsi 读取命令
 
 【语法】
 
-k_s32 kd_mpi_dsi_read_pkg(k_u8 \*rx_buf, k_s32 cmd_len)
+k_s32 kd_mpi_dsi_read_pkg(k_u8 addr, k_u16 cmd_len, k_u32 \*rv_data)
 
 【参数】
 
 | 参数名称 | 描述       | 输入/输出 |
 |----------|------------|-----------|
-| rx_buf,  | 接受的数据 | 输入      |
+| addr     | 接受的数据 | 输入      |
 | cmd_len  | 数据长度   | 输入      |
+| rv_data  | 返回的数据 | 输出      |
 
 【返回值】
 
@@ -446,48 +448,6 @@ k_s32 kd_mpi_dsi_read_pkg(k_u8 \*rx_buf, k_s32 cmd_len)
 k_s32 kd_mpi_dsi_set_test_pattern(void)
 
 【参数】、
-
-无
-
-【返回值】
-
-| 返回值 | 描述               |
-|--------|--------------------|
-| 0      | 成功。             |
-| 非0    | 失败，参见错误码。 |
-
-【芯片差异】
-
-无
-
-【需求】
-
-- 头文件： mpi_vo_api.h
-- 库文件：libvo.a
-
-【注意】
-
-无
-
-【举例】
-
-无
-
-【相关主题】
-
-无
-
-#### kd_mpi_dsi_set_lp_mode_send_cmd
-
-【描述】
-
-配置dsi 进入lp mode 发送命令
-
-【语法】
-
-k_s32 kd_mpi_dsi_set_lp_mode_send_cmd(void)
-
-【参数】
 
 无
 
@@ -641,7 +601,6 @@ k_s32 kd_mpi_vo_enable_video_layer([k_vo_layer](#k_vo_layer) layer)
 | 参数名称 | 描述                                                 | 输入/输出 |
 |----------|------------------------------------------------------|-----------|
 | layer    | 视频输出视频层号 取值范围 【0 – K_MAX_VO_LAYER_NUM】 |  输入     |
-| attr     | 视频层属性结构体指针                                 | 输入      |
 
 【返回值】
 
@@ -1246,14 +1205,14 @@ k_s32 kd_display_set_backlight(void)
 
 【语法】
 
-k_s32 kd_mpi_vo_set_user_sync_info([k_vo_user_sync_info](#k_vo_user_sync_info) \*sync_info)
+k_s32 kd_mpi_vo_set_user_sync_info(k_u32 pre_div,k_u32 clk_en)
 
 【参数】
 
 | 参数名称 | 描述            | 输入/输出 |
 | -------- | --------------- | --------- |
 | pre_div  | 用户分频数      | 输入      |
-| clk_en   | 分频enable 使能 |           |
+| clk_en   | 分频enable 使能 | 输入       |
 
 【返回值】
 
@@ -1711,15 +1670,73 @@ typedef enum {
 
 【定义】
 
-typedef enum {
-&emsp;PIXEL_FORMAT_YVU_PLANAR_420,
-&emsp;PIXEL_FORMAT_YVU_PLANAR_422,
-&emsp;PIXEL_FORMAT_RGB_565,
-&emsp;PIXEL_FORMAT_RGB_888,
-&emsp;PIXEL_FORMAT_ARGB_8888,
-&emsp;PIXEL_FORMAT_ARGB_4444,
-&emsp;PIXEL_FORMAT_ARGB_1555,
-&emsp;PIXEL_FORMAT_RGB_MONOCHROME_8BPP,
+typedef enum
+{
+    PIXEL_FORMAT_RGB_444 = 0,
+    PIXEL_FORMAT_RGB_555,
+    PIXEL_FORMAT_RGB_565,
+    PIXEL_FORMAT_RGB_888,
+    PIXEL_FORMAT_BGR_444,
+    PIXEL_FORMAT_BGR_555,
+    PIXEL_FORMAT_BGR_565,
+    PIXEL_FORMAT_BGR_888,
+    PIXEL_FORMAT_ARGB_1555,
+    PIXEL_FORMAT_ARGB_4444,
+    PIXEL_FORMAT_ARGB_8565,
+    PIXEL_FORMAT_ARGB_8888,
+    PIXEL_FORMAT_ARGB_2BPP,
+    PIXEL_FORMAT_ABGR_1555,
+    PIXEL_FORMAT_ABGR_4444,
+    PIXEL_FORMAT_ABGR_8565,
+    PIXEL_FORMAT_ABGR_8888,
+    PIXEL_FORMAT_BGRA_8888,
+    PIXEL_FORMAT_RGB_MONOCHROME_8BPP,
+    PIXEL_FORMAT_RGB_BAYER_8BPP,
+    PIXEL_FORMAT_RGB_BAYER_10BPP,
+    PIXEL_FORMAT_RGB_BAYER_12BPP,
+    PIXEL_FORMAT_RGB_BAYER_14BPP,
+    PIXEL_FORMAT_RGB_BAYER_16BPP,
+    PIXEL_FORMAT_YVU_PLANAR_422,
+    PIXEL_FORMAT_YVU_PLANAR_420,
+    PIXEL_FORMAT_YVU_PLANAR_444,
+    PIXEL_FORMAT_YVU_SEMIPLANAR_422,
+    PIXEL_FORMAT_YVU_SEMIPLANAR_420,
+    PIXEL_FORMAT_YVU_SEMIPLANAR_444,
+    PIXEL_FORMAT_YUV_SEMIPLANAR_422,
+    PIXEL_FORMAT_YUV_SEMIPLANAR_420,
+    PIXEL_FORMAT_YUV_SEMIPLANAR_444,
+    PIXEL_FORMAT_YUYV_PACKAGE_422,
+    PIXEL_FORMAT_YVYU_PACKAGE_422,
+    PIXEL_FORMAT_UYVY_PACKAGE_422,
+    PIXEL_FORMAT_VYUY_PACKAGE_422,
+    PIXEL_FORMAT_YYUV_PACKAGE_422,
+    PIXEL_FORMAT_YYVU_PACKAGE_422,
+    PIXEL_FORMAT_UVYY_PACKAGE_422,
+    PIXEL_FORMAT_VUYY_PACKAGE_422,
+    PIXEL_FORMAT_VY1UY0_PACKAGE_422,
+    PIXEL_FORMAT_YUV_PACKAGE_444,
+    PIXEL_FORMAT_YUV_400,
+    PIXEL_FORMAT_UV_420,
+    PIXEL_FORMAT_BGR_888_PLANAR,
+    PIXEL_FORMAT_RGB_888_PLANAR,
+    PIXEL_FORMAT_HSV_888_PACKAGE,
+    PIXEL_FORMAT_HSV_888_PLANAR,
+    PIXEL_FORMAT_LAB_888_PACKAGE,
+    PIXEL_FORMAT_LAB_888_PLANAR,
+    PIXEL_FORMAT_S8C1,
+    PIXEL_FORMAT_S8C2_PACKAGE,
+    PIXEL_FORMAT_S8C2_PLANAR,
+    PIXEL_FORMAT_S8C3_PLANAR,
+    PIXEL_FORMAT_S16C1,
+    PIXEL_FORMAT_U8C1,
+    PIXEL_FORMAT_U16C1,
+    PIXEL_FORMAT_S32C1,
+    PIXEL_FORMAT_U32C1,
+    PIXEL_FORMAT_U64C1,
+    PIXEL_FORMAT_S64C1,
+    PIXEL_FORMAT_RGB_565_LE = 300,
+    PIXEL_FORMAT_BGR_565_LE,
+    PIXEL_FORMAT_BUTT
 } k_pixel_format;
 
 【成员】
@@ -1873,18 +1890,18 @@ typedef enum {
 
 【定义】
 
-typedef struct {
-&emsp;k_u32 ext_div;
-&emsp;k_u32 dev_div;
-&emsp;k_u32 clk_en;
+typedef struct
+{
+    k_u32 pre_div;
+    k_u32 clk_en;
+
 } k_vo_user_sync_info;
 
 【成员】
 
 | 成员名称 | 描述             |
 |----------|------------------|
-| ext_div; | Clkext 分频      |
-| dev_div  | Clk 分频         |
+| pre_div  | Clkext 分频      |
 | clk_en   | Display 时钟使能 |
 
 【注意事项】
@@ -1959,13 +1976,15 @@ typedef struct {
 
 【定义】
 
-typedef struct {
-&emsp;k_point display_rect;
-&emsp;k_size img_size;
-&emsp;k_pixel_format pixel_format;
-&emsp;k_u32 stride;
-&emsp;k_u32 uv_swap_en;
-&emsp;k_u32 alptha_tpye;
+typedef struct
+{
+    k_vo_point display_rect;
+    k_vo_size img_size;
+    k_pixel_format pixel_format;
+    k_u32 stride;
+    k_u32 func;
+    k_vo_scaler_attr scaler_attr;
+
 } k_vo_video_layer_attr;
 
 【成员】
@@ -1976,8 +1995,8 @@ typedef struct {
 | img_size      | 图像分辨率结构体，即合成画面的尺寸                                                                                                                              |
 | pixel_format  | 视频层支持的数据格式                                                                                                                                            |
 | stride        | 图像的stride                                                                                                                                                    |
-| uv_swap_en    | Uv 交换                                                                                                                                                         |
-| alptha_tpye   | Alptha 的类型，仅osd层使用。分为固定alpha（可分为256等级）、以 RGB 中R作为alpha 通道、以 RGB 中G作为alpha 通道、以 RGB 中B作为alpha 通道、以alpha 通道作为alpha |
+| func            | 设置旋转角度（0、90、180、270）|
+| scaler_attr   |  缩放设置 |
 
 【注意事项】
 
@@ -2008,7 +2027,6 @@ typedef struct {
 |---------------|------------|
 | target_size   | 回写的目标大小  |
 | pixel_format  | 回写的数据格式 |
-| pixel_format  | 数据格式   |
 | stride;       | 回写的stride   |
 | y_addr        | 图像回写的物理地址    |
 
@@ -2062,7 +2080,6 @@ typedef struct {
 【定义】
 
 typedef struct{
-&emsp;k_size in_size;
 &emsp;k_size out_size;
 &emsp;k_u32 stride;
 }k_vo_scaler_attr;
@@ -2071,10 +2088,8 @@ typedef struct{
 
 | 成员名称 | 描述               |
 |----------|--------------------|
-| in_size  | 输入的尺寸         |
 | out_size | 输出的尺寸         |
 | stride   | 输入的stride       |
-| y_addr   | 图像回写的物理地址 |
 
 【注意事项】
 
@@ -2108,8 +2123,8 @@ typedef struct {
 | draw_en      | 画框使能                 |
 | line_x_start | X 方向的起始             |
 | line_y_start | y方向的起始              |
-| line_x_end   | X方向的终点未知          |
-| line_y_end   | y方向的终点未知          |
+| line_x_end   | X方向的终点              |
+| line_y_end   | y方向的终点              |
 | frame_num    | 当前框的num号 【0 - 16】 |
 
 【注意事项】
@@ -2176,13 +2191,14 @@ typedef struct{
 
 【定义】
 
-typedef struct {
-&emsp;k_u32 n;
-&emsp;k_u32 m;
-&emsp;k_u32 voc;
-&emsp;k_u32 phy_lan_num;
-&emsp;k_u32 hs_freq;
-}k_vo_mipi_phy_attr;
+typedef struct
+{
+    k_u32 n;
+    k_u32 m;
+    k_u32 voc;
+    k_u32 phy_lan_num;
+    k_u32 hs_freq;
+} k_vo_mipi_phy_attr;
 
 【成员】
 
@@ -2191,8 +2207,8 @@ typedef struct {
 | n           | Pll 系数       |
 | m           | Pll 系数       |
 | voc         | Pll 系数       |
-| hs_freq     | Phy 的频率范围 |
 | phy_lan_num | Phy 的lan 数量 |
+| hs_freq     | Phy 的频率范围 |
 
 【注意事项】
 
@@ -2270,7 +2286,7 @@ typedef struct {
 
 【说明】
 
-连接屏幕的类型。
+连接屏幕的类型（由于会增加支持的屏幕数量，请参考SDK中最新定义）。
 
 【定义】
 
@@ -2431,6 +2447,7 @@ typedef struct {
 &emsp;k_u32 dsi_test_mode;
 &emsp;k_u32 bg_color;
 &emsp;k_u32 intr_line;
+&emsp;k_u32 pixclk_div;
 &emsp;[k_dsi_lan_num](#k_dsi_lan_num) lan_num;
 &emsp;[k_dsi_work_mode](#k_dsi_work_mode) work_mode;
 &emsp;[k_vo_dsi_cmd_mode](#k_vo_dsi_cmd_mode) cmd_mode;
@@ -2443,9 +2460,18 @@ typedef struct {
 
 | 成员名称 | 描述        |
 |----------|-------------|
-| v_frame  | 帧的信息    |
-| pool_id  | VB pool ID  |
-| mod_id   | Video帧的id |
+| connector_name  | 连接器的设备节点    |
+| screen_test_mode  | 屏幕测试模式  |
+| dsi_test_mode   | DSI测试模式 |
+| bg_color  | 背景颜色    |
+| intr_line  | 屏幕线数  |
+| pixclk_div   | 时钟分频数 |
+| lan_num  | Lan模式设置：1LAN、2LAN、4LAN|
+| work_mode  | 工作模式  |
+| cmd_mode   | 命令模式 |
+| phy_attr  | 显示的物理地址    |
+| resolution  | 分辨率 |
+| k_connector_info   | 当前connector的信息 |
 
 【注意事项】
 
@@ -2463,15 +2489,11 @@ Display驱动和HDMI显示器协商后的数据
 
 【定义】
 
-```C
-
 typedef struct {
 &emsp;k_u32 connection_status;
 &emsp;k_u32 negotiated_count;
 &emsp;k_connector_type negotiated_types[256];
 } k_connector_negotiated_data;
-
-```
 
 【成员】
 
@@ -2497,15 +2519,11 @@ Display驱动的mirror 功能
 
 【定义】
 
-```C
-
 typedef enum {
 &emsp;K_CONNECTOR_MIRROR_HOR = 1,
 &emsp;K_CONNECTOR_MIRROR_VER,
 &emsp;K_CONNECTOR_MIRROR_BOTH,
 }k_connector_mirror;
-
-```
 
 【成员】
 
