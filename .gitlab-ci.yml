@@ -51,7 +51,7 @@ manual_sync:
 markdown-link-check:
   rules:
     # MR job
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
   stage: test
   timeout: 10m
   image: ai.b-bug.org:5000/markdown:latest
@@ -71,7 +71,7 @@ markdown-link-check:
 markdownlint:
   rules:
     # MR job
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
   stage: test
   timeout: 10m
   image: ai.b-bug.org:5000/markdown:latest
@@ -151,7 +151,7 @@ markdownlint:
 build web docs:
   stage: build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main")
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
   image: ai.b-bug.org:5000/huangziyi/web-docs-builder:3d9c3f0b2be1fe67b3b2f4e5d47504f6c2662b76
   tags:
     - k230
@@ -159,11 +159,6 @@ build web docs:
     - git fetch --tags
     - git branch main origin/main
     - git checkout main
-    - git config --global user.email "auto@canaan-creative.com"
-    - git config --global user.name "GitLab CI"
-    - git commit "*.md" -m "remove cover" || true
-    - git checkout dev
-    - git reset --hard origin/dev
     - git config --global user.email "auto@canaan-creative.com"
     - git config --global user.name "GitLab CI"
     - git commit "*.md" -m "remove cover" || true
@@ -179,7 +174,7 @@ deploy production:
   dependencies:
     - build web docs
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main")
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
   image: ai.b-bug.org:5000/huangziyi/deploy:v1
   tags:
     - k230
