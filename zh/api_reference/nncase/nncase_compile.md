@@ -418,8 +418,8 @@ with open(os.path.join(infer_dir, 'test.kmodel'), 'wb') as f:
 
 下面示例中使用到的模型和python编译脚本：
 
-- 原始模型文件位于/path/to/k230_sdk/src/big/nncase/examples/models目录
-- python编译脚本位于/path/to/k230_sdk/src/big/nncase/examples/scripts目录
+- 原始模型文件位于src/rtsmart/libs/nncase/examples/models目录
+- python编译脚本位于src/rtsmart/libs/nncase/examples/scripts目录
 
 ### 编译TFLite模型
 
@@ -503,8 +503,8 @@ if __name__ == '__main__':
 执行如下命令即可编译mobilenetv2的TFLite模型, target为k230。
 
 ```sh
-root@c285a41a7243:/mnt/# cd src/big/nncase/examples
-root@c285a41a7243:/mnt/src/big/nncase/examples# python3 ./scripts/mbv2_tflite.py --target k230 --model models/mbv2.tflite --dataset calibration_dataset
+root@c285a41a7243:/mnt/# cd rtos_sdk/src/rtsmart/libs/nncase/examples
+root@c285a41a7243:/mnt/rtos_sdk/src/rtsmart/libs/nncase/examples# python3 ./scripts/mbv2_tflite.py --target k230 --model models/mbv2.tflite --dataset calibration_dataset
 ```
 
 ### 编译ONNX模型
@@ -645,6 +645,6 @@ if __name__ == '__main__':
 执行如下命令即可编译ONNX模型, target为k230。
 
 ```sh
-root@c285a41a7243:/mnt/# cd src/big/nncase/examples
-root@c285a41a7243: /mnt/src/big/nncase/examples # python3 ./scripts/yolov5s_onnx.py --target k230 --model models/yolov5s.onnx --dataset calibration_dataset
+root@c285a41a7243:/mnt/# cd rtos_sdk/src/rtsmart/libs/nncase/examples
+root@c285a41a7243: /mnt/rtos_sdk/src/rtsmart/libs/nncase/examples # python3 ./scripts/yolov5s_onnx.py --target k230 --model models/yolov5s.onnx --dataset calibration_dataset
 ```
