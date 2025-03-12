@@ -54,9 +54,9 @@ markdown-link-check:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev"
   stage: test
   timeout: 10m
+  image: ai.b-bug.org:5000/markdown:latest
   tags:
     - k230
-  image: ai.b-bug.org:5000/markdown:latest
   script:
     - uname -a
     - whoami
@@ -155,9 +155,6 @@ build web docs:
   image: ai.b-bug.org:5000/huangziyi/web-docs-builder:3d9c3f0b2be1fe67b3b2f4e5d47504f6c2662b76
   tags:
     - k230
-  environment:
-    name: dev
-    url: https://ai.b-bug.org/k230/k230_rtos_sdk_docs/dev/
   script:
     - git fetch --tags
     - git branch main origin/main
@@ -179,11 +176,11 @@ build web docs:
 
 deploy production:
   stage: deploy
-  image: ai.b-bug.org:5000/huangziyi/deploy:v1
   dependencies:
     - build web docs
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main")
+  image: ai.b-bug.org:5000/huangziyi/deploy:v1
   tags:
     - k230
   environment:
