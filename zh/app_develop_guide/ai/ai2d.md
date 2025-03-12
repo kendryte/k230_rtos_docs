@@ -20,7 +20,7 @@
 
 <div class="mermaid">
 graph TD;
-    ReadData("读取数据<br>(from https://kendryte-download.canaan-creative.com/developer/pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Resize参数<br>ai2d_resize_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
+    ReadData("读取数据<br>(from pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Resize参数<br>ai2d_resize_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
 </div>
 
 这里给出使用 `AI2D` 实现 `Resize` 过程的示例代码，实现将读入的图片`resize`成`640*320`分辨率的图像。
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
 <div class="mermaid">
 graph TD;
-    ReadData("读取数据<br>(from https://kendryte-download.canaan-creative.com/developer/pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Crop参数<br>ai2d_crop_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
+    ReadData("读取数据<br>(from pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Crop参数<br>ai2d_crop_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
 </div>
 
 这里给出使用 AI2D 实现 `Crop` 过程的示例代码，实现将读入的图片在`[10,10]`位置裁剪`[400,400]`分辨率的图像。
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 
 <div class="mermaid">
 graph TD;
-    ReadData("读取数据<br>(from https://kendryte-download.canaan-creative.com/developer/pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Pad参数<br>ai2d_pad_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
+    ReadData("读取数据<br>(from pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Pad参数<br>ai2d_pad_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
 </div>
 
 这里给出使用 AI2D 实现 `Pad` 过程的示例代码,实现将读入的图片在上下左右分别填充100、100、200、200像素的图像。
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
 
 <div class="mermaid">
 graph TD;
-    ReadData("读取数据<br>(from https://kendryte-download.canaan-creative.com/developer/pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Affine参数<br>ai2d_affine_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
+    ReadData("读取数据<br>(from pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Affine参数<br>ai2d_affine_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
 </div>
 
 这里给出使用 AI2D 实现 `Affine` 过程的示例代码，实现将读入的图片缩放0.5倍，并分别在x,y方向平移200像素的图像。
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
 
 <div class="mermaid">
 graph TD;
-    ReadData("读取数据<br>(from https://kendryte-download.canaan-creative.com/developer/pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Shift参数<br>ai2d_shift_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
+    ReadData("读取数据<br>(from pictures/camera)") -->SetInput("初始化AI2D输入tensor")-->SetOutput("根据预处理后的shape<br>初始化AI2D输出tensor")-->SetParam("配置Shift参数<br>ai2d_shift_param_t")-->InitBuilder("构造ai2d_builder实例<br>执行build_schedule")-->Run("调用invoke接口运行配置的预处理方法")-->GetOutput("从配置的AI2D输出tensor处获取输出数据");
 </div>
 
 这里给出使用 AI2D 实现 `Shift` 过程的示例代码，这里创建了一个全为240的数据，通过 `Shift` 右移一位，将所有的数据变成120。
