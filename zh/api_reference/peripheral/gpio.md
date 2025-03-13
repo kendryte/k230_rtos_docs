@@ -47,7 +47,7 @@ struct rt_device_gpio
 
 ```
 
-## 3. 示例程序
+## 示例程序
 
 可将该示例程序放入`src/rtsmart/mpp/userapps/sample/sample_gpio/sample_gpio.c`编译运行，运行该示例程序之前，需要自己先将对应的IO配置为GPIO功能。
 以01studio的板子为例，可以直接在`src/uboot/uboot/arch/riscv/dts/k230_canmv_01studio.dts`文件上修改iomux功能。
