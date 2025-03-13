@@ -7,7 +7,7 @@ K230集成了两路PWM，每一路各有3个channel，故共有6个PWM channel�
 
 | PWM驱动代码路径                                                                            | 说明          |
 | -------------------------------------------------------------------------------------------| --------------|
-| /home/rlk/work/canaan/src/rtsmart/rtsmart/kernel/bsp/maix3/drivers/interdrv/pwm/drv_pwm.c  | K230 PWM驱动 |
+| src/rtsmart/rtsmart/kernel/bsp/maix3/drivers/interdrv/pwm/drv_pwm.c  | K230 PWM驱动 |
 
 ## API说明
 
