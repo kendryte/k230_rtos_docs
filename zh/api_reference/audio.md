@@ -3029,26 +3029,6 @@ typedef k_u32 k_adec_chn;
 
 无
 
-### MAPI
-
-音频mapi相关数据类型、数据结构定义如下
-
-[k_handle](#k_handle)
-
-#### k_handle
-
-【说明】
-
-定义操作句柄。
-
-【定义】
-
-typedef k_u32 k_handle;
-
-【相关数据类型及接口】
-
-无
-
 ## 错误码
 
 ### 音频输入API 错误码
