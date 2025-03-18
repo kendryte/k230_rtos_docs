@@ -1,7 +1,7 @@
 
 # K230 UART API参考
 
-## k230  UART说明
+## k230串口说明
 
 K230 内部集成了五个 UART（通用异步收发传输器）硬件模块，其中rtsmart系统占用一个串口，其他串口可以供用户使用。使用串口时需要确保对应管脚PAD(iomux配置)为串口功能,iomux也叫fpioa请参考文档。
 
@@ -23,13 +23,11 @@ K230 内部集成了五个 UART（通用异步收发传输器）硬件模块，�
 | RT_CONSOLE_DEVICE_NAME | rtsmart使用的串口,make rtsmart-menuconfig    |
 | RTT_CONSOLE_ID         | rtsmart使用的串口号，make menuconfig |
 
-## 串口设备api说明
+## 串口api
 
 [示例代码](../../app_develop_guide/drivers/uart.md)
 
-### 支持POSIX 文件标准api
-
-串口设备对的设备名字是uart0 uart1 uart2 uart3 uart4，支持标准的  posix文件操作接口如下，具体使用请参考[rtthread官网](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)。
+串口对的设备名字是uart0 uart1 uart2 uart3 uart4，支持标准的  posix文件操作接口如下，具体使用请参考[rtthread官网](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)。
 
 ```c
 int open(const char *file, int flags, ...);
@@ -39,7 +37,7 @@ ssize_t write(int fd, const void *buf, size_t len);
 int select( int nfds,fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 ```
 
-### ioctl设置
+### ioctl控制API
 
 ```c
 int ioctl(int fildes, int cmd, ...)

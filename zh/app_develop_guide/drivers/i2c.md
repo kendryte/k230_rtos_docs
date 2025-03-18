@@ -4,7 +4,7 @@
 
 K230 芯片内部集成了 5 个 I2C 硬件模块，支持标准模式（100 kb/s）、快速模式（400 kb/s）以及高速模式（3.4 Mb/s）。这些模块非常适合在开发板上进行 I2C 通信，例如连接外设（如传感器或显示器）。I2C 通道的输出 IO 可通过 IOMUX 模块进行配置。
 
-## 示例
+## 示例1
 
 以下示例展示了如何使用 I2C 4 模块读写数据的例子。
 
@@ -90,6 +90,117 @@ int  main(int argc, char *argv[])
     close(fd);
 }
 
+```
+
+## 示例2
+
+以下示例展示了i2c做从设备时如何动态修改设备的地址及大小的例子。
+
+```c
+#include<stdio.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <pthread.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+
+ #include <rtthread.h>
+ #include <rtdevice.h>
+ #include <dfs_poll.h>
+
+
+ #define I2C_SLAVE_IOCTL_SET_BUFFER_SIZE               0
+ #define I2C_SLAVE_IOCTL_SET_ADDR                      1
+
+ int  main(int argc, char *argv[])
+ {
+    int fd;
+    char add = 0x22;
+    int size = 20;
+    int ret = 0;
+    if(argc < 2) {
+        printf("examlpe: i2c_slave.elf /dev/i2c1_slave [slave_add] [dev_size] [data]]\n");
+        printf("examlpe: i2c_slave.elf  /dev/i2c1_slave 33  32 90\n");
+        return 1;
+    }
+    fd = open(argv[1], O_RDWR);
+    if (fd < 0) {
+        printf("Can't open %s\n", argv[1]);
+        return 1;
+    }
+    if(argc >= 3) {
+        add = atoi(argv[2]);
+        ret = ioctl(fd, I2C_SLAVE_IOCTL_SET_ADDR, &add);
+        if (ret) {
+            printf("set add  %x failed!\n", add);
+            return 1;
+        }
+    }
+    if(argc >= 4) {
+        size = atoi(argv[3]);
+        ret = ioctl(fd, I2C_SLAVE_IOCTL_SET_BUFFER_SIZE, &size);
+        if (ret) {
+            printf("set size  %d failed!\n", size);
+            return 1 ;
+        }
+    }
+
+    if(argc >= 5) {
+        unsigned char  data = atoi(argv[4]);
+        lseek(fd, 0,SEEK_SET);
+        for(int i = 0; i < size; i++,data++)
+            write(fd, &data, 1);
+    }
+
+
+    {
+        char buffer[16];
+        int size = 0;
+        lseek(fd, 0,SEEK_SET);
+        //do {
+
+            size = read(fd, buffer, sizeof(buffer));
+            for (unsigned i = 0; i < size; i++) {
+                printf("%02x ", buffer[i]);
+            }
+            printf("\n");
+        //} while (size != 0);
+    }
+
+    {
+        struct pollfd pfd;
+        pfd.fd = fd;
+        pfd.events = POLLIN;
+        ret = poll(&pfd, 1, -1);
+    }
+
+
+    //printf("ret=%x\n",ret);
+    usleep(1000);
+    //printf("func =%s l=%d \n", __func__, __LINE__);
+    {
+        char buffer[16];
+        int size = 0;
+        lseek(fd, 0,SEEK_SET);
+        //do {
+
+            size = read(fd, buffer, sizeof(buffer));
+            printf("func =%s l=%d size=%X  \n", __func__, __LINE__, size);
+            for (unsigned i = 0; i < size; i++) {
+                printf("%02x ", buffer[i]);
+            }
+            printf("\n");
+        //} while (size != 0);
+    }
+
+
+
+    printf("i2c_slave_addr: 0x%02x, mem_size: %d\r\n",add,size);
+    usleep(1000);
+    close(fd);
+    return 0;
+}
 ```
 
 ```{admonition} 提示

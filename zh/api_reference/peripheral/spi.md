@@ -19,13 +19,11 @@ spi驱动代码说明：
 | RT_USING_SPI1 | 使能spi1 (Qspi0,0x91582000),make rtsmart-menuconfig  |
 | RT_USING_SPI2 | 使能spi2 (Qspi1,0x91583000) ,make rtsmart-menuconfig |
 
-## 串口设备api说明
+## SPI总线api
 
 [示例代码](../../app_develop_guide/drivers/spi.md)
 
-### 支持POSIX 文件标准api
-
-串口设备对的设备名字是spi0 spi1 spi2，支持标准的posix文件操作接口如下，具体使用请参考[rtthread官网](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)。
+spi总线对的设备名字是spi0 spi1 spi2，支持标准的posix文件操作接口如下，具体使用请参考[rtthread官网](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)。
 
 ```c
 int open(const char *file, int flags, ...);
@@ -34,7 +32,7 @@ ssize_t read(int fd, void *buf, size_t len);
 ssize_t write(int fd, const void *buf, size_t len);
 ```
 
-### ioctl设置
+### ioctl控制API
 
 ```c
 int ioctl(int fildes, int cmd, ...)
