@@ -105,8 +105,8 @@ uvc_exit();
 不带任何参数，直接运行sample_uvc，默认会给出如下提示：
 Usage: ./sample_uvc [connector_type] [rotation] [is_jpeg] [width] [height] [total_frame]
 
-connector_type：表示接入的pannel类型
-rotation：表示图像是否要翻转
+connector_type：表示接入的panel类型（下面会讲如何获取该值）
+rotation：表示图像是否要翻转（HDMI不支持旋转）
 is_jpeg：表示是用MJPEG还是YUYV格式，默认仅支持MJPEG格式
 width：表示图像宽度
 height：表示图像高度
@@ -114,14 +114,39 @@ total_frame：表示需要显示多少帧
 
 
 例如该例程在01studio的板子上运行:
-1. 接入了一个ST7701_V1_MIPI_2LAN_480X800_30FPS（枚举值为2）的屏幕，再接入了一个支持640 * 480分辨率（MJPEG）的UVC摄像头，
-   那么我们可以这样运行程序：sdcard/app/userapps/sample_uvc.elf 2 1 1 640 480 1000000
+1. 接入了一个ST7701_V1_MIPI_2LAN_480X800_30FPS（枚举值为20）的屏幕，再接入了一个支持640 * 480分辨率（MJPEG）的UVC摄像头，
+   那么我们可以这样运行程序：sdcard/app/userapps/sample_uvc.elf 20 1 1 640 480 1000000
 
 2. 接入了HDMI线并连接到一个可支持1080p的显示器（枚举值为101）上，再接入一个支持 1920 * 1280分辨率（MJPEG）的UVC摄像头，
    那么我们可以这样运行程序：sdcard/app/userapps/sample_uvc.elf 101 0 1 1920 1080 1000000
 
 如果程序运行正常，就会看到屏幕/显示器有图像显示。
 
+TIPS: 我们有两个方式可以获取到对应connector_type的枚举值:
+a. 通过查找文档，阅读源码
+b. 通过以下命令：
+
+msh />list_connector
+Connector Type List:
+                0 -> HX8377_V2_MIPI_4LAN_1080X1920_30FPS
+                1 -> ILI9806_MIPI_2LAN_480X800_30FPS
+                2 -> ILI9881_MIPI_4LAN_800X1280_60FPS
+               20 -> ST7701_V1_MIPI_2LAN_480X800_30FPS
+               21 -> ST7701_V1_MIPI_2LAN_480X854_30FPS
+               22 -> ST7701_V1_MIPI_2LAN_480X640_30FPS
+               23 -> ST7701_V1_MIPI_2LAN_368X544_60FPS
+              100 -> LT9611_MIPI_ADAPT_RESOLUTION
+              101 -> LT9611_MIPI_4LAN_1920X1080_30FPS
+              102 -> LT9611_MIPI_4LAN_1920X1080_60FPS
+              103 -> LT9611_MIPI_4LAN_1920X1080_50FPS
+              104 -> LT9611_MIPI_4LAN_1920X1080_25FPS
+              105 -> LT9611_MIPI_4LAN_1920X1080_24FPS
+              110 -> LT9611_MIPI_4LAN_1280X720_60FPS
+              111 -> LT9611_MIPI_4LAN_1280X720_50FPS
+              112 -> LT9611_MIPI_4LAN_1280X720_30FPS
+              120 -> LT9611_MIPI_4LAN_640X480_60FPS
+              200 -> VIRTUAL_DISPLAY_DEVICE
+               -1 -> UNKNOWN
 ```
 
 ## 配置选项
