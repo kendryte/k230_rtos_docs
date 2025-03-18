@@ -26,13 +26,13 @@ I2C驱动相关的配置说明：
 | RT_USING_I2C3_SLAVE | 使能I2c3 从模式 ,make rtsmart-menuconfig |
 | RT_USING_I2C4_SLAVE | 使能I2c4 从模式 ,make rtsmart-menuconfig |
 
-## i2c总线api说明
+## i2c总线api
 
-### POSIX 文件操作API
+[示例代码](../../app_develop_guide/drivers/i2c.md#示例1)
 
 i2c总线对应设备名字是 i2c0 i2c1 i2c3 i2c4，支持标准的 [posix文件操作](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)接口(open,close,ioctl等)。
 
-### ioctl设置
+### ioctl API
 
 ```c
 int ioctl(int fildes, int cmd, ...)
@@ -82,7 +82,9 @@ typedef struct {
 } i2c_priv_data_t;
 ```
 
-## i2c总线从设备API说明
+## i2c做从设备API
+
+[示例代码](../../app_develop_guide/drivers/i2c.md#示例2)
 
 使能如下配置就可以把对应i2c总线配置为从设备，比如：如果使能RT_USING_I2C1_SLAVE，i2c1会配置成从设备，/dev目录下会创建i2c1_slave设备节点。
 
@@ -94,11 +96,9 @@ typedef struct {
 | RT_USING_I2C3_SLAVE | 使能I2c3 从模式 ,make rtsmart-menuconfig，i2c3_slave |
 | RT_USING_I2C4_SLAVE | 使能I2c4 从模式 ,make rtsmart-menuconfig，i2c4_slave |
 
-### POSIX 文件操作接口
-
 i2c做从设备时支持标准的 [posix文件操作](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)接口，比如open,close,read,write,ioctl等
 
-### ioctl设置
+### ioctl控制API
 
 ```c
 int ioctl(int fildes, int cmd, ...)
