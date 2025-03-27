@@ -50,7 +50,7 @@ Application Configuration > Enable Application HelloWorld
 然后执行 `make` 或者 `make app` 即可编译 `src/applications` 目录下的应用。
 
 ```bash
-hangchenli@DESKTOP-OSN5BJK:~/canmv_k230_gitee$ make
+zhangchenli@DESKTOP-OSN5BJK:~/canmv_k230_gitee$ make
 ```
 
 把编译完成的IMG烧写到开发板。
