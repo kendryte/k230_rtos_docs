@@ -40,7 +40,7 @@ sudo apt install -y --no-install-recommends \
     make cmake binutils build-essential gcc g++ bash patch perl tar cpio unzip \
     file bc bison flex autoconf automake python3 python3-pip python3-dev \
     lib32z1 libncurses5-dev fakeroot pigz tree doxygen gawk pkg-config \
-    libssl-dev libc6-dev-i386 libncurses5:i386
+    libssl-dev libc6-dev-i386 libncurses5:i386 libconfuse-dev python-is-python3 scons libyaml-dev mtools
 
 # 清理缓存
 sudo apt clean
