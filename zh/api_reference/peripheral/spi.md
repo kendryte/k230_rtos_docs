@@ -1,4 +1,4 @@
-# k230 spi参考
+# k230 SPI API参考
 
 ## k230 spi说明
 
