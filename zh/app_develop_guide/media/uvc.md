@@ -4,9 +4,16 @@
 
 ## API介绍
 
-我们用struct uvc_frame来描述一帧UVC的图像，下面我们介绍该结构体。
+我们使用struct uvc_format 来描述需要获取图像的格式，使用struct uvc_frame来描述获取到的一帧UVC的图像。
 
 ```c
+  struct uvc_format {
+      unsigned int width;               /* 图像的宽 */
+      unsigned int height;              /* 图像的高 */
+      unsigned char format_type;        /* 图像格式，1代表MJPEG格式，0代表YUYV格式，现在默认仅支持MJPEG格式 */
+      unsigned int frameinterval;       /* 图像帧率，单位是100ns，例如输入333333就是30fps（1000000000/(333333 * 100)) */
+  };
+
   struct uvc_frame {
       unsigned int index;               /* 系统默认会开4个Buffer来存UVC的图像，这代表其中的第几个Buffer */
       unsigned int reserve_1;           /* 系统保留字段 */
@@ -18,41 +25,47 @@
           k_vdec_stream v_stream;       /* 当支持MJPEG的时候，返回的k_vdec_stream结构，可以传给kd_mpi_vdec_send_stream解码 */
       };
   };
-
 ```
 
-我们对UVC代码进行了简单封装后，提供了四个接口给用户调用，下面一一介绍：
+我们对UVC代码进行了简单封装后，主要提供了以下接口给用户调用，下面一一介绍：
 
 ```c
 /**
- * uvc_init - 对枚举成功后的UVC设备进行初始化，开启摄像头。
- * @width：用于输入用户预期的宽，初始化完成后会返回实际的宽。
- * @height：用于输入用户预期的高，初始化完成后会返回实际的高。
- * @is_jpeg：用于选择是MJPEG格式还是YUYV格式，现在默认仅支持MJPEG格式。
+ * uvc_init - 对枚举成功后的UVC设备进行初始化。
+ * @fmt：用于输入用户的指定的格式参数，struct uvc_format结构体如上所述。
  *
  * 用户输入的宽高代表着用户预期的分辨率，系统会将预期分辨率与该UVC设备支持的所有分辨率进行比较，
- * 最后找出的最接近的分辨率，然后通过width和height返回给用户，用户后续应当使用系统返回的分辨率。
+ * 最后找出的最接近的分辨率，然后通过fmt->width和fmt->height返回给用户，用户后续应当使用系统返回的分辨率。
+ * 用户如果输入了设备不支持的帧率，系统会通过fmt->frameinterval返回该分辨率下默认的帧率给到用户。
  *
  * 此接口会分配一些内存以支持UVC图像的流转，默认内存是在VB里面分配的。
  *
  * @Return：成功返回0，失败返回负值。
  */
-int uvc_init(int *width, int *height, unsigned char is_jpeg);
+int uvc_init(struct uvc_format *fmt);
+
+/**
+ * uvc_start_stream - 开启摄像头。
+ *
+ * @Return：成功返回0，失败返回负值。
+ */
+int uvc_start_stream(void);
 
 /**
  * uvc_get_frame - 获取一帧UVC图像，也就是拿到了一帧图像的Buffer。
- * @frame：用于返回一帧图像，帧结构体如上所述。
+ * @frame：用于返回一帧图像，struct uvc_frame结构体如上所述。
+ * @timeout_ms：超时等待时间
  *
- * 该接口会阻塞等待一帧图像返回，系统实现是无限期等待。
+ * 该接口会阻塞等待直到一帧图像返回或者超时时间到。
  *
- * @Return：成功返回0.失败返回负值。
+ * @Return：成功返回0，失败返回负值。
  */
-int uvc_get_frame(struct uvc_frame *frame);
+int uvc_get_frame(struct uvc_frame *frame, unsigned int timeout_ms);
 
 /**
  * uvc_put_frame - 释放一帧图像Buffer给系统使用
  *
- * @Return：成功返回0.失败返回负值。
+ * @Return：成功返回0，失败返回负值。
  */
 int uvc_put_frame(struct uvc_frame *frame);
 
@@ -60,6 +73,31 @@ int uvc_put_frame(struct uvc_frame *frame);
  * uvc_exit - 关闭摄像头，释放uvc_init申请的内存。
  */
 void uvc_exit();
+
+/**
+ * uvc_get_devinfo - 用于获取设备的厂商和产品信息
+ * @info：用来存储字符串信息的buffer
+ * @len：buffer的长度
+ *
+ * @Return：成功返回0，失败返回负值。
+ */
+int uvc_get_devinfo(char *info, int len);
+
+/**
+ * uvc_get_formats - 获取设备支持的所有格式。
+ * @fmts：用以返回所有格式的指针。
+ *
+ * uvc_get_formats内部实现会申请内存以存储所有格式，调用者仅提供二级指针即可。
+ *
+ * @Return：成功返回支持的格式数量，所有格式存在fmts中，失败返回负值。
+ */
+int uvc_get_formats(struct uvc_format **fmts);
+
+/**
+ * uvc_free_formats - 释放uvc_get_formats申请的空间。
+ * @fmts：同uvc_get_formats。
+ */
+void uvc_free_formats(struct uvc_format **fmts);
 ```
 
 ## 示例介绍
@@ -67,7 +105,8 @@ void uvc_exit();
 ### 对于UVC来说，它的主体使用框架应该如下：(假设UVC设备已经插入且枚举成功)
 
   1. 调用kd_mpi_vb_set_config(&config) 和 kd_mpi_vb_init() 进行VB的初始化，因为uvc_init分配的内存将来自VB。
-  1. 调用uvc_init，进行uvc设备的初始化，打开UVC摄像头。
+  1. 调用uvc_init，进行uvc设备的初始化。
+  1. 调用uvc_start_stream打开UVC摄像头。
   1. 循环调用uvc_get_frame和uvc_put_frame，不断获取UVC图像。
   1. 程序结束，调用uvc_exit()，关闭UVC设备。
 
@@ -81,12 +120,13 @@ kd_mpi_vb_set_config(&config);
 kd_mpi_vb_init();
 
 uvc_init(w, h , 1);
+uvc_start_stream();
 
 do {
 
-    uvc_get_frame(&frame);
+    uvc_get_frame(&frame, 3000);
 
-    /* Write Frame to SDCARD */
+    /* Write frame to SDcard */
     FILE *file = fopen("sdcard/app/userapps/test.jpg", "wb");
     size_t written = fwrite((char *)frame.userptr, sizeof(char), frame.len, file);
     fclose(file);
@@ -107,7 +147,7 @@ Usage: ./sample_uvc [connector_type] [rotation] [is_jpeg] [width] [height] [tota
 
 connector_type：表示接入的panel类型（下面会讲如何获取该值）
 rotation：表示图像是否要翻转（HDMI不支持旋转）
-is_jpeg：表示是用MJPEG还是YUYV格式，默认仅支持MJPEG格式
+is_jpeg：表示是用MJPEG还是YUYV格式，默认仅支持MJPEG格式，1代表MJPEG，0代表YUYV
 width：表示图像宽度
 height：表示图像高度
 total_frame：表示需要显示多少帧
