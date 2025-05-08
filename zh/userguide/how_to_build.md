@@ -53,7 +53,7 @@ sudo apt clean
 pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 安装 Python 依赖库
-pip3 install -U pyyaml pycryptodome gmssl
+pip3 install -U pyyaml pycryptodome gmssl jsonschema jinja2
 ```
 
 ### 安装 repo 工具
