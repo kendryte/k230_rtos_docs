@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 
 执行后原图和预处理后图像的对比图如下：
 
-![resize_res](https://developer.canaan-creative.com/api/post/attachment?id=507)
+![resize_res](https://www.kendryte.com/api/post/attachment?id=507)
 
 ### Crop 方法
 
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 
 执行后原图和预处理后图像的对比图如下：
 
-![crop_res](https://developer.canaan-creative.com/api/post/attachment?id=505)
+![crop_res](https://www.kendryte.com/api/post/attachment?id=505)
 
 ### Pad 方法
 
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
 
 执行后原图和预处理后图像的对比图如下：
 
-![pad_res](https://developer.canaan-creative.com/api/post/attachment?id=506)
+![pad_res](https://www.kendryte.com/api/post/attachment?id=506)
 
 ### Affine 方法
 
@@ -400,7 +400,7 @@ int main(int argc, char *argv[])
 
 执行后原图和预处理后图像的对比图如下：
 
-![affine_res](https://developer.canaan-creative.com/api/post/attachment?id=504)
+![affine_res](https://www.kendryte.com/api/post/attachment?id=504)
 
 ### Shift 方法
 
@@ -477,4 +477,4 @@ int main(int argc, char *argv[])
 
 执行后原图和预处理后图像的对比图如下：
 
-![shift_res](https://developer.canaan-creative.com/api/post/attachment?id=508)
+![shift_res](https://www.kendryte.com/api/post/attachment?id=508)

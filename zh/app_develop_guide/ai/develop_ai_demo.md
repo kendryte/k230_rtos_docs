@@ -515,7 +515,7 @@ make
 
 在开发板RTOS下的`/proc`下存在内存占用信息查看文件，支持查看的模块如下图：
 
-![cat_info](https://developer.canaan-creative.com/api/post/attachment?id=512)
+![cat_info](https://www.kendryte.com/api/post/attachment?id=512)
 
 比如对于mmz内存可以在开发板串口处通过如下命令查看：
 
@@ -525,7 +525,7 @@ cat /proc/media-mem
 
 返回结果如下图所示：
 
-![cat_info](https://developer.canaan-creative.com/api/post/attachment?id=513)
+![cat_info](https://www.kendryte.com/api/post/attachment?id=513)
 
 其他模块也可以使用`cat` 命令查看，比如：
 
@@ -545,7 +545,7 @@ list_page
 
 命令执行结果如下图所示：
 
-![list_page](https://developer.canaan-creative.com/api/post/attachment?id=514)
+![list_page](https://www.kendryte.com/api/post/attachment?id=514)
 
 数据中显示的是剩余页数、使用页数和最大使用页数，数据是以16进制的形式显示，每页的大小为4KB。通过将`free pages`和`used pages`的内存相加可以获得最大可用内存。
 

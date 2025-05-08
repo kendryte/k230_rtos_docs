@@ -20,7 +20,7 @@ make menuconfig
 RT-Smart Configuration > Enable build Rtsmart examples
 ```
 
-![rtsmart exmaples](https://developer.canaan-creative.com/api/post/attachment?id=531)
+![rtsmart exmaples](https://www.kendryte.com/api/post/attachment?id=531)
 
 ### 启用 MPP 示例
 
@@ -30,7 +30,7 @@ RT-Smart Configuration > Enable build Rtsmart examples
 MPP Configuration > Enable build MPP samples
 ```
 
-![mpp examples](https://developer.canaan-creative.com/api/post/attachment?id=530)
+![mpp examples](https://www.kendryte.com/api/post/attachment?id=530)
 
 **说明**：  
 启用后，示例代码会被包含在后续编译流程中。若需禁用某个示例，可返回此处取消勾选。
@@ -54,7 +54,7 @@ cd src/rtsmart/examples/integrated_poc  # 示例路径
 make clean && make                      # 清理并重新编译
 ```
 
-![make smart_ipc](https://developer.canaan-creative.com/api/post/attachment?id=533)
+![make smart_ipc](https://www.kendryte.com/api/post/attachment?id=533)
 
 **注意事项**：  
 
@@ -81,7 +81,7 @@ cd /sdcard/app
    /sdcard/app/integrated_poc.elf
    ```
 
-![run smart ipc](https://developer.canaan-creative.com/api/post/attachment?id=534)
+![run smart ipc](https://www.kendryte.com/api/post/attachment?id=534)
 
 **串口连接提示**：
 

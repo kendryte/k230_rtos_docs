@@ -6,7 +6,7 @@
 
 该芯片还支持丰富的外设接口，并集成了 2D、 2.5D 等多个种专用硬件加速单元，能够对图像、视频、音频、 AI 等多类型任务进行加速，具备低延迟、高性能、低功耗、快速启动等多项特性。
 
-![K230_block_diagram](https://developer.canaan-creative.com/api/post/attachment?id=577)
+![K230_block_diagram](https://www.kendryte.com/api/post/attachment?id=577)
 
 ## 文档介绍
 

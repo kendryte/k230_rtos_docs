@@ -22,7 +22,7 @@ nncase支持的神经网络模型格式：
 
 ### nncase架构
 
-![nncase架构](https://developer.canaan-creative.com/api/post/attachment?id=509)
+![nncase架构](https://www.kendryte.com/api/post/attachment?id=509)
 
 nncase软件栈包括compiler和runtime两部分。
 
@@ -587,11 +587,11 @@ graph TD;
 
 `AI2D` 提供的预处理方法是使用硬件实现，可以提高运行的效率。`Interpreter` 用于完成在KPU上推理模型。它们的输入输出都是 `host_runtime_tensor` 类型的数据。模型的输入可能是一个，也可能是多个；AI2D的处理结果一般都是给到模型使用的。在一开始初始化 `ai2d_builder` 和 `Interpreter` 的时候，一般将两个组件的输入输出tensor一并初始化。两个组件的示意图如下：
 
-![AI2D](https://developer.canaan-creative.com/api/post/attachment?id=511)
+![AI2D](https://www.kendryte.com/api/post/attachment?id=511)
 
 因为 `AI2D` 的输出tensor会给到模型的输入tensor做推理，所以单输入时可以将 `AI2D` 的输出tensor和`Interpreter` 的输入tensor绑定为一个，这样可以节省一个tensor的内存。如果不使用 `AI2D` 进行预处理，可以使用 `OpenCV` 对输入数据做预处理，然后创建`host_runtime_tensor`。示意图如下：
 
-![pipe_inference](https://developer.canaan-creative.com/api/post/attachment?id=510)
+![pipe_inference](https://www.kendryte.com/api/post/attachment?id=510)
 
 这里对图像推理代码的 `main` 方法进行解析，源代码如下：
 

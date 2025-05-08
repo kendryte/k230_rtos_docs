@@ -5,7 +5,7 @@ K230 支持四种启动介质：EMMC、SD卡、SPI Nor Flash 和 SPI Nand Flash�
 - **USB烧录**：直接通过USB连接设备烧录
 - **SD卡烧录**：使用PC工具将镜像写入SD卡后启动
 
-串口和USB连接方式：[K230 开发板](https://developer.canaan-creative.com/zh/products)，选择相应的开发板跳转开发板资料链接
+串口和USB连接方式：[K230 开发板](https://www.kendryte.com/zh/products)，选择相应的开发板跳转开发板资料链接
 
 ## 通过USB烧录
 
@@ -30,14 +30,14 @@ K230 支持四种启动介质：EMMC、SD卡、SPI Nor Flash 和 SPI Nand Flash�
 
 ### 使用K230BurningTool（图形界面工具）
 
-- **工具下载**：[K230BurningTool](https://developer.canaan-creative.com/en/resource?selected=0-2-2)  
+- **工具下载**：[K230BurningTool](https://www.kendryte.com/en/resource?selected=0-2-2)  
 - **特点**：支持多设备同时烧录，操作直观。
 - **步骤**：
   1. 连接设备并进入烧录模式。
   1. 选择固件文件（如`.kdimg` 格式，或者 `*.img`，`*.bin`）。
   1. 点击 **开始烧录**，完成后需手动点击 **确认** 以继续。
 
-![K230BurningTool界面](https://developer.canaan-creative.com/api/post/attachment?id=536)
+![K230BurningTool界面](https://www.kendryte.com/api/post/attachment?id=536)
 
 ### 使用K230-Flash（命令行工具）
 
@@ -54,7 +54,7 @@ K230 支持四种启动介质：EMMC、SD卡、SPI Nor Flash 和 SPI Nand Flash�
   k230_flash.exe -m EMMC 0 xxx.img
   ```
 
-![K230-Flash界面](https://developer.canaan-creative.com/api/post/attachment?id=537)
+![K230-Flash界面](https://www.kendryte.com/api/post/attachment?id=537)
 
 ## 通过SD卡烧录
 
@@ -66,12 +66,12 @@ K230 支持四种启动介质：EMMC、SD卡、SPI Nor Flash 和 SPI Nand Flash�
   - [Rufus](https://rufus.ie/en/)  
   - [balenaEtcher](https://etcher.balena.io/)  
 - **步骤**：
-  可参考[01Studio烧录固件](https://developer.canaan-creative.com/k230_canmv/zh/main/zh/userguide/how_to_burn_firmware.html)  
+  可参考[01Studio烧录固件](https://www.kendryte.com/k230_canmv/zh/main/zh/userguide/how_to_burn_firmware.html)  
 
 > **重要提示**  
 > `.kdimg` 格式文件**仅支持K230BurningTool烧录**，不可通过SD卡工具写入。
 
-![Rufus操作示例](https://developer.canaan-creative.com/api/post/attachment?id=538)
+![Rufus操作示例](https://www.kendryte.com/api/post/attachment?id=538)
 
 ## 总结
 

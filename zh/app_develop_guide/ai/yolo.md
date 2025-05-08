@@ -6,7 +6,7 @@ K230 针对 YOLO 模型中的 YOLOv5、YOLOv8 和 YOLO11 进行了封装，支�
 
 ## 模型转换
 
-训练模型并转换kmodel的过程请参考：[YOLO大作战](https://developer.canaan-creative.com/k230_canmv/zh/main/zh/example/ai/YOLO%E5%A4%A7%E4%BD%9C%E6%88%98.html#)，按照链接文档转换得到的模型在本文档内均可用。
+训练模型并转换kmodel的过程请参考：[YOLO大作战](https://www.kendryte.com/k230_canmv/zh/main/zh/example/ai/YOLO%E5%A4%A7%E4%BD%9C%E6%88%98.html#)，按照链接文档转换得到的模型在本文档内均可用。
 
 ## YOLO支持
 

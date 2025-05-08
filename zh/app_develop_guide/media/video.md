@@ -53,7 +53,7 @@ sensor_index: see vicap doc
 
 下图是运行上面例子中的命令，保存视频之后，从视频中截图的一帧图像，可以看到左上角叠加了一层OSD图标
 
-![video_venc](https://developer.canaan-creative.com/api/post/attachment?id=570)
+![video_venc](https://www.kendryte.com/api/post/attachment?id=570)
 
 ## Vdec_demo
 

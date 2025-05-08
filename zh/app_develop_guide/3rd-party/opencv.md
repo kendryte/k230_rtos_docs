@@ -55,7 +55,7 @@
 
 如果您想在编译固件时将示例编译进固件，在 `K230 RTOS SDK` 根目录下使用`make menuconfig` 配置编译选项，将示例编译到固件中的 `sdcard/app/examples/opencv_examples`路径下，直接烧录固件运行即可。
 
-![opencv_examples_menuconfig](https://developer.canaan-creative.com/api/post/attachment?id=540)
+![opencv_examples_menuconfig](https://www.kendryte.com/api/post/attachment?id=540)
 
 ### 示例编译
 
@@ -83,11 +83,11 @@ msh /sdcard/app/examples/opencv_examples>./opencv_calculate_hist.elf
 
 原图如下：
 
-![image_opencv_calculate_hist](https://developer.canaan-creative.com/api/post/attachment?id=542)
+![image_opencv_calculate_hist](https://www.kendryte.com/api/post/attachment?id=542)
 
 `opencv_calculate_hist`测试用例的运行结果示例如下：
 
-![test_opencv_calculate_hist](https://developer.canaan-creative.com/api/post/attachment?id=541)
+![test_opencv_calculate_hist](https://www.kendryte.com/api/post/attachment?id=541)
 
 ### opencv_detect_features2d
 
@@ -101,11 +101,11 @@ msh /sdcard/app/examples/opencv_examples>./opencv_detect_features2d.elf
 
 原图如下：
 
-![image_opencv_detect_features2d](https://developer.canaan-creative.com/api/post/attachment?id=543)
+![image_opencv_detect_features2d](https://www.kendryte.com/api/post/attachment?id=543)
 
 `opencv_detect_features2d`测试用例的运行结果示例如下：
 
-![test_opencv_detect_features2d](https://developer.canaan-creative.com/api/post/attachment?id=544)
+![test_opencv_detect_features2d](https://www.kendryte.com/api/post/attachment?id=544)
 
 ### opencv_find_contours
 
@@ -119,11 +119,11 @@ msh /sdcard/app/examples/opencv_examples>./opencv_find_contours.elf
 
 原图如下：
 
-![image_opencv_find_contours](https://developer.canaan-creative.com/api/post/attachment?id=542)
+![image_opencv_find_contours](https://www.kendryte.com/api/post/attachment?id=542)
 
 `opencv_find_contours`测试用例的运行结果示例如下：
 
-![test_opencv_find_contours](https://developer.canaan-creative.com/api/post/attachment?id=545)
+![test_opencv_find_contours](https://www.kendryte.com/api/post/attachment?id=545)
 
 ### opencv_grayscale_binarize
 
@@ -137,15 +137,15 @@ msh /sdcard/app/examples/opencv_examples>./opencv_grayscale_binarize.elf
 
 原图如下：
 
-![image_opencv_grayscale_binarize](https://developer.canaan-creative.com/api/post/attachment?id=542)
+![image_opencv_grayscale_binarize](https://www.kendryte.com/api/post/attachment?id=542)
 
 灰度图如下：
 
-![grayscale_opencv_grayscale_binarize](https://developer.canaan-creative.com/api/post/attachment?id=546)
+![grayscale_opencv_grayscale_binarize](https://www.kendryte.com/api/post/attachment?id=546)
 
 `opencv_grayscale_binarize`测试用例的运行结果示例如下：
 
-![test_opencv_grayscale_binarize](https://developer.canaan-creative.com/api/post/attachment?id=547)
+![test_opencv_grayscale_binarize](https://www.kendryte.com/api/post/attachment?id=547)
 
 ### opencv_obj_detect
 
@@ -159,8 +159,8 @@ msh /sdcard/app/examples/opencv_examples>./opencv_obj_detect.elf
 
 原图如下：
 
-![image_opencv_obj_detect](https://developer.canaan-creative.com/api/post/attachment?id=549)
+![image_opencv_obj_detect](https://www.kendryte.com/api/post/attachment?id=549)
 
 `opencv_obj_detect`测试用例的运行结果示例如下：
 
-![test_opencv_obj_detect](https://developer.canaan-creative.com/api/post/attachment?id=548)
+![test_opencv_obj_detect](https://www.kendryte.com/api/post/attachment?id=548)
