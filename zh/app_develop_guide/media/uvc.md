@@ -193,11 +193,11 @@ Connector Type List:
 
 ### make menuconfig
 
-![make menuconfig](https://developer.canaan-creative.com/api/post/attachment?id=563)
+![make menuconfig](https://www.kendryte.com/api/post/attachment?id=563)
 
 ### make rtsmart-menuconfig
 
-![make rtsmart-menuconfig](https://developer.canaan-creative.com/api/post/attachment?id=564)
+![make rtsmart-menuconfig](https://www.kendryte.com/api/post/attachment?id=564)
 
 ## 注意事项
 

@@ -38,7 +38,7 @@
 
 如果您想在编译固件时将示例编译进固件，在 `K230 RTOS SDK` 根目录下使用`make menuconfig` 配置编译选项，示例将被编译到固件中的 `sdcard/app/examples/openblas_examples` 路径下，直接烧录固件运行即可。
 
-![openblas_examples_menuconfig](https://developer.canaan-creative.com/api/post/attachment?id=550)
+![openblas_examples_menuconfig](https://www.kendryte.com/api/post/attachment?id=550)
 
 ### 示例编译
 
