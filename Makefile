@@ -14,43 +14,62 @@ SOURCEDIR_ZH        = zh
 
 ### Template and Static Files
 WEB_FILES = \
-	_static/init_mermaid.js \
-	_static/mermaid.min.js \
-	_static/topbar.css \
-	_static/auto-nums.css \
-	_static/custom-theme.css \
-	_templates/versionsFlex.html \
-	_templates/layout.html \
-	_templates/Fleft.html \
-	_templates/Footer.html \
-	_templates/Fright.html \
-	_templates/FleftEn.html \
-	_templates/FooterEn.html \
-	_templates/FrightEn.html
+    _static/init_mermaid.js \
+    _static/mermaid.min.js \
+    _static/topbar.css \
+    _static/auto-nums.css \
+    _static/custom-theme.css \
+    _templates/versionsFlex.html \
+    _templates/layout.html \
+    _templates/Fleft.html \
+    _templates/Footer.html \
+    _templates/Fright.html \
+    _templates/FleftEn.html \
+    _templates/FooterEn.html \
+    _templates/FrightEn.html \
+    _templates/logo.html \
+    _templates/login.html \
+    _templates/loginEn.html \
+    _templates/lang.html \
+    _templates/navEn.html \
+    _templates/lang.html \
+    _templates/nav.html \
+    _templates/content.html \
+	_templates/contentEn.html 
 
 TEMPLATE_ZH = \
-	_static/init_mermaid.js \
-	_static/mermaid.min.js \
-	_templates/versionsFlex.html \
-	_templates/Fleft.html \
-	_templates/Footer.html \
-	_templates/Fright.html \
-	_templates/layout.html \
-	_static/topbar.css \
-	_static/custom-theme.css \
+    _static/init_mermaid.js \
+    _static/mermaid.min.js \
+    _templates/versionsFlex.html \
+    _templates/Fleft.html \
+    _templates/Footer.html \
+    _templates/Fright.html \
+    _templates/layout.html \
+    _templates/logo.html \
+    _templates/login.html \
+    _templates/lang.html \
+    _templates/nav.html \
+    _templates/content.html \
+    _static/topbar.css \
+    _static/custom-theme.css \
     _static/auto-nums.css
 
 TEMPLATE_EN = \
-	_static/init_mermaid.js \
-	_static/mermaid.min.js \
-	_templates/versionsFlex.html \
-	_templates/FleftEn.html \
-	_templates/FooterEn.html \
-	_templates/FrightEn.html \
-	_templates/layout.html \
-	_static/topbar.css \
-	_static/custom-theme.css \
-	_static/auto-nums.css
+    _static/init_mermaid.js \
+    _static/mermaid.min.js \
+    _templates/versionsFlex.html \
+    _templates/FleftEn.html \
+    _templates/FooterEn.html \
+    _templates/FrightEn.html \
+    _templates/layout.html \
+    _static/topbar.css \
+    _static/custom-theme.css \
+    _templates/logo.html \
+    _static/auto-nums.css \
+    _templates/loginEn.html \
+    _templates/lang.html \
+    _templates/navEn.html \
+    _templates/contentEn.html \
 
 ### Internal Variables
 MKDIR_P = mkdir -p
@@ -71,16 +90,16 @@ help:
 	@echo "  clean-templates Remove downloaded templates and static files"
 
 # Combined HTML build targets
-html: html-en html-zh
+html: $(WEB_FILES) html-en html-zh
 
-html-en: $(TEMPLATE_EN)
+html-en: 
 	@SPHINX_LANGUAGE=en $(SPHINXBUILD) -b html "$(SOURCEDIR_EN)" "$(BUILDDIR)/html/en" -c "$(CONFDIR)"
 
-html-zh: $(TEMPLATE_ZH)
+html-zh: 
 	@SPHINX_LANGUAGE=zh_CN $(SPHINXBUILD) -b html "$(SOURCEDIR_ZH)" "$(BUILDDIR)/html/zh" -c "$(CONFDIR)"
 
 # Multi-version HTML targets
-mhtml: mhtml-en mhtml-zh
+mhtml: $(WEB_FILES) mhtml-en mhtml-zh
 
 mhtml-en: $(TEMPLATE_EN)
 	@SPHINX_LANGUAGE=en $(SPHINXMULTIVERSION) "$(SOURCEDIR_EN)" "$(BUILDDIR)/en" $(SPHINXOPTS) -c "$(CONFDIR)"

@@ -73,10 +73,18 @@ html_theme_options = {
     "primary_sidebar_end": ["versionsFlex.html"],
     "footer_start": ["Fleft.html"],
 	"footer_center": ["Footer.html"],
-	"footer_end" : ["Fright.html"]
+	"footer_end" : ["Fright.html"],
+    "navbar_start" : ['logo.html'],
+    "navbar_center" : ['nav.html'],
+    "navbar_end" : ['login.html', 'lang.html'],
+    "article_footer_items": ["content.html"]
 }
 
 if language == 'en':
     html_theme_options["footer_start"] = ["FleftEn.html"]
     html_theme_options["footer_center"] = ["FooterEn.html"]
     html_theme_options["footer_end"] = ["FrightEn.html"]
+    html_theme_options["navbar_center"] = ["navEn.html"]
+    html_theme_options["navbar_end"] =  ['lang.html']
+    html_theme_options["article_footer_items"] = ["contentEn.html"]
+
