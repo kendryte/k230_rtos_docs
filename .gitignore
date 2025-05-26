@@ -17,3 +17,5 @@ _templates/Fright.html
 _templates/FrightEn.html
 _templates/layout.html
 _templates/versionsFlex.html
+_templates/*
+_static/*
