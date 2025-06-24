@@ -26,7 +26,7 @@ K230 支持四种启动介质：EMMC、SD卡、SPI Nor Flash 和 SPI Nand Flash�
 
 > **注意事项**  
 > 若执行 `reboot_to_upgrade` 后未进入烧录模式，需使用最新烧录工具烧录以下补丁文件：
-> [K230 Patch/K230D Patch](https://kendryte-download.canaan-creative.com/developer/chip_patch/)
+> [K230 Patch/K230D Patch](https://kendryte-download.canaan-creative.com/developer/tools/chip_patch/)
 
 ### 使用K230BurningTool（图形界面工具）
 
