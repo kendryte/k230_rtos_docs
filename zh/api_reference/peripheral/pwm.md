@@ -1,135 +1,133 @@
+# PWM HAL 接口文档
 
-# K230 PWM API参考
+## 硬件介绍
 
-## 概述
+K230 内部集成了 PWM 控制器，提供 2 路 PWM，共 6 个 Channel。其中 Channel 0 ~ 2 属于一路 PWM，Channel 3 ~5 属于另一路 PWM。**注意，同一路 PWM 只能使用相同的频率，但是占空比可以不同**。
 
-K230集成了两路PWM，每一路各有3个channel，故共有6个PWM channel，对应《K230芯片引脚定义》里的pwm0 ~ pwm5，《K230芯片引脚定义》可在此处下载：<https://kendryte-download.canaan-creative.com/developer/k230/HDK/K230%E7%A1%AC%E4%BB%B6%E6%96%87%E6%A1%A3/K230_PINOUT_V1.2_20240822.xlsx>
+---
 
-| PWM驱动代码路径                                                                            | 说明          |
-| -------------------------------------------------------------------------------------------| --------------|
-| src/rtsmart/rtsmart/kernel/bsp/maix3/drivers/interdrv/pwm/drv_pwm.c  | K230 PWM驱动 |
+## 函数接口说明
 
-## API说明
+### `int drv_pwm_init(void);`
 
-PWM 对应的设备路径为 /dev/pwm，支持open，ioctl等系统调用。
+**功能**：初始化 PWM 驱动。
 
-### IOCTL 参数定义
+**返回值**：
 
-| cmd                       | 参数                          | 说明                 |
-| --------------------------| ------------------------------| -------------------- |
-| KD_PWM_CMD_ENABLE         | struct rt_pwm_configuration * | 开启对应PWM通道      |
-| KD_PWM_CMD_DISABLE        | struct rt_pwm_configuration * | 关闭对应PWM通道      |
-| KD_PWM_CMD_SET            | struct rt_pwm_configuration * | 设置通道参数（通道，周期，占空比） |
-| KD_PWM_CMD_GET            | struct rt_pwm_configuration * | 获取通道参数（通道，周期，占空比） |
+- `0`：成功
+- `-1`：失败
 
-代码定义如下：
+---
 
-```c
+### `int drv_pwm_deinit(void);`
 
-/* 以下定义都在驱动层，若用户态使用，暂需自行定义 */
+**功能**：反初始化 PWM 驱动，关闭设备。
 
-struct rt_pwm_configuration
-{
-    rt_uint32_t channel; /* 0-5 */
-    rt_uint32_t period;  /* unit:ns 1ns~4.29s:1Ghz~0.23hz */
-    rt_uint32_t pulse;   /* unit:ns (pulse<=period) */
-};
+**返回值**：
 
-#define KD_PWM_CMD_ENABLE           _IOW('P', 0, int)
-#define KD_PWM_CMD_DISABLE          _IOW('P', 1, int)
-#define KD_PWM_CMD_SET              _IOW('P', 2, int)
-#define KD_PWM_CMD_GET              _IOW('P', 3, int)
+- `0`：成功
 
-```
+---
 
-## 示例程序
+### `int drv_pwm_set_freq(int channel, uint32_t freq);`
 
-在`src/rtsmart/mpp/userapps/sample/sample_pwm/sample_pwm.c`下有个示例程序，运行该示例程序之前，需要自己先将对应的IO配置为PWM功能。
-以01studio的板子为例，可以直接在`src/uboot/uboot/arch/riscv/dts/k230_canmv_01studio.dts`文件上修改iomux功能。
+**功能**：设置指定通道的 PWM 频率。设置频率时会保持当前占空比不变。
 
-```c
+**参数**：
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include "sys/ioctl.h"
+- `channel`：PWM 通道号，范围 `[0, 5]`
+- `freq`：频率值（Hz），不能为 0
 
-/**
- * @brief
- * io52  pwm4
- * io7   pwm2 测量点R77
- * io8   pwm3 测量点R79
- *
- * pwm0-
- *      |_channel0
- *      |_channel1
- *      |_channel2
- *
- * pwm1-
- *      |_channel3
- *      |_channel4
- *      |_channel5
- */
+**返回值**：
 
-#define PWM_DEVICE_NAME     "/dev/pwm"
-#define PWM_CHANNEL2           2
-#define PWM_CHANNEL3           3
-#define PWM_CHANNEL4           4
-#define KD_PWM_CMD_ENABLE           _IOW('P', 0, int)
-#define KD_PWM_CMD_DISABLE          _IOW('P', 1, int)
-#define KD_PWM_CMD_SET              _IOW('P', 2, int)
-#define KD_PWM_CMD_GET              _IOW('P', 3, int)
+- `0`：成功
+- `-1`：失败
 
-typedef struct
-{
-    unsigned int channel; /* 0-n */
-    unsigned int period;  /* unit:ns 1ns~4.29s:1Ghz~0.23hz */
-    unsigned int pulse;   /* unit:ns (pulse<=period) */
-} pwm_config_t;
+---
 
-int main(int argc, char *argv[])
-{
-    int fd;
-    pwm_config_t config;
+### `int drv_pwm_get_freq(int channel, uint32_t* freq);`
 
-    printf("open %s\n", PWM_DEVICE_NAME);
-    fd = open(PWM_DEVICE_NAME, O_RDWR);
-    if (fd < 0)
-    {
-        perror("open /dev/pwm err\n");
-        pthread_exit((void *) "thread exit!");
-    }
-    printf("open %s OK!\n", PWM_DEVICE_NAME);
-    config.channel = PWM_CHANNEL4;
-    config.period = 100000;
-    config.pulse = 25000;
-    if (ioctl(fd, KD_PWM_CMD_SET, &config))
-    {
-        perror("set pwm err\n");
-        pthread_exit((void *) "thread exit!");
-    }
-    config.channel = PWM_CHANNEL3;
-    config.period = 100000;
-    config.pulse = 50000;
-    ioctl(fd, KD_PWM_CMD_SET, &config);
-    ioctl(fd, KD_PWM_CMD_ENABLE, &config);
+**功能**：获取指定通道的 PWM 频率。
 
+**参数**：
 
-    config.channel = PWM_CHANNEL2;
-    config.period = 100000;
-    config.pulse = 75000;
-    ioctl(fd, KD_PWM_CMD_SET, &config);
-    ioctl(fd, KD_PWM_CMD_ENABLE, &config);
-    printf("pwm 2 duty 75;\n");
-    printf("pwm 3 duty 50;\n");
-    printf("pwm 4 duty 25;\n");
-    return 0;
-}
-```
+- `channel`：PWM 通道号，范围 `[0, 5]`
+- `freq`：用于存储频率值的指针（Hz）
 
-## 注意事项
+**返回值**：
 
-K230共有6个PWM通道，其中channel 0 ~ 2（pwm 0 ~ 2）同属一路PWM，channel 3 ~ 5（pwm 3 ~ 5）同属一路PWM，在同时使用多通道PWM时，同属一路的PWM，仅需任意使能其中一个channel即可（如上述代码使能channel 3 和channel 4，仅调用一次enable），另外注意同一路PWM只能使用相同的频率，但是占空比可以不同。
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_pwm_set_duty(int channel, uint32_t duty);`
+
+**功能**：设置指定通道的 PWM 占空比。
+
+**参数**：
+
+- `channel`：PWM 通道号，范围 `[0, 5]`
+- `duty`：占空比（%），范围 `[0, 100]`
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_pwm_get_duty(int channel, uint32_t* duty);`
+
+**功能**：获取指定通道的 PWM 占空比。
+
+**参数**：
+
+- `channel`：PWM 通道号，范围 `[0, 5]`
+- `duty`：用于存储占空比值的指针（%）
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_pwm_enable(int channel);`
+
+**功能**：使能指定通道的 PWM 输出。
+
+**参数**：
+
+- `channel`：PWM 通道号，范围 `[0, 5]`
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_pwm_disable(int channel);`
+
+**功能**：禁用指定通道的 PWM 输出。
+
+**参数**：
+
+- `channel`：PWM 通道号，范围 `[0, 5]`
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+## 使用示例
+
+请参考`src/rtsmart/libs/testcases/rtsmart_hal/test_pwm.c`
+
+**注意事项**：
+
+1. 使用 PWM 前需要通过 FPIOA 将对应引脚配置为 PWM 功能。
+1. 同一路 PWM 只能使用相同的频率，但是占空比可以不同。

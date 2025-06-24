@@ -1,153 +1,210 @@
+# GPIO HAL 接口文档
 
-# K230 GPIO API参考
+## 硬件介绍
 
-## 概述
+k230 共有 2 路 gpio ，每路 gpio 包含 32 个gpio端口，共 64 个 gpio 端口，每个 gpio 端口均支持输入输出功能，支持上升沿中断，下降沿中断，高低电平中断，和双边沿中断。 k230 的每个 gpio 端口的中断相互独立互不影响。
 
-K230 芯片内部集成了 64 个 GPIO 引脚（GPIO Pin），每个引脚都可以配置为输入或输出模式，并支持上下拉电阻配置。GPIO 引脚的灵活配置使得它在多种场景下具有广泛的应用。
+---
 
-| GPIO驱动代码路径                                                            | 说明          |
-| ---------------------------------------------------------------------- | --------------|
-| src/rtsmart/rtsmart/kernel/bsp/maix3/drivers/interdrv/gpio/drv_gpio.c  | K230 GPIO驱动 |
+## 数据结构说明
 
-## API说明
+### `gpio_pin_edge_t`
 
-GPIO 对应的设备路径为 /dev/gpio，支持open，ioctl等系统调用。
+**描述**：GPIO 中断触发边沿类型枚举。
 
-### IOCTL 参数定义
+- `GPIO_PE_RISING`：上升沿触发
+- `GPIO_PE_FALLING`：下降沿触发
+- `GPIO_PE_BOTH`：双边沿触发
+- `GPIO_PE_HIGH`：高电平触发
+- `GPIO_PE_LOW`：低电平触发
 
-| cmd               | 参数                    | 说明                 |
-| ----------------  | ----------------------- | -------------------- |
-| KD_GPIO_DM_OUTPUT | struct rt_device_gpio * | 设置GPIO为输出模式 |
-| KD_GPIO_DM_INPUT  | struct rt_device_gpio * | 设置GPIO为输入模式 |
-| KD_GPIO_DM_INPUT_PULL_UP | struct rt_device_gpio * | 设置上拉模式 |
-| KD_GPIO_DM_INPUT_PULL_DOWN | struct rt_device_gpio * | 设置下拉模式 |
-| KD_GPIO_WRITE_LOW | struct rt_device_gpio * | 设置gpio为低电平（输出）  |
-| KD_GPIO_WRITE_HIGH | struct rt_device_gpio * | 设置gpio为高电平（输出） |
-| KD_GPIO_READ_VALUE | struct rt_device_gpio * | 读取gpio当前电平 |
+### `gpio_drive_mode_t`
 
-代码定义如下：
+**描述**：GPIO 驱动模式枚举。
 
-```c
+- `GPIO_DM_OUTPUT`：输出模式
+- `GPIO_DM_INPUT`：输入模式
 
-/* 以下定义都在驱动层，若用户态使用，暂需自行定义 */
-#define KD_GPIO_DM_OUTPUT           _IOW('G', 0, int)
-#define KD_GPIO_DM_INPUT            _IOW('G', 1, int)
-#define KD_GPIO_DM_INPUT_PULL_UP    _IOW('G', 2, int)
-#define KD_GPIO_DM_INPUT_PULL_DOWN  _IOW('G', 3, int)
-#define KD_GPIO_WRITE_LOW           _IOW('G', 4, int)
-#define KD_GPIO_WRITE_HIGH          _IOW('G', 5, int)
+### `gpio_pin_value_t`
 
-#define KD_GPIO_READ_VALUE          _IOW('G', 12, int)
+**描述**：GPIO 引脚电平值枚举。
 
-struct rt_device_gpio
-{
-    rt_uint16_t pin;            /* pin number, from 0 to 63 */
-    rt_uint16_t value;          /* pin level status, 0 low level, 1 high level */
-};
+- `GPIO_PV_LOW`：低电平
+- `GPIO_PV_HIGH`：高电平
 
-```
+### `drv_gpio_inst_t`
 
-## 示例程序
+**描述**：GPIO 实例结构体，包含引脚配置和状态信息。
 
-可将该示例程序放入`src/rtsmart/mpp/userapps/sample/sample_gpio/sample_gpio.c`编译运行，运行该示例程序之前，需要自己先将对应的IO配置为GPIO功能。
-以01studio的板子为例，可以直接在`src/uboot/uboot/arch/riscv/dts/k230_canmv_01studio.dts`文件上修改iomux功能。
+---
 
-```c
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <signal.h>
-#include "sys/ioctl.h"
+## 函数接口说明
 
-/* 这两个GPIO分别控制01studio开发板上的，按键和LED灯 */
-#define LED_PIN_NUM (52)
-#define KEY_PIN_NUM (21)
+### `int drv_gpio_inst_create(int pin, drv_gpio_inst_t** inst);`
 
-#define KD_GPIO_HIGH     1
-#define KD_GPIO_LOW      0
+**功能**：创建 GPIO 实例。创建前需确保对应引脚已通过 FPIOA 配置为 GPIO 功能。
 
-/* ioctl */
-#define GPIO_DM_OUTPUT           _IOW('G', 0, int)
-#define GPIO_DM_INPUT            _IOW('G', 1, int)
-#define GPIO_DM_INPUT_PULL_UP    _IOW('G', 2, int)
-#define GPIO_DM_INPUT_PULL_DOWN  _IOW('G', 3, int)
-#define GPIO_WRITE_LOW           _IOW('G', 4, int)
-#define GPIO_WRITE_HIGH          _IOW('G', 5, int)
+**参数**：
 
-#define GPIO_READ_VALUE         _IOW('G', 12, int)
+- `pin`：GPIO 引脚编号，范围 `[0, 71]`
+- `inst`：用于存储创建的 GPIO 实例指针
 
-typedef struct kd_pin_mode
-{
-    unsigned short pin;         /* pin number, from 0 to 63 */
-    unsigned short val;         /* pin level status, 0 low level, 1 high level */
-} pin_mode_t;
+**返回值**：
 
-static bool exit_flag;
+- `0`：成功
+- `-1`：失败
 
-static void sig_handler(int sig_no) {
+---
 
-    exit_flag = true;
+### `void drv_gpio_inst_destroy(drv_gpio_inst_t** inst);`
 
-    printf("exit sig = %d\n", sig_no);
-}
+**功能**：销毁 GPIO 实例，释放资源。
 
-int main(void)
-{
-    int fd, ret = 0;;
-    pin_mode_t led, key;
+**参数**：
 
-    signal(SIGINT, sig_handler);
-    signal(SIGPIPE, SIG_IGN);
+- `inst`：GPIO 实例指针的指针
 
-    fd = open("/dev/gpio", O_RDWR);
-    if (fd < 0) {
-        perror("open /dev/gpio err\n");
-        return -1;
-    }
+---
 
-    key.pin = KEY_PIN_NUM;
-    ret = ioctl(fd, GPIO_DM_INPUT, &key);
-    if (ret) {
-        perror("set key pin mode fail\n");
-        ret = -1;
-        goto out;
-    }
+### `int drv_gpio_value_set(drv_gpio_inst_t* inst, gpio_pin_value_t val);`
 
-    led.pin = LED_PIN_NUM;
-    ret = ioctl(fd, GPIO_DM_OUTPUT, &led);
-    if (ret) {
-        perror("set led pin mode fail\n");
-        ret = -1;
-        goto out;
-    }
+**功能**：设置 GPIO 输出值（仅在输出模式下有效）。
 
-    do {
-        ret = ioctl(fd, GPIO_READ_VALUE, &key);
+**参数**：
 
-        if (ret || exit_flag) {
-            break;
-        }
+- `inst`：GPIO 实例指针
+- `val`：要设置的电平值（`GPIO_PV_LOW` 或 `GPIO_PV_HIGH`）
 
-        if (key.val == KD_GPIO_LOW) {
-            ret = ioctl(fd, GPIO_WRITE_HIGH, &led);
-            printf("Key press -> light on\n");
-        } else {
-            ret = ioctl(fd, GPIO_WRITE_LOW, &led);
-        }
+**返回值**：
 
-        usleep(10000);
-    } while (1);
+- `0`：成功
+- `-1`：失败
 
-out:
-    close(fd);
+---
 
-    return ret;
-}
+### `gpio_pin_value_t drv_gpio_value_get(drv_gpio_inst_t* inst);`
 
-```
+**功能**：获取 GPIO 引脚当前电平值。
 
-## 附录
+**参数**：
 
-每个GPIO的管脚定义可以在如下链接下载得到：
-<https://kendryte-download.canaan-creative.com/developer/k230/HDK/K230%E7%A1%AC%E4%BB%B6%E6%96%87%E6%A1%A3/K230_PINOUT_V1.2_20240822.xlsx>
+- `inst`：GPIO 实例指针
+
+**返回值**：
+
+- `GPIO_PV_LOW`：低电平
+- `GPIO_PV_HIGH`：高电平
+
+---
+
+### `int drv_gpio_mode_set(drv_gpio_inst_t* inst, gpio_drive_mode_t mode);`
+
+**功能**：设置 GPIO 工作模式。
+
+**参数**：
+
+- `inst`：GPIO 实例指针
+- `mode`：工作模式（`GPIO_DM_OUTPUT` 或 `GPIO_DM_INPUT`）
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `gpio_drive_mode_t drv_gpio_mode_get(drv_gpio_inst_t* inst);`
+
+**功能**：获取 GPIO 当前工作模式。
+
+**参数**：
+
+- `inst`：GPIO 实例指针
+
+**返回值**：
+
+- `GPIO_DM_OUTPUT`：输出模式
+- `GPIO_DM_INPUT`：输入模式
+- `GPIO_DM_MAX`：获取失败
+
+---
+
+### `int drv_gpio_register_irq(drv_gpio_inst_t* inst, gpio_pin_edge_t mode, int debounce, gpio_irq_callback callback, void* userargs);`
+
+**功能**：注册 GPIO 中断处理函数。仅支持引脚 0-63。
+
+**参数**：
+
+- `inst`：GPIO 实例指针
+- `mode`：中断触发模式
+- `debounce`：防抖时间（单位：ms，最小值为 10）
+- `callback`：中断回调函数
+- `userargs`：传递给回调函数的用户参数
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_gpio_unregister_irq(drv_gpio_inst_t* inst);`
+
+**功能**：注销 GPIO 中断。
+
+**参数**：
+
+- `inst`：GPIO 实例指针
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_gpio_set_irq(drv_gpio_inst_t* inst, int enable);`
+
+**功能**：使能或禁用 GPIO 中断。
+
+**参数**：
+
+- `inst`：GPIO 实例指针
+- `enable`：`1` 使能，`0` 禁用
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### 辅助函数
+
+#### `int drv_gpio_get_pin_id(drv_gpio_inst_t* inst);`
+
+**功能**：获取 GPIO 实例对应的引脚编号。
+
+#### `int drv_gpio_toggle(drv_gpio_inst_t* inst);`
+
+**功能**：翻转 GPIO 输出电平。
+
+#### `int drv_gpio_enable_irq(drv_gpio_inst_t* inst);`
+
+**功能**：使能 GPIO 中断（等同于 `drv_gpio_set_irq(inst, 1)`）。
+
+#### `int drv_gpio_disable_irq(drv_gpio_inst_t* inst);`
+
+**功能**：禁用 GPIO 中断（等同于 `drv_gpio_set_irq(inst, 0)`）。
+
+**注意事项**：
+
+1. 使用 GPIO 前必须先通过 FPIOA 将对应引脚配置为 GPIO 功能
+1. 中断功能仅支持引脚 0-63
+1. 防抖时间最小为 10ms
+
+---
+
+## 使用示例
+
+请参考`src/rtsmart/libs/testcases/rtsmart_hal/下各个模块的GPIO使用`

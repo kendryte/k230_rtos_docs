@@ -3,11 +3,16 @@
 ```{toctree}
 :maxdepth: 1
 
-uart.md
-i2c.md
-spi.md
+adc.md
+fpioa.md
 gpio.md
-wdt.md
+i2c.md
 pwm.md
+sbus.md
+spi.md
+timer.md
+tsersor.md
+wdt.md
+uart.md
 
 ```

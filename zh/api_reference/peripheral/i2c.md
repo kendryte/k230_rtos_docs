@@ -1,135 +1,204 @@
+# I2C HAL 接口文档
 
-# k230 I2C API参考
+## 硬件介绍
 
-## k230 I2C说明
+K230 共有 5 路 i2c，i2c 模块支持主从模式，支持DMA，支持7/10比特寻址，支持中断，i2c 模块传输速率支持100k/400k/1M/3.4M。
 
-K230 芯片内部配备 5 个 I2C 硬件模块，可以配置为主或者从，支持标准 100 kb/s、快速 400 kb/s 以及高速 3.4 Mb/s 的通信模式。通道输出的 IO 配置请参考 IOMUX 模块。
+---
 
-I2C驱动代码说明：
+## 数据结构说明
 
-| 串口代码路径                                                 | 说明                      |
-| ------------------------------------------------------------ | -------|
-| src/rtsmart/rtsmart/kernel/bsp/maix3/drivers/interdrv/i2c/drv_i2c.c | k230 I2C 驱动             |
+### `drv_i2c_inst_t`
 
-I2C驱动相关的配置说明：
+**描述**：I2C 主机实例结构体，包含 I2C 配置和状态信息。
 
-| 配置                   | 说明                                      |
-| ---------------------- | ----------------------------------------- |
-| RT_USING_I2C0          | 使能I2c0 模式 ,make rtsmart-menuconfig   |
-| RT_USING_I2C1 | 使能I2c1 模式,make rtsmart-menuconfig    |
-| RT_USING_I2C2 | 使能I2c2模式,make rtsmart-menuconfig     |
-| RT_USING_I2C3 | 使能I2c3 模式,make rtsmart-menuconfig    |
-| RT_USING_I2C4 | 使能I2c4 模式, make rtsmart-menuconfig |
-| RT_USING_I2C0_SLAVE | 使能I2c0 从模式 ,make rtsmart-menuconfig |
-| RT_USING_I2C1_SLAVE | 使能I2c1 从模式 ,make rtsmart-menuconfig |
-| RT_USING_I2C2_SLAVE | 使能I2c2 从模式 ,make rtsmart-menuconfig |
-| RT_USING_I2C3_SLAVE | 使能I2c3 从模式 ,make rtsmart-menuconfig |
-| RT_USING_I2C4_SLAVE | 使能I2c4 从模式 ,make rtsmart-menuconfig |
+### `i2c_msg_t`
 
-## i2c总线api
+**描述**：I2C 消息结构体。
 
-[示例代码](../../app_develop_guide/drivers/i2c.md#示例1)
+- `addr`：设备地址
+- `flags`：传输标志（读/写、10位地址等）
+- `len`：数据长度
+- `buf`：数据缓冲区指针
 
-i2c总线对应设备名字是 i2c0 i2c1 i2c3 i2c4，支持标准的 [posix文件操作](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)接口(open,close,ioctl等)。
+### `drv_i2c_slave_inst_t`
 
-### ioctl API
+**描述**：I2C 从机实例结构体。
 
-```c
-int ioctl(int fildes, int cmd, ...)
-```
+### I2C 传输标志
 
-支持的cmd,及cmd对应参数定义如下：
+- `DRV_I2C_WR`：写操作
+- `DRV_I2C_RD`：读操作
+- `DRV_I2C_ADDR_10BIT`：10 位地址模式
+- `DRV_I2C_NO_START`：不发送起始信号
+- `DRV_I2C_IGNORE_NACK`：忽略 NACK
+- `DRV_I2C_NO_READ_ACK`：读取时不发送 ACK
+- `DRV_I2C_NO_STOP`：不发送停止信号
 
-| cmd                 | 参数              | 说明            |
-| ------------------- | ----------------- | --------------- |
-| RT_I2C_DEV_CTRL_CLK | rt_uint32_t       | 设置i2c总线频率 |
-| RT_I2C_DEV_CTRL_RW  | i2c_priv_data_t * | i2c总线读写     |
+---
 
-i2c_priv_data_t  结构体定义如下：
+## I2C 主机模式接口
 
-```c
-#define RT_I2C_DEV_CTRL_10BIT (0x800 + 0x01)
-#define RT_I2C_DEV_CTRL_TIMEOUT (0x800 + 0x03)
-#define RT_I2C_DEV_CTRL_RW (0x800 + 0x04)
-#define RT_I2C_DEV_CTRL_CLK (0x800 + 0x05)
+### `int drv_i2c_inst_create(int id, uint32_t freq, uint32_t timeout_ms, uint8_t scl, uint8_t sda, drv_i2c_inst_t** inst);`
 
-enum dm_i2c_msg_flags
-{
-    I2C_M_TEN           = 0x0010, /* ten-bit chip address */
-    I2C_M_RD            = 0x0001, /* read data, from slave to master */
-    I2C_M_STOP          = 0x8000, /* send stop after this message */
-    I2C_M_NOSTART       = 0x4000, /* no start before this message */
-    I2C_M_REV_DIR_ADDR  = 0x2000, /* invert polarity of R/W bit */
-    I2C_M_IGNORE_NAK    = 0x1000, /* continue after NAK */
-    I2C_M_NO_RD_ACK     = 0x0800, /* skip the Ack bit on reads */
-    I2C_M_RECV_LEN      = 0x0400, /* length is first received byte */
-    I2C_M_RESTART       = 0x0002, /* restart before this message */
-    I2C_M_START         = 0x0004, /* start before this message */
-};
+**功能**：创建 I2C 主机实例。
 
+**参数**：
 
+- `id`：I2C 编号，0-4 为硬件 I2C，大于 4 为软件 I2C
+- `freq`：I2C 时钟频率（Hz）
+- `timeout_ms`：超时时间（毫秒）
+- `scl`：SCL 引脚编号（软件 I2C 时有效，需小于 64）
+- `sda`：SDA 引脚编号（软件 I2C 时有效，需小于 64）
+- `inst`：用于存储创建的 I2C 实例指针
 
-typedef struct {
-    uint16_t addr;
-    uint16_t flags;
-    uint16_t len;
-    uint8_t *buf;
-} i2c_msg_t;
+**返回值**：
 
-typedef struct {
-    i2c_msg_t *msgs;
-    size_t number;
-} i2c_priv_data_t;
-```
+- `0`：成功
+- `-1`：失败
 
-## i2c做从设备API
+---
 
-[示例代码](../../app_develop_guide/drivers/i2c.md#示例2)
+### `void drv_i2c_inst_destroy(drv_i2c_inst_t** inst);`
 
-使能如下配置就可以把对应i2c总线配置为从设备，比如：如果使能RT_USING_I2C1_SLAVE，i2c1会配置成从设备，/dev目录下会创建i2c1_slave设备节点。
+**功能**：销毁 I2C 主机实例，释放资源。
 
-| 配置                | 说明                                                 |
-| ------------------- | ---------------------------------------------------- |
-| RT_USING_I2C0_SLAVE | 使能I2c0 从模式 ,make rtsmart-menuconfig，i2c0_slave |
-| RT_USING_I2C1_SLAVE | 使能I2c1 从模式 ,make rtsmart-menuconfig，i2c1_slave |
-| RT_USING_I2C2_SLAVE | 使能I2c2 从模式 ,make rtsmart-menuconfig，i2c2_slave |
-| RT_USING_I2C3_SLAVE | 使能I2c3 从模式 ,make rtsmart-menuconfig，i2c3_slave |
-| RT_USING_I2C4_SLAVE | 使能I2c4 从模式 ,make rtsmart-menuconfig，i2c4_slave |
+**参数**：
 
-i2c做从设备时支持标准的 [posix文件操作](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)接口，比如open,close,read,write,ioctl等
+- `inst`：I2C 实例指针的指针
 
-### ioctl控制API
+---
 
-```c
-int ioctl(int fildes, int cmd, ...)
-```
+### `int drv_i2c_set_7b_addr(drv_i2c_inst_t* inst);`
 
-支持的cmd,及cmd对应参数定义如下：
+**功能**：设置 I2C 为 7 位地址模式。
 
-| cmd                             | 参数     | 说明                    |
-| ------------------------------- | -------- | ----------------------- |
-| I2C_SLAVE_IOCTL_SET_ADDR        | uint8_t  | 设置i2c从设备地址       |
-| I2C_SLAVE_IOCTL_SET_BUFFER_SIZE | uint32_t | 设置i2c从设备寄存器长度 |
+**参数**：
 
-使用示例如下：
+- `inst`：I2C 实例指针
 
-```c
-#define I2C_SLAVE_IOCTL_SET_BUFFER_SIZE               0
-#define I2C_SLAVE_IOCTL_SET_ADDR                      1
- if(argc >= 3) {
-        add = atoi(argv[2]);
-        ret = ioctl(fd, I2C_SLAVE_IOCTL_SET_ADDR, &add);
-        if (ret) {
-            rt_kprintf("set add  %x failed!\n", add);
-            return;
-        }
-    }
-    if(argc >= 4) {
-        size = atoi(argv[3]);
-        ret = ioctl(fd, I2C_SLAVE_IOCTL_SET_BUFFER_SIZE, &size);
-        if (ret) {
-            rt_kprintf("set size  %d failed!\n", size);
-            return;
-        }
-    }
-```
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_i2c_set_10b_addr(drv_i2c_inst_t* inst);`
+
+**功能**：设置 I2C 为 10 位地址模式。
+
+**参数**：
+
+- `inst`：I2C 实例指针
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_i2c_set_freq(drv_i2c_inst_t* inst, uint32_t freq);`
+
+**功能**：设置 I2C 时钟频率。
+
+**参数**：
+
+- `inst`：I2C 实例指针
+- `freq`：时钟频率（Hz）
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_i2c_set_timeout(drv_i2c_inst_t* inst, uint32_t timeout_ms);`
+
+**功能**：设置 I2C 超时时间。
+
+**参数**：
+
+- `inst`：I2C 实例指针
+- `timeout_ms`：超时时间（毫秒）
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### `int drv_i2c_transfer(drv_i2c_inst_t* inst, i2c_msg_t* msgs, int msg_cnt);`
+
+**功能**：执行 I2C 传输操作。
+
+**参数**：
+
+- `inst`：I2C 实例指针
+- `msgs`：消息数组
+- `msg_cnt`：消息数量
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### I2C 主机属性获取函数
+
+以下函数用于获取 I2C 主机实例的各种属性：
+
+- `uint32_t drv_i2c_master_get_type(drv_i2c_inst_t* inst);` - 获取 I2C 类型（硬件/软件）
+- `int drv_i2c_master_get_id(drv_i2c_inst_t* inst);` - 获取 I2C 编号
+- `int drv_i2c_master_get_fd(drv_i2c_inst_t* inst);` - 获取文件描述符
+- `uint32_t drv_i2c_master_get_freq(drv_i2c_inst_t* inst);` - 获取时钟频率
+- `uint32_t drv_i2c_master_get_timeout_ms(drv_i2c_inst_t* inst);` - 获取超时时间
+- `uint8_t drv_i2c_master_get_pin_scl(drv_i2c_inst_t* inst);` - 获取 SCL 引脚编号
+- `uint8_t drv_i2c_master_get_pin_sda(drv_i2c_inst_t* inst);` - 获取 SDA 引脚编号
+
+---
+
+## I2C 从机模式接口
+
+### `int drv_i2c_slave_inst_create(int id, uint32_t buffer_size, uint16_t slave_address, uint8_t scl, uint8_t sda, drv_i2c_slave_inst_t** inst);`
+
+**功能**：创建 I2C 从机实例。
+
+**参数**：
+
+- `id`：I2C 编号
+- `buffer_size`：缓冲区大小
+- `slave_address`：从机地址
+- `scl`：SCL 引脚编号
+- `sda`：SDA 引脚编号
+- `inst`：用于存储创建的从机实例指针
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
+
+---
+
+### I2C 从机属性获取函数
+
+- `int drv_i2c_slave_get_id(drv_i2c_slave_inst_t* inst);` - 获取 I2C 编号
+- `int drv_i2c_slave_get_fd(drv_i2c_slave_inst_t* inst);` - 获取文件描述符
+- `uint8_t drv_i2c_slave_get_pin_scl(drv_i2c_slave_inst_t* inst);` - 获取 SCL 引脚编号
+- `uint8_t drv_i2c_slave_get_pin_sda(drv_i2c_slave_inst_t* inst);` - 获取 SDA 引脚编号
+- `uint32_t drv_i2c_slave_get_buffer_size(drv_i2c_slave_inst_t* inst);` - 获取缓冲区大小
+- `uint16_t drv_i2c_slave_get_slave_address(drv_i2c_slave_inst_t* inst);` - 获取从机地址
+
+---
+
+## 使用示例
+
+请参考`src/rtsmart/libs/testcases/rtsmart_hal/test_i2c_ssd1306.c`
+
+**注意事项**：
+
+1. 使用硬件 I2C 前需要通过 FPIOA 配置相应引脚功能
