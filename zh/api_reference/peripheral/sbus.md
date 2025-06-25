@@ -128,6 +128,8 @@ K230 支持通过 UART 接口实现 SBUS（Serial Bus）协议。SBUS 是一种�
 
 ## 使用示例
 
+请参考`src/rtsmart/libs/testcases/rtsmart_hal/test_sbus.c`
+
 **注意事项**：
 
 1. 使用前需要通过 FPIOA 配置相应的 UART TX 引脚

@@ -353,3 +353,5 @@ typedef void (*timer_irq_callback)(void* args);
 ---
 
 ## 使用示例
+
+请参考`src/rtsmart/libs/testcases/rtsmart_hal/test_timer.c`
