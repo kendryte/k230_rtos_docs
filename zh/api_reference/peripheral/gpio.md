@@ -207,4 +207,4 @@ k230 共有 2 路 gpio ，每路 gpio 包含 32 个gpio端口，共 64 个 gpio 
 
 ## 使用示例
 
-请参考`src/rtsmart/libs/testcases/rtsmart_hal/下各个模块的GPIO使用`
+请参考`src/rtsmart/libs/testcases/rtsmart_hal/test_gpio.c`
