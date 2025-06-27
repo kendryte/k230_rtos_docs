@@ -1,6 +1,6 @@
 # 如何添加新的配置文件（新板子）
 
-在开始操作之前，首先需要下载 K230 SDK，具体的下载路径请参考 ******（此处需补充完整的前面路径信息）。
+在开始操作之前，首先需要下载 K230 SDK，具体的下载路径请参考 [如何编译固件](../userguide/how_to_build.md)。
 
 接下来，我们将以 01studio 的板子为例，详细说明如何根据板子的硬件情况添加一个新的配置项。在这个过程中，涉及到改动的文件夹主要有以下几个，并且下面的每一个步骤都对应着相应目录的具体修改方法。
 
@@ -204,7 +204,7 @@ endif
 aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/uboot/uboot/arch/riscv/dts$ cp k230_canmv_dongshanpi.dts k230_canmv_01studio.dts
 ```
 
-嘉楠提供了自动化配置网页（目前该网页处于待完成和上线的状态）。
+我们提供了自动化配置工具[IOMAX生成工具](https://www.kendryte.com/zh/tools/dts_config_generation_tool)。
 
 ## 在./src/uboot/uboot/config增加uboot配置文件
 
