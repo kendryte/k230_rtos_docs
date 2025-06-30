@@ -25,13 +25,13 @@ K230 支持通过 UART 接口实现 SBUS（Serial Bus）协议。SBUS 是一种�
 
 ## 函数接口说明
 
-### `sbus_dev_t sbus_create(const char *uart);`
+### `sbus_dev_t sbus_create(int uart_id);`
 
 **功能**：创建 SBUS 设备实例，配置 UART 参数。
 
 **参数**：
 
-- `uart`：UART 设备路径，支持 "/dev/uart1" ~ "/dev/uart4"
+- `uart`：UART 设备id，支持 1 ~ 4，代表uart1 ~ uart4
 
 **返回值**：
 
@@ -105,13 +105,18 @@ K230 支持通过 UART 接口实现 SBUS（Serial Bus）协议。SBUS 是一种�
 
 ---
 
-### `void sbus_send_frame(sbus_dev_t dev);`
+### `int sbus_send_frame(sbus_dev_t dev);`
 
 **功能**：发送 SBUS 数据帧。将当前设置的通道值和标志位编码成 25 字节的 SBUS 帧并通过 UART 发送。
 
 **参数**：
 
 - `dev`：SBUS 设备句柄
+
+**返回值**：
+
+- `0`：成功
+- `-1`：失败
 
 ---
 
