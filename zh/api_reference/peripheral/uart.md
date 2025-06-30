@@ -1,97 +1,240 @@
+# UART Hal 接口文档
 
-# K230 UART API参考
+## 硬件介绍
 
-## k230串口说明
+K230 内部集成了五个 UART（通用异步收发传输器）硬件模块，其中rtsmart系统占用一个串口（默认占用串口 0），其他串口可以供用户使用。
 
-K230 内部集成了五个 UART（通用异步收发传输器）硬件模块，其中rtsmart系统占用一个串口，其他串口可以供用户使用。使用串口时需要确保对应管脚PAD(iomux配置)为串口功能,iomux也叫fpioa请参考文档。
+---
 
-串口驱动代码说明：
+## 数据结构说明
 
-| 串口代码路径                                                 | 说明                      |      |
-| ------------------------------------------------------------ | ------------------------- | ---- |
-| src/rtsmart/rtsmart/kernel/bsp/maix3/drivers/interdrv/uart/drv_uart.c | rtsmart系统使用串口的驱动 |      |
-| src/rtsmart/rtsmart/kernel/bsp/maix3/drivers/interdrv/uart_canaan/drv_uart.c | k230串口驱动              |      |
+### `struct uart_configure`
 
-串口驱动相关的配置说明：
+UART 配置结构体，包含以下成员：
 
-| 配置                   | 说明                                 |
-| ---------------------- | ------------------------------------ |
-| RT_USING_UART_CANAAN_1 | 使能串口1,make rtsmart-menuconfig    |
-| RT_USING_UART_CANAAN_2 | 使能串口2,make rtsmart-menuconfig    |
-| RT_USING_UART_CANAAN_3 | 使能串口3,make rtsmart-menuconfig    |
-| RT_USING_UART_CANAAN_4 | 使能串口4,make rtsmart-menuconfig    |
-| RT_CONSOLE_DEVICE_NAME | rtsmart使用的串口,make rtsmart-menuconfig    |
-| RTT_CONSOLE_ID         | rtsmart使用的串口号，make menuconfig |
+* `baud_rate`：波特率
+* `data_bits`：数据位数（5-9）
+* `stop_bits`：停止位（0-3 对应 1-4 个停止位）
+* `parity`：校验位（0：无校验，1：奇校验，2：偶校验）
+* `bit_order`：位顺序（0：LSB 优先，1：MSB 优先）
+* `invert`：信号反转（0：正常模式，1：反转模式）
+* `bufsz`：缓冲区大小
+* `reserved`：保留字段
 
-## 串口api
+---
 
-[示例代码](../../app_develop_guide/drivers/uart.md)
+## 函数接口说明
 
-串口对的设备名字是uart0 uart1 uart2 uart3 uart4，支持标准的  posix文件操作接口如下，具体使用请参考[rtthread官网](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/filesystem/filesystem?id=%e6%96%87%e4%bb%b6%e7%ae%a1%e7%90%86)。
+### `int drv_uart_inst_create(int id, drv_uart_inst_t** inst);`
 
-```c
-int open(const char *file, int flags, ...);
-int close(int d);
-ssize_t read(int fd, void *buf, size_t len);
-ssize_t write(int fd, const void *buf, size_t len);
-int select( int nfds,fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
-```
+**功能**：创建 UART 驱动实例。
 
-### ioctl控制API
+**参数**：
 
-```c
-int ioctl(int fildes, int cmd, ...)
-```
+* `id`：UART 接口 ID，范围 `[0, KD_HARD_UART_MAX_NUM-1]`
+* `inst`：双重指针，用于存储创建的实例
 
-支持的cmd,及cmd对应参数定义如下：
+**返回值**：
 
-| cmd              | 参数                    | 说明                 |
-| ---------------- | ----------------------- | -------------------- |
-| IOC_SET_BAUDRATE | struct uart_configure * | 设置串口波特率等参数 |
+* `0`：创建成功
+* `-1`：参数无效
+* `-2`：UART ID 无效
+* `-3`：内存分配失败
 
-struct uart_configure 结构体定义及接口示例代码如下：
+---
 
-```c
-#define IOC_SET_BAUDRATE            _IOW('U', 0x40, int)
+### `void drv_uart_inst_destroy(drv_uart_inst_t** inst);`
 
-struct uart_configure
-{
-    rt_uint32_t baud_rate;
+**功能**：销毁 UART 驱动实例。
 
-    rt_uint32_t data_bits               :4;
-    rt_uint32_t stop_bits               :2;
-    rt_uint32_t parity                  :2;
-    rt_uint32_t fifo_lenth              :2;
-    rt_uint32_t auto_flow               :1;
-    rt_uint32_t reserved                :21;
-};
+**参数**：
 
-typedef enum _uart_parity
-{
-    UART_PARITY_NONE,
-    UART_PARITY_ODD,
-    UART_PARITY_EVEN
-} uart_parity_t;
+* `inst`：双重指针，指向要销毁的实例
 
-typedef enum _uart_receive_trigger
-{
-    UART_RECEIVE_FIFO_1,
-    UART_RECEIVE_FIFO_8,
-    UART_RECEIVE_FIFO_16,
-    UART_RECEIVE_FIFO_30,
-} uart_receive_trigger_t;
-struct uart_configure config = {
-    .baud_rate = 9600,
-    .data_bits = 8,
-    .stop_bits = 1,
-    .parity = UART_PARITY_NONE,
-    .fifo_lenth = UART_RECEIVE_FIFO_16,
-    .auto_flow = 0,
-};
+---
 
-if (ioctl(fd, IOC_SET_BAUDRATE, &config)) {
-    printf("ioctl failed!\n");
-    close(fd);
-    return 1;
-}
-```
+### `size_t drv_uart_read(drv_uart_inst_t* inst, const uint8_t* buffer, size_t size);`
+
+**功能**：从 UART 读取数据。
+
+**参数**：
+
+* `inst`：UART 实例
+* `buffer`：存储读取数据的缓冲区
+* `size`：要读取的字节数
+
+**返回值**：
+
+* 成功时：实际读取的字节数
+* `-1`：参数无效
+* `-2`：读取错误
+
+---
+
+### `size_t drv_uart_write(drv_uart_inst_t* inst, uint8_t* buffer, size_t size);`
+
+**功能**：向 UART 写入数据。
+
+**参数**：
+
+* `inst`：UART 实例
+* `buffer`：要写入的数据
+* `size`：要写入的字节数
+
+**返回值**：
+
+* 成功时：实际写入的字节数
+* `-1`：参数无效
+* `-2`：写入错误
+
+---
+
+### `int drv_uart_poll(drv_uart_inst_t* inst, int timeout_ms);`
+
+**功能**：轮询 UART 读取可用性。
+
+**参数**：
+
+* `inst`：UART 实例
+* `timeout_ms`：超时时间（毫秒），`-1` 表示无限等待，`0` 表示非阻塞
+
+**返回值**：
+
+* `>0`：有数据可读
+* `0`：超时
+* `-1`：参数无效
+* `-errno`：轮询错误（负的 errno 值）
+* `-EIO`：设备错误
+
+---
+
+### `size_t drv_uart_recv_available(drv_uart_inst_t* inst);`
+
+**功能**：检查可读取的字节数。
+
+**参数**：
+
+* `inst`：UART 实例
+
+**返回值**：
+
+* 成功时：可读取的字节数
+* `-1`：参数无效
+* `-2`：IOCTL 错误
+
+---
+
+### `int drv_uart_send_break(drv_uart_inst_t* inst);`
+
+**功能**：在 UART TX 线上发送中断信号。将 TX 线强制拉低一段时间，用于特殊事件信号（如 LIN 同步、注意请求、软复位等）。
+
+**参数**：
+
+* `inst`：UART 实例
+
+**返回值**：
+
+* `0`：成功
+* `-1`：实例无效或未打开
+* `-2`：IOCTL 调用失败
+
+---
+
+### `int drv_uart_set_config(drv_uart_inst_t* inst, struct uart_configure* cfg);`
+
+**功能**：设置 UART 配置。
+
+**参数**：
+
+* `inst`：UART 实例
+* `cfg`：配置结构体
+
+**返回值**：
+
+* `0`：成功
+* `-1`：参数无效
+* `-2`：IOCTL 错误
+
+**注意**：此函数不能修改 `bufsz`，请使用 `drv_uart_configure_buffer_size` 修改缓冲区大小。
+
+---
+
+### `int drv_uart_get_config(drv_uart_inst_t* inst, struct uart_configure* cfg);`
+
+**功能**：获取当前 UART 配置。
+
+**参数**：
+
+* `inst`：UART 实例
+* `cfg`：用于存储配置的结构体
+
+**返回值**：
+
+* `0`：成功
+* `-1`：参数无效
+* `-2`：IOCTL 错误
+
+---
+
+### `int drv_uart_configure_buffer_size(int id, uint16_t size);`
+
+**功能**：配置指定 UART 设备的缓冲区大小。
+
+**参数**：
+
+* `id`：UART 设备 ID（如 0 表示 UART0，1 表示 UART1 等）
+* `size`：要设置的缓冲区大小
+
+**返回值**：
+
+* `0`：成功
+* `-1`：UART ID 无效或状态错误
+* `-2`：设备未找到或配置失败
+
+**注意**：应在创建实例之前调用此函数。
+
+---
+
+### `int drv_uart_get_id(drv_uart_inst_t *inst);`
+
+**功能**：获取 UART 实例的 ID。
+
+**参数**：
+
+* `inst`：UART 实例
+
+**返回值**：
+
+* 有效时：UART ID
+* 无效时：`-1`
+
+---
+
+### `int drv_uart_get_fd(drv_uart_inst_t *inst);`
+
+**功能**：获取 UART 实例的文件描述符。
+
+**参数**：
+
+* `inst`：UART 实例
+
+**返回值**：
+
+* 有效时：文件描述符
+* 无效时：`-1`
+
+---
+
+## 示例
+
+请参考`src/rtsmart/libs/testcases/rtsmart_hal/test_uart.c`
+
+---
+
+## 注意事项
+
+1. `struct uart_configure` 的 `bufsz` 字段只能通过 `drv_uart_configure_buffer_size` 接口修改，使用 `drv_uart_set_config` 无法修改`bufsz`。一般做法是先调用 `drv_uart_get_config` 获取当前配置，修改除 `bufsz` 外的其他参数，然后调用 `drv_uart_set_config`。
+
+1. `drv_uart_configure_buffer_size` 必须在创建实例之前调用。
+
+1. invert 字段在 K230 上不支持。
