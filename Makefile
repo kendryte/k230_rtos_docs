@@ -16,6 +16,7 @@ SOURCEDIR_ZH        = zh
 WEB_FILES = \
     _static/init_mermaid.js \
     _static/mermaid.min.js \
+    _static/transform.js \
     _static/topbar.css \
     _static/auto-nums.css \
     _static/custom-theme.css \
@@ -40,6 +41,7 @@ WEB_FILES = \
 TEMPLATE_ZH = \
     _static/init_mermaid.js \
     _static/mermaid.min.js \
+    _static/transform.js \
     _templates/versionsFlex.html \
     _templates/Fleft.html \
     _templates/Footer.html \
@@ -57,6 +59,7 @@ TEMPLATE_ZH = \
 TEMPLATE_EN = \
     _static/init_mermaid.js \
     _static/mermaid.min.js \
+    _static/transform.js \
     _templates/versionsFlex.html \
     _templates/FleftEn.html \
     _templates/FooterEn.html \
