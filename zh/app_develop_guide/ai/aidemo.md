@@ -15,13 +15,13 @@ K230 AI Demo集成了人脸、人体、手部、车牌、单词续写、语音�
 源码路径位于 `src/rtsmart/examples/ai_poc`，目录结构如下：
 
 ```shell
-# AI Demo子目录（eg：bytetrack、face_detection等）中有详细的Demo说明文档
+# AI Demo子目录（eg：bytetrack、face_detection等）中有详细的Demo说明文档README.md
 .
 ├── anomaly_det
 ├── bytetrack
 ├── cmake
+├── common_files
 ├── crosswalk_detect
-├── demo_mix
 ├── distraction_reminder
 ├── dms_system
 ├── dynamic_gesture
@@ -72,123 +72,24 @@ K230 AI Demo集成了人脸、人体、手部、车牌、单词续写、语音�
 ├── yolop_lane_seg
 ├── CMakeLists.txt
 ├── Makefile
-├── build_app_rtos_only.sh
-└── build_app_sub_rtos_only.sh
+└── build_app.sh
 ```
 
-kmodel、image及相关依赖路径位于 `src/rtsmart/libs/kmodel/ai_poc`，目录结构如下：
+其中`common_files`目录下的文件是所有Demo共有的文件，目录下的文件结构如下：
 
 ```shell
 .
-├── images # Demo测试图片
-│   ├── 000.png
-│   ├── 1000.jpg
-│   ├── 1024x1111.jpg
-│   ├── 1024x1331.jpg
-│   ├── 1024x624.jpg
-│   ├── 1024x768.jpg
-│   ├── 333.jpg
-│   ├── 640x340.jpg
-│   ├── bus.jpg
-│   ├── bytetrack_data
-│   ├── car.jpg
-│   ├── cw.jpg
-│   ├── falldown_elder.jpg
-│   ├── helmet.jpg
-│   ├── hrnet_demo.jpg
-│   ├── identification_card.png
-│   ├── input_flower.jpg
-│   ├── input_hd.jpg
-│   ├── input_ocr.jpg
-│   ├── input_pd.jpg
-│   ├── licence.jpg
-│   ├── person.png
-│   ├── road.jpg
-│   ├── smoke1.jpg
-│   └── traffic.jpg
-├── kmodel  # Demo测试kmodel模型
-│   ├── anomaly_det.kmodel
-│   ├── bytetrack_yolov5n.kmodel
-│   ├── cropped_test127.kmodel
-│   ├── crosswalk.kmodel
-│   ├── eye_gaze.kmodel
-│   ├── face_alignment.kmodel
-│   ├── face_alignment_post.kmodel
-│   ├── face_detection_320.kmodel
-│   ├── face_detection_640.kmodel
-│   ├── face_detection_hwc.kmodel
-│   ├── face_emotion.kmodel
-│   ├── face_gender.kmodel
-│   ├── face_glasses.kmodel
-│   ├── face_landmark.kmodel
-│   ├── face_mask.kmodel
-│   ├── face_parse.kmodel
-│   ├── face_pose.kmodel
-│   ├── face_recognition.kmodel
-│   ├── flower_rec.kmodel
-│   ├── gesture.kmodel
-│   ├── hand_det.kmodel
-│   ├── handkp_det.kmodel
-│   ├── hand_reco.kmodel
-│   ├── head_detection.kmodel
-│   ├── helmet.kmodel
-│   ├── hifigan.kmodel
-│   ├── human_seg_2023mar.kmodel
-│   ├── kws.kmodel
-│   ├── licence_reco.kmodel
-│   ├── LPD_640.kmodel
-│   ├── nanotrack_backbone_sim.kmodel
-│   ├── nanotracker_head_calib_k230.kmodel
-│   ├── ocr_det_int16.kmodel
-│   ├── ocr_det.kmodel
-│   ├── ocr_rec_int16.kmodel
-│   ├── ocr_rec.kmodel
-│   ├── person_attr_yolov5n.kmodel
-│   ├── person_detect_yolov5n.kmodel
-│   ├── person_pulc.kmodel
-│   ├── recognition.kmodel
-│   ├── traffic.kmodel
-│   ├── translate_decoder.kmodel
-│   ├── translate_encoder.kmodel
-│   ├── vehicle_attr_yolov5n.kmodel
-│   ├── vehicle.kmodel
-│   ├── yolop.kmodel
-│   ├── yolov5n-falldown.kmodel
-│   ├── yolov5s_smoke_best.kmodel
-│   ├── yolov8n_320.kmodel
-│   ├── yolov8n_640.kmodel
-│   ├── yolov8n-pose.kmodel
-│   ├── yolov8n_seg_320.kmodel
-│   ├── yolov8n_seg_640.kmodel
-│   ├── zh_fastspeech_1_f32.kmodel
-│   ├── zh_fastspeech_1.kmodel
-│   └── zh_fastspeech_2.kmodel
-└── utils  # Demo测试使用的其他工具文件，比如OCR字典，关键词唤醒预置音频等
-    ├── Asci0816.zf
-    ├── bfm_tri.bin
-    ├── bu.bin
-    ├── dict_6625.txt
-    ├── dict_ocr_16.txt
-    ├── dict_ocr.txt
-    ├── file
-    ├── HZKf2424.hz
-    ├── jiandao.bin
-    ├── libsentencepiece.a
-    ├── llama.bin
-    ├── memory.bin
-    ├── ncc_code.bin
-    ├── pintu.bin
-    ├── reply_wav
-    ├── shang.bin
-    ├── shitou.bin
-    ├── tokenizer.bin
-    ├── trans_src.model
-    ├── trans_tag.model
-    ├── wav_play.elf
-    ├── xia.bin
-    ├── you.bin
-    └── zuo.bin
+├── ai_base.cc        # 模型推理封装类实现，封装了nncase的基本操作，包括kmodel加载，设置输入，获取输出，后续应用开发只需关注模型前后处理
+├── ai_base.h         # 模型推理封装类头文件，定义了模型推理的基本接口
+├── ai_utils.cc       # 工具方法和工具类，提供获取颜色盘、保存图片、不同预处理方法的实现
+├── ai_utils.h        # 工具方法和工具类头文件，定义了工具方法和工具类的接口
+├── scoped_timing.h   # 时间测量类，用于测量代码执行时间
+├── setting.h         # 配置头文件，主要实现设置不同屏幕显示时的配置参数和AI推理出图分辨率
+├── video_pipeline.cc # 单摄双通道视频流封装实现，实现了摄像头、显示设备初始化、获取视频帧、显示OSD结果等功能
+└── video_pipeline.h  # 单摄双通道视频流封装头文件，定义了视频流的基本接口
 ```
+
+kmodel、image及相关依赖路径位于 `src/rtsmart/libs/kmodel/ai_poc`，该目录提供了ai_demo运行所必须的kmodel、测试图片以及其他必要文件。在ai_demo编译过程中，会由`build_app.sh`脚本按照demo名称自动拷贝到产物目录下。
 
 ### Demo 说明
 
@@ -197,7 +98,6 @@ kmodel、image及相关依赖路径位于 `src/rtsmart/libs/kmodel/ai_poc`，目
 | anomaly_det           | 异常检测                 | 异常检测示例提供的模型使用patchcore异常检测方法训练得到，能够从输入图片中辨别出玻璃瓶口是否存在异常。异常检测通常会被应用在工业图像检测、医疗图像分析、安防监控等领域。                            |
 | bytetrack             | 多目标跟踪               | ByteTrack多目标追踪示例使用YOLOv5作为目标检测算法，应用卡尔曼滤波算法进行边界框预测，应用匈牙利算法进行目标和轨迹间的匹配。  |
 | crosswalk_detect      | 人行横道检测              | 人行横道检测使用YOLOV5网络，该应用对图片或视频中的人行横道进行检测，可用于辅助驾驶等场景。                        |
-| demo_mix              | demo串烧合集             | Demo串烧使用不同的手势控制应用切换，食指比1手势进入动态手势识别，食指中指比2手势进入人脸姿态角识别，三指比3手势进入人脸跟踪。可以作为智能跟踪拍摄车的软件部分实现隔空调整底盘位置，隔空调整相机角度，追踪人脸目标。                             |
 | distraction_reminder  | 非正视检测                  | 非正视检测示例主要采用了人脸姿态估计作为基础，通过逻辑判断实现对司机注意力不集中于前方的提醒。人脸检测采用了retina-face模型，人脸朝向估计98个2D关键点拟合                        |
 | dms_system            | 驾驶员监控系统             | dms示例以手掌检测和人脸检测为基础，通过逻辑判断实现对行驶车辆司机的违规行为（抽烟、打电话、喝水）进行提醒。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2。 |
 | dynamic_gesture       | 视觉动态手势识别            | 视觉动态手势识别可以对上下左右摆手和五指捏合五个动作进行识别，用于隔空操作控制场景。 手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构,动态手势识别采用了tsm结构，backbone选取了mobilenetV2。                            |
@@ -306,7 +206,7 @@ repo sync
 # 下载工具链
 make dl_toolchain
 # 列出可用的配置选项
-make list_def
+make list-def
 # 选择对应的板子配置文件
 make xxxx_defconfig
 # 开始编译
@@ -323,21 +223,24 @@ time make log
 
 #### 切换不同的开发板
 
-在RT-Smart SDK 根目录下使用 `make list_def` 命令查看开发板类型，使用 `make ***_defconfig` 命令选择AI Demo支持的开发板(`k230_canmv_01studio_defconfig`/`k230_canmv_defconfig`/`k230_canmv_v3p0_defconfig`/`k230d_canmv_bpi_zero_defconfig`)，然后执行 `make` 命令实现开发板切换和固件编译。
+在RT-Smart SDK 根目录下使用 `make list-def` 命令查看开发板类型，使用 `make ***_defconfig` 命令选择AI Demo支持的开发板，然后执行 `make` 命令实现开发板切换和固件编译。
 
-#### 默认显示支持
+比如，使用如下命令编译立创庐山派固件：
 
-这里列出几种常见开发板在`AIDemo`中的显示配置。
+```shell
+# 查看支持的开发板列表
+make list-def
+# 切换某一开发板类型
+make k230_canmv_lckfb_defconfig
+# 编译固件
+make
+```
 
-| 开发板类型 | 开发板宏定义 |默认编译说明|
-| :----- | :--- |:---|
-| k230_canmv_defconfig  | CONFIG_BOARD_K230_CANMV | 默认使用LT9611 HDMI 1080P显示，当前代码仅支持此种模式|
-| k230_canmv_01studio_defconfig |CONFIG_BOARD_K230_CANMV_01STUDIO|默认使用LT9611 HDMI 1080P显示，可以在编译参数指定lcd，使用ST7701 480*800显示|
-| k230_canmv_v3p0_defconfig |CONFIG_BOARD_K230_CANMV_V3P0|默认使用ST77011 LCD 480*800屏幕显示，当前代码仅支持此种模式|
-|k230_canmv_lckfb_defconfig  |CONFIG_BOARD_K230_CANMV_LCKFB|默认使用ST77011 LCD 480*800屏幕显示，当前代码仅支持此种模式|
-|k230d_canmv_bpi_zero_defconfig  |CONFIG_BOARD_K230D_CANMV_BPI_ZERO|默认使用ST77011 LCD 480*800屏幕显示，当前代码仅支持此种模式|
+#### 切换显示支持
 
-还有几种开发板没有列出支持，AI模型部分没有区别，仅在显示部分存在区别，您可以按照`src/rtsmart/mpp/include/comm/k_autoconf_comm.h` 中的宏定义确定开发板类型，并更改 `vi_vo.h`文件进行适配。
+ai_demo支持两种显示类型，`lt9611`表示HDMI显示模式，`st7701`表示`800*480`的LCD屏幕。切换ai_demo屏幕类型需要在`make menuconfig`中进行配置，配置路径见下图：
+
+![切换显示类型](https://www.kendryte.com/api/post/attachment?id=641)
 
 #### AI Demo 编译
 
@@ -347,19 +250,10 @@ time make log
 cd src/rtsmart/examples/ai_poc
 
 # 不带参数默认编译所有的demo
-./build_app_rtos_only.sh
+./build_app.sh
 
-# 对于01studio开发板，编译hdmi显示模式下所有的demo
-./build_app_rtos_only.sh all hdmi
-
-# 对于01studio开发板，编译lcd显示模式下所有的demo
-./build_app_rtos_only.sh all lcd
-
-# 对于01studio开发板，编译hdmi显示模式下某一个demo
-./build_app_rtos_only.sh face_detection hdmi
-
-# 对于01studio开发板，编译lcd显示模式下某一个demo
-./build_app_rtos_only.sh face_detection lcd
+# 仅编译某一个demo
+./build_app_rtos_only.sh face_detection
 ```
 
 编译产物在 `src/rtsmart/examples/ai_poc/k230_bin` 目录下，生成文件目录结构如下：
@@ -378,7 +272,7 @@ k230_bin/
 
 #### AI Demo 上板运行
 
-将感兴趣的demo编译产物目录，比如 `face_detection` 目录拷贝到开发板，即可在RTOS系统运行对应的 AI Demo。拷贝方法可以使用离线插拔TF卡拷贝，将 `face_detection` 目录拷贝到TF卡根目录，然后插卡上电，连接串口，进入`/sdcard/face_detection` 目录执行 Demo 对应的 `***_isp.sh` 或 `***_image.sh` 脚本。比如：
+将感兴趣的demo编译产物目录，比如 `face_detection` 目录拷贝到开发板，即可在RTOS系统运行对应的 AI Demo。拷贝方法可以使用离线插拔TF卡拷贝，将 `face_detection` 目录拷贝到TF卡根目录，然后插卡上电，连接调试串口，进入`/sdcard/face_detection` 目录执行 Demo 对应的 `***_isp.sh` 或 `***_image.sh` 脚本。比如：
 
 ```shell
 #进入开发板大核sharefs目录
