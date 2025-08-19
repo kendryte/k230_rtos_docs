@@ -44,6 +44,7 @@ RT-Smart SDK 的应用示例位于 `src/rtsmart/examples` 目录下，这里为�
 | **uvc_face_detection**  | 基于 UVC 摄像头的人脸检测示例，已封装摄像头、显示、格式转换等模块，让你直接关注推理逻辑。                                              | 开发 **UVC 摄像头 AI 应用** 的参考 |
 | **opencv_examples**      | OpenCV 应用示例，演示在 RT-Smart 上使用 OpenCV 处理图像的方法。                                                 | 展示 **OpenCV 在K230 RTSmart上的用法**   |
 | **openblas_examples**     | OpenBLAS 应用示例，提供矩阵计算的几个案例，展示在 RT-Smart 上的使用方法。                                               | 展示 **Openblas 在K230 RTSmart上的用法**           |
+|**cloudplat_deploy_code**  | 实现在线训练平台和AICube的部署代码，用户需要在完成编译后配合平台得到的deploy_config.json和kmodel使用| 方便用户部署使用在线云训练平台和AICube训练得到的kmodel|
 
 ### AI Demo介绍
 
@@ -58,7 +59,7 @@ RT-Smart SDK 的应用示例位于 `src/rtsmart/examples` 目录下，这里为�
 
 **运行方式：**
 
-所有 Demo 的源代码均开放、结构清晰，统一存放在 `src/rtsmart/examples/ai_poc` 目录下。用户可以自行搭建编译环境，并完成aidemo的编译、运行、调试和深入研究这些代码，理解 API 调用、数据处理流程和模型集成方式，极大地加速自身应用的开发进程。具体内容请参考文档：![AI Demo应用指南](./app_develop_guide/ai/aidemo.md)。
+所有 Demo 的源代码均开放、结构清晰，统一存放在 `src/rtsmart/examples/ai_poc` 目录下。用户可以自行搭建编译环境，并完成aidemo的编译、运行、调试和深入研究这些代码，理解 API 调用、数据处理流程和模型集成方式，极大地加速自身应用的开发进程。具体内容请参考文档：[AI Demo应用指南](./app_develop_guide/ai/aidemo.md)。
 
 **注意事项：**
 
@@ -66,59 +67,59 @@ RT-Smart SDK 的应用示例位于 `src/rtsmart/examples` 目录下，这里为�
 
 - 关于K230和K230D的区别，请参考：**[产品中心](https://www.kendryte.com/zh/products)**
 
-| Demo 子目录           | 场景                     |      说明                  |
-| :-------------------- | ------------------------ |--------------------------- |
-| anomaly_det           | 异常检测                 | 异常检测示例提供的模型使用patchcore异常检测方法训练得到，能够从输入图片中辨别出玻璃瓶口是否存在异常。异常检测通常会被应用在工业图像检测、医疗图像分析、安防监控等领域。                            |
-| bytetrack             | 多目标跟踪               | ByteTrack多目标追踪示例使用YOLOv5作为目标检测算法，应用卡尔曼滤波算法进行边界框预测，应用匈牙利算法进行目标和轨迹间的匹配。  |
-| crosswalk_detect      | 人行横道检测              | 人行横道检测使用YOLOV5网络，该应用对图片或视频中的人行横道进行检测，可用于辅助驾驶等场景。                        |
-| distraction_reminder  | 非正视检测                  | 非正视检测示例主要采用了人脸姿态估计作为基础，通过逻辑判断实现对司机注意力不集中于前方的提醒。人脸检测采用了retina-face模型，人脸朝向估计98个2D关键点拟合                        |
-| dms_system            | 驾驶员监控系统             | dms示例以手掌检测和人脸检测为基础，通过逻辑判断实现对行驶车辆司机的违规行为（抽烟、打电话、喝水）进行提醒。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2。 |
-| dynamic_gesture       | 视觉动态手势识别            | 视觉动态手势识别可以对上下左右摆手和五指捏合五个动作进行识别，用于隔空操作控制场景。 手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构,动态手势识别采用了tsm结构，backbone选取了mobilenetV2。                            |
-| eye_gaze              | 注视估计                 |   注视估计示例根据人脸预测人正在看哪里，对视频帧或图片，先进行人脸检测，然后对每个人脸进行注视估计，预测出注视向量，并以箭头的方式显示到屏幕上。该应用采用retina-face网络实现人脸检测，使用L2CS-Net实现注视估计。注视估计可以应用到汽车安全领域。                          |
-| face_alignment        | 人脸对齐                 | 人脸对齐示例可得到图像或视频中的每个人脸的深度图（depth）或归一化投影坐标编码图。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet，人脸对齐网络基于3DDFA(3D Dense Face Alignment)实现。            |
-| face_detection        | 人脸检测                 |  人脸检测实例可得到图像或视频中的每个人脸检测框以及每个人脸的左眼球/右眼球/鼻尖/左嘴角/右嘴角五个关键点位置。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet。                           |
-| face_emotion          | 面部表情识别              | 面部表情识别使用两个模型实现图像/视频中每个人的表情识别的功能，可识别的表情类别包括Neutral、Happiness、Sadness、Anger、Disgust、Fear、Surprise。人脸检测使用retina-face网络结构；表情分类选用mobilenet为backbone进行分类，得到人物表情。                            |
-| face_gender           | 性别分类                 | 人脸性别分类示例使用两个模型实现判断图像/视频中每个人的性别的功能，每个人物性别用M或F表示，其中M表示男性（Male），F表示女性（Female）。 人脸检测使用retina-face网络结构；性别分类选用EfficientNetB3为backbone进行分类，得到人物性别。                           |
-| face_glasses          | 是否佩戴眼镜分类         | 是否佩戴眼镜分类示例使用两个模型实现判断图像/视频每个人是否佩戴眼镜。 人脸检测检测模型使用retina-face网络结构；人脸眼镜分类模型选用SqueezeNet-1.1为backbone，用于对每个人脸框判断眼镜佩戴情况。                           |
-| face_landmark         | 人脸密集关键点            | 人脸密集关键点检测应用使用两个模型实现检测图像/视频中每张人脸的106关键点，并根据106关键点绘制人脸、五官等轮廓，不同轮廓使用不用的颜色表示。人脸检测使用retina-face网络结构；密集关键点检测选用0.5-mobilenet为backbone，用于对每张人脸检测106个关键点，106关键点包括人脸的脸颊、嘴巴、眼睛、鼻子和眉毛区域。                            |
-| face_mask             | 是否佩戴口罩分类          | 是否佩戴口罩分类应用使用两个模型实现判断图像/视频每个人是否佩戴口罩。在需要佩戴口罩的应用场景中，若发现有人没有佩戴口罩，可进行相关提醒。人脸检测检测模型使用retina-face网络结构；人脸口罩分类模型使用mobilenet-v2为backbone，用于对每个人脸框判断口罩佩戴情况。                            |
-| face_mesh             | 3D人脸网格              |  3D人脸网格可得到图像或视频中的每个人脸的三维网格结构。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet，人脸对齐网络基于3DDFA(3D Dense Face Alignment)实现。|
-| face_parse            | 人脸分割                  | 人脸分割示例使用两个模型实现对图像/视频中每个人脸的分割功能，人脸分割包含对人脸眼睛、鼻子、嘴巴等部位按照像素进行区分，不同的区域用不同的颜色表示。 人脸检测采用了retina-face网络结构，人脸部位分割使用DeepNetV3网络结构，backbone使用mobilenet-1.0。                           |
-| face_pose             | 人脸姿态估计             | 人脸姿态估计使用两个模型实现对图像/视频中每个人的脸部朝向的角度进行估计的功能。人脸朝向用一般用欧拉角（roll/yaw/pitch）表示，其中roll代表了人脸左右摇头的程度；yaw代表了人脸左右旋转的程度；pitch代表了人脸低头抬头的程度。人脸检测采用了retina-face模型，人脸朝向估计98个2D关键点拟合。                            |
-| face_verification     | 人脸身份验证             | 人脸身份验证是一种基于人脸生物特征的身份验证技术，旨在确认个体是否是其所声称的身份。该技术通过分析和比对用户的脸部特征来验证其身份，通常是在人脸验证系统通过对比两张图片，确定两张图像中的人脸是否属于同一个人。 人脸检测采用了retina-face模型，人脸朝特征化使用ResNet50,输出512维特征。                           |
-| falldown_detect       | 跌倒检测                 |  跌倒检测可以对图片或视频中的人的跌倒状态进行检测。该示例使用yolov5n模型实现。                           |
-| finger_guessing       | 猜拳游戏                 |  猜拳游戏示例通过手部手势识别区分石头鸡剪刀布，包括手掌检测和手部21关键点识别两个模型，通过21个关键点的位置约束确定手势类别。手掌检测部分采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测部分采用了resnet50网络结构。                          |
-| fitness               | 蹲起动作计数             |  蹲起动作计数示例实现视频中人的蹲起动作计数功能，适用于健身状态检测等场景。使用yolov8n-pose模型实现。                           |
-| head_detection        | 人头检测计数             |  人头检测计数示例实现了获取图片或视频中出现的人头的坐标和数量的功能。使用yolov8模型实现。                           |
-| helmet_detect         | 安全帽检测               | 安全帽检测实例实现了对图片或视频中出现的人是否佩戴安全帽进行检测，适用于建筑制造业的安全预防场景。使用yolov5模型实现。                            |
-| kws                   | 关键词唤醒               |关键词唤醒通过音频识别模型检测音频流中是否包含训练时设定的关键词，如果检测到对应的关键词，给出语音响应。本示例提供的模型为WeNet训练得到，正负样本分别采用在k230开发板上采集的“xiaonan”音频和开源数据集speech_commands。                             |
-| licence_det           | 车牌检测                 | 车牌检测可以检测图像或视频中的出现的车牌。 车牌检测采用了retinanet网络结构。                          |
-| licence_det_rec       | 车牌识别                 | 车牌识别可以识别图图像或视频中出现的车牌的位置以及牌照信息。车牌检测采用了retinanet网络结构，车牌识别采用了以MobileNetV3为backbone的RLNet网络结构。                            |
-| nanotracker           | 单目标跟踪               | 单目标跟踪在前几秒在注册框中防止特征明显的待跟踪物品实现追踪注册，然后实时对该物品进行视觉追踪。 跟踪算法使用NanoTrack。                           |
-| object_detect_yolov8n | YOLOV8多目标检测         | YOLOv8多目标检测检测示例实现COCO数据集80类别检测。使用yolov8n模型。                            |
-| ocr                   | ocr检测+识别             | OCR识别示例可检测到图像或视频中的文本位置以及相应的文字内容。OCR识别任务采用了CRNN网络结构，OCR检测任务采用了DBnet的网络结构。                           |
-| person_attr           | 人体属性                 | 人体属性检测可以识别图片或视频中的人体位置坐标，性别、年龄、是否佩戴眼镜、是否持物。人体检测使用YOLOv5模型实现，人体属性使用PULC人模型实现。                            |
-| person_detect         | 人体检测                 |  人体检测可以检测图片或视频中的人体位置坐标信息，并用检测框标记出来。本示例使用yolov5模型实现。                           |
-| person_distance       | 行人测距                 |  行人测距是先通过行人检测检测行人，再通过检测框在图像中的大小去估算目标距离。其中行人检测采用了yolov5n的网络结构。使用该应用，可得到图像或视频中的每个行人的检测框以及估算的距离。该技术可应用在车辆辅助驾驶系统、智能交通等领域。该应用需要根据摄像头调整计算数据，现有示例可能识别不准。                   |
-| pose_detect           | 人体关键点检测           |  人体关键点检测模型的输出是一组代表图像或视频中人体对象上的关键点（17个），以及每个点的置信度得分，并使用不同颜色的线将关键点连接成人体的形状。本示例使用yolov8n-pose模型实现。                           |
-| pphumanseg            | 人像分割                 | 人像分割指对图片或视频中的人体轮廓范围进行识别，将其与背景进行分离，返回分割后的二值图、灰度图、前景人像图等，实现背景图像的替换与合成。 可应用于人像抠图、照片合成、人像特效、背景特效等场景，大大提升图片和视频工具效率。本示例使用pphumanseg模型实现。                            |
-| puzzle_game           | 拼图游戏                 | 拼图游戏可得到图像或视频中的每个手掌的21个骨骼关键点位置。并且可以实现拼图游戏的功能，张开拇指和中指，将其中点放到空格旁边的非空格，拟合两指，当前非空格会移动到空格内。 示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                           |
-| segment_yolov8n       | YOLOV8多目标分割         | YOLOv8多目标分割检测示例实现COCO数据集80类别分割掩码。使用yolov8n-seg模型。                            |
-| self_learning         | 自学习（度量学习分类）    | 自学习通过在注册框内注册物品特征，然后再不重新训练的前提下识别框内的物品。程序启动后输入i打断运行，输入n为新建特征，输入d是删除特征，特征注册完毕后会继续开始识别检测框内的物品和注册的物品的相似程度，并完成分类，按esc键退出程序。特征化模型使用ppshitu_lite模型。                           |
-| smoke_detect          | 吸烟检测                 |  吸烟检测对图片或视频中存在的吸烟行为进行实时监测识别。该示例使用yolov5模型实现。                           |
-| space_resize          | 手势隔空缩放             | 手势隔空缩放可得到图像或视频中的每个手掌的21个骨骼关键点位置，并且我们通过拇指中指来实现隔空缩放图像。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                            |
-| sq_hand_det           | 手掌检测                 |  手掌检测可获取图像或视频中的每个手掌的检测框。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2。                           |
-| sq_handkp_class       | 手掌关键点手势分类       |   手掌关键点手势分类可得到图像或视频中的每个手掌的21个骨骼关键点位置,并根据关键点的位置二维约束获得静态手势。共支持握拳，五指张开，一手势，yeah手势，三手势，八手势，六手势，点赞，拇指食指小拇指张开共9种手势。本示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                          |
-| sq_handkp_det         | 手掌关键点检测           | 手掌关键点检测示例可得到图像或视频中的每个手掌的21个骨骼关键点位置。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                           |
-| sq_handkp_flower      | 指尖区域花卉分类         | 指尖区域花卉识别可得到图像或视频中的两个手掌的食指指尖包围区域内的花卉类别。可支持102种花卉的种类识别。本示例手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。花朵分类backbone选取了1.0-mobilenetV2。                            |
-| sq_handkp_ocr         | 手指区域OCR识别          | 手指区域OCR识别可得到图像或视频中的每个手掌的食指左上区域范围内识别到的文字。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。文字检测采用了retinanet网络结构，文字识别采用了以MobileNetV3为backbone的RLnet网络结构。                            |
-| sq_handreco           | 手势识别                 | 手势识别可得到图像或视频中的每个手势的类别。仅支持五指张开、八手势、  yeah手势三种。 本示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手势识别backbone选取了1.0-mobilenetV2。                        |
-| traffic_light_detect  | 交通信号灯检测           | 可检测到图像或视频中的交红绿黄信号灯。本示例使用yolov5模型实现。                            |
-| translate_en_ch       | 英翻中翻译               | 英翻中翻译可以实现简单的英翻中翻译任务，效果一般。机器翻译模型应用了transformer结构。                       |
-| tts_zh                | 中文转语音               | 中文文字转语音（text to chinese speech, tts_zh）使用三个模型实现。用户默认输入三次文字，生成文字对应的wav文件。 本示例将FastSpeech2模型拆分成两个模型，Encoder+Variance Adaptor为fastspeech1，Decoder为fastspeech2，声码器选择hifigan。持续时间特征在fastspeech1之后添加。                       |
-| vehicle_attr          | 车辆属性识别             | 车辆属性识别可以识别图像或视频中每个车辆，并返回该车辆的位置坐标、车型、车身颜色。本示例采用了yolov5网络结构实现了车辆检测，车辆属性检测使用PULC模型。                         |
-| virtual_keyboard      | 隔空虚拟键盘             | 隔空虚拟键盘可以使用屏幕上的虚拟键盘输出字符。拇指和食指捏合是输入动作。本示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                          |
-| yolop_lane_seg        | 路面车道线分割           | 路面车道线分割可在图像或视频中实现路面分割，即检测到车道线和可行驶区域，并加以颜色区分。本示例使用yolop模型实现。         |
+| Demo 子目录           | 场景                     |      说明                  |链接|
+| :-------------------- | ------------------------ |--------------------------- |---|
+| anomaly_det           | 异常检测                 | 异常检测示例提供的模型使用patchcore异常检测方法训练得到，能够从输入图片中辨别出玻璃瓶口是否存在异常。异常检测通常会被应用在工业图像检测、医疗图像分析、安防监控等领域。                            |[anomaly_det](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/anomaly_det)|
+| bytetrack             | 多目标跟踪               | ByteTrack多目标追踪示例使用YOLOv5作为目标检测算法，应用卡尔曼滤波算法进行边界框预测，应用匈牙利算法进行目标和轨迹间的匹配。  |[bytetrack](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/bytetrack)|
+| crosswalk_detect      | 人行横道检测              | 人行横道检测使用YOLOV5网络，该应用对图片或视频中的人行横道进行检测，可用于辅助驾驶等场景。                        |[crosswalk_detect](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/crosswalk_detect)|
+| distraction_reminder  | 非正视检测                  | 非正视检测示例主要采用了人脸姿态估计作为基础，通过逻辑判断实现对司机注意力不集中于前方的提醒。人脸检测采用了retina-face模型，人脸朝向估计98个2D关键点拟合                        | [distraction_reminder](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/distraction_reminder)|
+| dms_system            | 驾驶员监控系统             | dms示例以手掌检测和人脸检测为基础，通过逻辑判断实现对行驶车辆司机的违规行为（抽烟、打电话、喝水）进行提醒。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2。 | [dms_system](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/dms_system)|
+| dynamic_gesture       | 视觉动态手势识别            | 视觉动态手势识别可以对上下左右摆手和五指捏合五个动作进行识别，用于隔空操作控制场景。 手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构,动态手势识别采用了tsm结构，backbone选取了mobilenetV2。                            | [dynamic_gesture](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/dynamic_gesture)|
+| eye_gaze              | 注视估计                 |   注视估计示例根据人脸预测人正在看哪里，对视频帧或图片，先进行人脸检测，然后对每个人脸进行注视估计，预测出注视向量，并以箭头的方式显示到屏幕上。该应用采用retina-face网络实现人脸检测，使用L2CS-Net实现注视估计。注视估计可以应用到汽车安全领域。                          | [eye_gaze](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/eye_gaze)|
+| face_alignment        | 人脸对齐                 | 人脸对齐示例可得到图像或视频中的每个人脸的深度图（depth）或归一化投影坐标编码图。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet，人脸对齐网络基于3DDFA(3D Dense Face Alignment)实现。            | [face_alignment](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_alignment)|
+| face_detection        | 人脸检测                 |  人脸检测实例可得到图像或视频中的每个人脸检测框以及每个人脸的左眼球/右眼球/鼻尖/左嘴角/右嘴角五个关键点位置。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet。                           | [face_detection](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_detection)|
+| face_emotion          | 面部表情识别              | 面部表情识别使用两个模型实现图像/视频中每个人的表情识别的功能，可识别的表情类别包括Neutral、Happiness、Sadness、Anger、Disgust、Fear、Surprise。人脸检测使用retina-face网络结构；表情分类选用mobilenet为backbone进行分类，得到人物表情。                            | [face_emotion](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_emotion)|
+| face_gender           | 性别分类                 | 人脸性别分类示例使用两个模型实现判断图像/视频中每个人的性别的功能，每个人物性别用M或F表示，其中M表示男性（Male），F表示女性（Female）。 人脸检测使用retina-face网络结构；性别分类选用EfficientNetB3为backbone进行分类，得到人物性别。                           | [face_gender](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_gender)|
+| face_glasses          | 是否佩戴眼镜分类         | 是否佩戴眼镜分类示例使用两个模型实现判断图像/视频每个人是否佩戴眼镜。 人脸检测检测模型使用retina-face网络结构；人脸眼镜分类模型选用SqueezeNet-1.1为backbone，用于对每个人脸框判断眼镜佩戴情况。                           | [face_glasses](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_glasses)|
+| face_landmark         | 人脸密集关键点            | 人脸密集关键点检测应用使用两个模型实现检测图像/视频中每张人脸的106关键点，并根据106关键点绘制人脸、五官等轮廓，不同轮廓使用不用的颜色表示。人脸检测使用retina-face网络结构；密集关键点检测选用0.5-mobilenet为backbone，用于对每张人脸检测106个关键点，106关键点包括人脸的脸颊、嘴巴、眼睛、鼻子和眉毛区域。                            | [face_landmark](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_landmark)|
+| face_mask             | 是否佩戴口罩分类          | 是否佩戴口罩分类应用使用两个模型实现判断图像/视频每个人是否佩戴口罩。在需要佩戴口罩的应用场景中，若发现有人没有佩戴口罩，可进行相关提醒。人脸检测检测模型使用retina-face网络结构；人脸口罩分类模型使用mobilenet-v2为backbone，用于对每个人脸框判断口罩佩戴情况。                            | [face_mask](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_mask)|
+| face_mesh             | 3D人脸网格              |  3D人脸网格可得到图像或视频中的每个人脸的三维网格结构。人脸检测采用了retina-face网络结构，backbone选取0.25-mobilenet，人脸对齐网络基于3DDFA(3D Dense Face Alignment)实现。| [face_mesh](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_mesh)|
+| face_parse            | 人脸分割                  | 人脸分割示例使用两个模型实现对图像/视频中每个人脸的分割功能，人脸分割包含对人脸眼睛、鼻子、嘴巴等部位按照像素进行区分，不同的区域用不同的颜色表示。 人脸检测采用了retina-face网络结构，人脸部位分割使用DeepNetV3网络结构，backbone使用mobilenet-1.0。                           | [face_parse](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_parse)|
+| face_pose             | 人脸姿态估计             | 人脸姿态估计使用两个模型实现对图像/视频中每个人的脸部朝向的角度进行估计的功能。人脸朝向用一般用欧拉角（roll/yaw/pitch）表示，其中roll代表了人脸左右摇头的程度；yaw代表了人脸左右旋转的程度；pitch代表了人脸低头抬头的程度。人脸检测采用了retina-face模型，人脸朝向估计98个2D关键点拟合。                            | [face_pose](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_pose)|
+| face_verification     | 人脸身份验证             | 人脸身份验证是一种基于人脸生物特征的身份验证技术，旨在确认个体是否是其所声称的身份。该技术通过分析和比对用户的脸部特征来验证其身份，通常是在人脸验证系统通过对比两张图片，确定两张图像中的人脸是否属于同一个人。 人脸检测采用了retina-face模型，人脸朝特征化使用ResNet50,输出512维特征。                           | [face_verification](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/face_verification)|
+| falldown_detect       | 跌倒检测                 |  跌倒检测可以对图片或视频中的人的跌倒状态进行检测。该示例使用yolov5n模型实现。                           | [falldown_detect](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/falldown_detect)|
+| finger_guessing       | 猜拳游戏                 |  猜拳游戏示例通过手部手势识别区分石头鸡剪刀布，包括手掌检测和手部21关键点识别两个模型，通过21个关键点的位置约束确定手势类别。手掌检测部分采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测部分采用了resnet50网络结构。                          | [finger_guessing](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/finger_guessing)|
+| fitness               | 蹲起动作计数             |  蹲起动作计数示例实现视频中人的蹲起动作计数功能，适用于健身状态检测等场景。使用yolov8n-pose模型实现。                           | [fitness](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/fitness)|
+| head_detection        | 人头检测计数             |  人头检测计数示例实现了获取图片或视频中出现的人头的坐标和数量的功能。使用yolov8模型实现。                           | [head_detection](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/head_detection)|
+| helmet_detect         | 安全帽检测               | 安全帽检测实例实现了对图片或视频中出现的人是否佩戴安全帽进行检测，适用于建筑制造业的安全预防场景。使用yolov5模型实现。                            | [helmet_detect](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/helmet_detect)|
+| kws                   | 关键词唤醒               |关键词唤醒通过音频识别模型检测音频流中是否包含训练时设定的关键词，如果检测到对应的关键词，给出语音响应。本示例提供的模型为WeNet训练得到，正负样本分别采用在k230开发板上采集的“xiaonan”音频和开源数据集speech_commands。                             | [kws](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/kws)|
+| licence_det           | 车牌检测                 | 车牌检测可以检测图像或视频中的出现的车牌。 车牌检测采用了retinanet网络结构。                          | [licence_det](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/licence_det)|
+| licence_det_rec       | 车牌识别                 | 车牌识别可以识别图图像或视频中出现的车牌的位置以及牌照信息。车牌检测采用了retinanet网络结构，车牌识别采用了以MobileNetV3为backbone的RLNet网络结构。                            | [licence_det_rec](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/licence_det_rec)|
+| nanotracker           | 单目标跟踪               | 单目标跟踪在前几秒在注册框中防止特征明显的待跟踪物品实现追踪注册，然后实时对该物品进行视觉追踪。 跟踪算法使用NanoTrack。                           | [nanotracker](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/nanotracker)|
+| object_detect_yolov8n | YOLOV8多目标检测         | YOLOv8多目标检测检测示例实现COCO数据集80类别检测。使用yolov8n模型。                            | [object_detect_yolov8n](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/object_detect_yolov8n)|
+| ocr                   | ocr检测+识别             | OCR识别示例可检测到图像或视频中的文本位置以及相应的文字内容。OCR识别任务采用了CRNN网络结构，OCR检测任务采用了DBnet的网络结构。                           | [ocr](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/ocr)|
+| person_attr           | 人体属性                 | 人体属性检测可以识别图片或视频中的人体位置坐标，性别、年龄、是否佩戴眼镜、是否持物。人体检测使用YOLOv5模型实现，人体属性使用PULC人模型实现。                            | [person_attr](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/person_attr)|
+| person_detect         | 人体检测                 |  人体检测可以检测图片或视频中的人体位置坐标信息，并用检测框标记出来。本示例使用yolov5模型实现。                           | [person_detect](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/person_detect)|
+| person_distance       | 行人测距                 |  行人测距是先通过行人检测检测行人，再通过检测框在图像中的大小去估算目标距离。其中行人检测采用了yolov5n的网络结构。使用该应用，可得到图像或视频中的每个行人的检测框以及估算的距离。该技术可应用在车辆辅助驾驶系统、智能交通等领域。该应用需要根据摄像头调整计算数据，现有示例可能识别不准。                   | [person_distance](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/person_distance)|
+| pose_detect           | 人体关键点检测           |  人体关键点检测模型的输出是一组代表图像或视频中人体对象上的关键点（17个），以及每个点的置信度得分，并使用不同颜色的线将关键点连接成人体的形状。本示例使用yolov8n-pose模型实现。                           | [pose_detect](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/pose_detect)|
+| pphumanseg            | 人像分割                 | 人像分割指对图片或视频中的人体轮廓范围进行识别，将其与背景进行分离，返回分割后的二值图、灰度图、前景人像图等，实现背景图像的替换与合成。 可应用于人像抠图、照片合成、人像特效、背景特效等场景，大大提升图片和视频工具效率。本示例使用pphumanseg模型实现。                            | [pphumanseg](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/pphumanseg)|
+| puzzle_game           | 拼图游戏                 | 拼图游戏可得到图像或视频中的每个手掌的21个骨骼关键点位置。并且可以实现拼图游戏的功能，张开拇指和中指，将其中点放到空格旁边的非空格，拟合两指，当前非空格会移动到空格内。 示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                           | [puzzle_game](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/puzzle_game)|
+| segment_yolov8n       | YOLOV8多目标分割         | YOLOv8多目标分割检测示例实现COCO数据集80类别分割掩码。使用yolov8n-seg模型。                            | [segment_yolov8n](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/segment_yolov8n)|
+| self_learning         | 自学习（度量学习分类）    | 自学习通过在注册框内注册物品特征，然后再不重新训练的前提下识别框内的物品。程序启动后输入i打断运行，输入n为新建特征，输入d是删除特征，特征注册完毕后会继续开始识别检测框内的物品和注册的物品的相似程度，并完成分类，按esc键退出程序。特征化模型使用ppshitu_lite模型。                           | [self_learning](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/self_learning)|
+| smoke_detect          | 吸烟检测                 |  吸烟检测对图片或视频中存在的吸烟行为进行实时监测识别。该示例使用yolov5模型实现。                           | [smoke_detect](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/smoke_detect)|
+| space_resize          | 手势隔空缩放             | 手势隔空缩放可得到图像或视频中的每个手掌的21个骨骼关键点位置，并且我们通过拇指中指来实现隔空缩放图像。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                            | [space_resize](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/space_resize)|
+| sq_hand_det           | 手掌检测                 |  手掌检测可获取图像或视频中的每个手掌的检测框。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2。                           | [sq_hand_det](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/sq_hand_det)|
+| sq_handkp_class       | 手掌关键点手势分类       |   手掌关键点手势分类可得到图像或视频中的每个手掌的21个骨骼关键点位置,并根据关键点的位置二维约束获得静态手势。共支持握拳，五指张开，一手势，yeah手势，三手势，八手势，六手势，点赞，拇指食指小拇指张开共9种手势。本示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                          | [sq_handkp_class](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/sq_handkp_class)|
+| sq_handkp_det         | 手掌关键点检测           | 手掌关键点检测示例可得到图像或视频中的每个手掌的21个骨骼关键点位置。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                           | [sq_handkp_det](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/sq_handkp_det)|
+| sq_handkp_flower      | 指尖区域花卉分类         | 指尖区域花卉识别可得到图像或视频中的两个手掌的食指指尖包围区域内的花卉类别。可支持102种花卉的种类识别。本示例手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。花朵分类backbone选取了1.0-mobilenetV2。                            | [sq_handkp_flower](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/sq_handkp_flower)|
+| sq_handkp_ocr         | 手指区域OCR识别          | 手指区域OCR识别可得到图像或视频中的每个手掌的食指左上区域范围内识别到的文字。手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。文字检测采用了retinanet网络结构，文字识别采用了以MobileNetV3为backbone的RLnet网络结构。                            | [sq_handkp_ocr](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/sq_handkp_ocr)|
+| sq_handreco           | 手势识别                 | 手势识别可得到图像或视频中的每个手势的类别。仅支持五指张开、八手势、  yeah手势三种。 本示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手势识别backbone选取了1.0-mobilenetV2。                        | [sq_handreco](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/sq_handreco)|
+| traffic_light_detect  | 交通信号灯检测           | 可检测到图像或视频中的交红绿黄信号灯。本示例使用yolov5模型实现。                            | [traffic_light_detect](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/traffic_light_detect)|
+| translate_en_ch       | 英翻中翻译               | 英翻中翻译可以实现简单的英翻中翻译任务，效果一般。机器翻译模型应用了transformer结构。                       | [translate_en_ch](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/translate_en_ch)|
+| tts_zh                | 中文转语音               | 中文文字转语音（text to chinese speech, tts_zh）使用三个模型实现。用户默认输入三次文字，生成文字对应的wav文件。 本示例将FastSpeech2模型拆分成两个模型，Encoder+Variance Adaptor为fastspeech1，Decoder为fastspeech2，声码器选择hifigan。持续时间特征在fastspeech1之后添加。                       | [tts_zh](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/tts_zh)|
+| vehicle_attr          | 车辆属性识别             | 车辆属性识别可以识别图像或视频中每个车辆，并返回该车辆的位置坐标、车型、车身颜色。本示例采用了yolov5网络结构实现了车辆检测，车辆属性检测使用PULC模型。                         | [vehicle_attr](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/vehicle_attr)|
+| virtual_keyboard      | 隔空虚拟键盘             | 隔空虚拟键盘可以使用屏幕上的虚拟键盘输出字符。拇指和食指捏合是输入动作。本示例中手掌检测采用了yolov5网络结构，backbone选取了1.0-mobilenetV2，手掌关键点检测采用了resnet50网络结构。                          | [virtual_keyboard](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/virtual_keyboard)|
+| yolop_lane_seg        | 路面车道线分割           | 路面车道线分割可在图像或视频中实现路面分割，即检测到车道线和可行驶区域，并加以颜色区分。本示例使用yolop模型实现。         | [yolop_lane_seg](https://github.com/canmv-k230/k230_rtsmart_examples/tree/canmv_k230/ai_poc/yolop_lane_seg)|
 
 ## AI模型推理的基本流程
 
@@ -994,7 +995,7 @@ def cosine_similarity(onnx_results,kmodel_results):
 
 这一章就会带你把这个完整过程搞明白，让模型真的开始“动起来”～
 
-关于本章提到的比较复杂的流程，在sdk的`src/rtsmart/examples/ai_poc/common_files/video_pipeline.cc`中做了封装，用户仅需调用`pl.GetFrame(dump_res)`即可得到一帧MIPI图像。UVC的流程也封装在了`src/rtsmart/examples/uvc_ai/src/uvc_pipeline.cc`中做了封装，具体使用代码参考示例中的`main.cc`文件。用户可以专心处理模型推理部分的代码。开发文档参考：![如何开发一个ai_demo](./app_develop_guide/ai/develop_ai_demo.md)。
+关于本章提到的比较复杂的流程，在sdk的`src/rtsmart/examples/ai_poc/common_files/video_pipeline.cc`中做了封装，用户仅需调用`pl.GetFrame(dump_res)`即可得到一帧MIPI图像。UVC的流程也封装在了`src/rtsmart/examples/uvc_ai/src/uvc_pipeline.cc`中做了封装，具体使用代码参考示例中的`main.cc`文件。用户可以专心处理模型推理部分的代码。开发文档参考：[如何开发一个ai_demo](./app_develop_guide/ai/develop_ai_demo.md)。
 ```
 
 对于一个实用的 AI 程序，不仅包括模型推理，还包括有图像输入、前后处理程序、结果显示等不同模块。下图展示了一个典型的AI应用程序的完整框图：
