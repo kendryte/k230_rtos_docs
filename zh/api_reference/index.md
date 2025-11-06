@@ -14,6 +14,7 @@ video.md
 audio.md
 mpp_sys.md
 nonai_2d.md
+netmgmt.md
 peripheral/index.md
 nncase/index.md
 middleware/index.md

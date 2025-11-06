@@ -13,5 +13,6 @@ display.md
 video.md
 audio.md
 mpp_sys.md
+netmgmt.md
 peripheral/index.md
 ```
