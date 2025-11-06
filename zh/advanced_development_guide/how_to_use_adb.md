@@ -17,6 +17,7 @@ make rtsmart-menuconfig
 
 # 找到对应的配置项
 Components Configuration > Enable CherryUSB > Enable CherryUSB Device
+   -> USB Device Function
 
 # 选择打开功能
 选择 CDC + ADB 或者 ADB
