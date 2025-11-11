@@ -7,4 +7,6 @@
 
 how_to_change_otp.md
 how_to_add_newconfig_file.md
+how_to_use_adb.md
+how_to_use_uvc_device.md
 ```
