@@ -325,7 +325,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ### 模型转换
 
-`nncase` 用户指南文档见：[github: user_guide](https://github.com/kendryte/nncase/tree/master/examples/user_guide) 或 [gitee: user_guide](https://gitee.com/kendryte/nncase/tree/master/examples/user_guide) 。
+`nncase` 用户指南文档见：[github: user_guide](https://github.com/kendryte/nncase/tree/master/examples/user_guide)。
 
 使用 `nncase` 将 `tflite/onnx` 模型转换成 `kmodel` ，模型转换代码的关键在于根据自身需求进行选项配置，主要是 `CompileOptions` 、 `PTQTensorOptions` 和 `ImportOptions`。
 
