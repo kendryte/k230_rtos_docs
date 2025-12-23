@@ -11,7 +11,7 @@
 
 ---
 
-## 1. 分区布局说明
+## 分区布局说明
 
 以 `boards/k230_canmv_01studio/genimage-sdcard.cfg` 为例，核心相关分区如下：
 
@@ -37,7 +37,7 @@
 
 ---
 
-## 2. 总体设计概述
+## 总体设计概述
 
 K230 的 OTA 方案基于 **A/B 双槽位** 设计，结合启动介质上的 **TOC（Table of Contents）** 和 **版本元数据块（ota_meta）** 实现：
 
@@ -85,7 +85,7 @@ K230 的 OTA 方案基于 **A/B 双槽位** 设计，结合启动介质上的 **
 
 ---
 
-## 3. 组件关系与数据流
+## 组件关系与数据流
 
 整体模块关系可以简单理解为：
 
@@ -117,12 +117,12 @@ K230 的 OTA 方案基于 **A/B 双槽位** 设计，结合启动介质上的 **
 
 ---
 
-## 4. `k230_ota.c` 接口说明
+## `k230_ota.c` 接口说明
 
 头文件：`src/rtsmart/libs/rtsmart_hal/components/k230_ota/k230_ota.h`  
 实现：`src/rtsmart/libs/rtsmart_hal/components/k230_ota/k230_ota.c`
 
-### 4.1 类型定义
+### 类型定义
 
 ```c
 typedef struct k230_ota_ctx k230_ota_t;
@@ -130,7 +130,7 @@ typedef struct k230_ota_ctx k230_ota_t;
 
 `k230_ota_t` 是一个不透明的上下文结构体，应用侧无需关心内部字段，只通过提供的函数操作即可。
 
-### 4.2 `k230_ota_create`
+### `k230_ota_create`
 
 ```c
 k230_ota_t* k230_ota_create(void);
@@ -147,7 +147,7 @@ k230_ota_t* k230_ota_create(void);
   - 一次升级流程对应一次 `k230_ota_create` / `k230_ota_destroy`；
   - 同一时刻仅建议有一个 OTA 会话（底层使用全局 `g_kdctx`）。
 
-### 4.3 `k230_ota_update`
+### `k230_ota_update`
 
 ```c
 int k230_ota_update(k230_ota_t* ctx, const void* buf, size_t size);
@@ -167,7 +167,7 @@ int k230_ota_update(k230_ota_t* ctx, const void* buf, size_t size);
   - 可以按任意 chunk 大小多次调用（例如 64KB 一次）；
   - 不要跳跃写入（即不要使用 `lseek` 修改 `/dev/ota` 的 offset），驱动只允许从 0 开始的顺序写。
 
-### 4.4 `k230_ota_destroy`
+### `k230_ota_destroy`
 
 ```c
 void k230_ota_destroy(k230_ota_t* ctx);
@@ -180,7 +180,7 @@ void k230_ota_destroy(k230_ota_t* ctx);
 - 使用约定：
   - 不论升级成功或失败，都应在结束时调用一次，避免 fd 泄漏。
 
-### 4.5 `k230_ota_write_file`
+### `k230_ota_write_file`
 
 ```c
 int k230_ota_write_file(const char* image_path, size_t chunk_size);
@@ -203,7 +203,7 @@ int k230_ota_write_file(const char* image_path, size_t chunk_size);
 
 ---
 
-## 5. 测试程序使用示例
+## 测试程序使用示例
 
 测试程序：`src/rtsmart/libs/testcases/rtsmart_hal/test_ota.c`
 
@@ -258,7 +258,7 @@ int main(int argc, char* argv[])
 
 ---
 
-## 6. OTA 流程细节
+## OTA 流程细节
 
 下面简要描述一次完整 OTA 的内部步骤（由 `/dev/ota` 驱动完成）：
 
@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
 
 ---
 
-## 7. 使用注意事项与常见问题
+## 使用注意事项与常见问题
 
 - **必须使用合法的 kdimg 文件**
   - OTA 驱动会检查 kdimg header 和分区表的 CRC；
@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
 
 ---
 
-## 8. 集成建议
+## 集成建议
 
 在自己的应用或服务中集成 OTA 时，可以按以下思路设计：
 
