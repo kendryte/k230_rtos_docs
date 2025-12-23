@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
 在自己的应用或服务中集成 OTA 时，可以按以下思路设计：
 
 1. **固件构建与发布**
-   - 在 CI/构建系统中生成 kdimg 文件（包含 rtt / rtapp 分区及 SHA256）；
+   - 在 CI/构建系统中生成 kdimg 文件（包含 rtt / rtapp 分区及 SHA256，路径在output/k230_canmv_xxxx_defconfig/xxx_ota.kdimg）
    - 放到 Web 服务器或本地 U 盘 / SD 卡上，供设备下载。
 1. **设备端下载**
    - 自行实现 HTTP/FTP/MQTT 等下载逻辑，将新的 kdimg 保存到设备本地路径（例如 `/data/update.kdimg`）或者用户态buffer上（流式写入）。
