@@ -23,7 +23,7 @@ K230/K230D内部集成了一次性可编程器件OTP（One Time Programmable）�
 
 以01Studio开发板原理图为例，可以根据这些部分确定选项：
 
-![1740391481653](https://www.kendryte.com/api/post/attachment?id=559)
+![1740391481653](https://www.kendryte.com/api/post/attachment?id=802)
 
 ![1740391571191](https://www.kendryte.com/api/post/attachment?id=560)
 

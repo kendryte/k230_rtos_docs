@@ -10,4 +10,5 @@ how_to_add_newconfig_file.md
 how_to_use_adb.md
 how_to_use_uvc_device.md
 how_to_use_k230_ota.md
+how_to_add_sensor.md
 ```
