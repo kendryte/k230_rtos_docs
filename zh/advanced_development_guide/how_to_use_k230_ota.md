@@ -311,6 +311,9 @@ int main(int argc, char* argv[])
 - **当前实现仅支持 EMMC/SD 卡**
   - `SYSCTL_BOOT_NANDFLASH` / `SYSCTL_BOOT_NORFLASH` 在 `ota_storage_init()` 中暂未实现，会返回 `-RT_ENOSYS`。
 
+- **如何指定rt_app**
+  - 执行 `make menuconfig` ,跳转到 `Fast Boot Configuration` , 修改 `Fast boot file path` , 其中得变量，可以参考 `tools/mkenv.mk` 中 `export` 的路径。
+
 ---
 
 ## 集成建议
