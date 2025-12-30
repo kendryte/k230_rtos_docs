@@ -25,6 +25,14 @@ Components Configuration > Enable CherryUSB > Enable CherryUSB Device
 
 ![ENABL ADB](https://www.kendryte.com/api/post/attachment?id=770)
 
+几种配置区别：
+
+- CDC：CanMV IDE连接功能
+- CDC+MTP：CanMV IDE连接功能+CanMV盘功能
+- CDC+ADB：CanMV IDE连接功能+ADB功能
+- ADB：ADB功能
+- UVC：UVC Device功能（与IDE，ADB功能无法兼容）
+
 ### 主机环境配置
 
 #### Windows环境

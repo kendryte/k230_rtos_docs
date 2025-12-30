@@ -4,7 +4,7 @@
 
 K230 Sensor 框架分为驱动层和应用层，底层为硬件层（如 ov9732、ov9286 等 Sensor），中间为驱动层（对应 /dev/sensor_xxx 设备节点），上层通过媒体接口层（kd_mpi_sensor_xxx）和 sensor_ops 实现对 Sensor 的操作。本文将以 IMX219 为例，详细介绍在 RTOS 操作系统中新增 Sensor 适配的完整流程，包括配置、驱动开发、应用层适配、编译运行及问题调试。
 
-![1740391632750](https://www.kendryte.com/api/post/attachment?id=801)
+![1740391632750](https://www.kendryte.com/api/post/attachment?id=806)
 
 ## 开发步骤
 
