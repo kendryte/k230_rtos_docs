@@ -11,4 +11,5 @@ how_to_use_adb.md
 how_to_use_uvc_device.md
 how_to_use_k230_ota.md
 how_to_add_sensor.md
+how_to_calibrate_isp.md
 ```
