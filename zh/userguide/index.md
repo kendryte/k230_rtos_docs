@@ -7,4 +7,5 @@ how_to_build.md
 how_to_flash.md
 how_to_run_samples.md
 helloworld.md
+sensor_list.md
 ```
