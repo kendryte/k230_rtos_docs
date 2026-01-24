@@ -83,12 +83,10 @@ git config --global user.name "Your Name"
 mkdir -p ~/rtos_k230 && cd ~/rtos_k230
 
 # 从 Gitee 下载代码（推荐国内用户，需配置 SSH 密钥）
-repo init -u git@gitee.com:canmv-k230/manifest.git -m rtsmart.xml \
-  --repo-url=git@gitee.com:canmv-k230/git-repo.git
+repo init -u git@gitee.com:canmv-k230/manifest.git --repo-url=git@gitee.com:canmv-k230/git-repo.git
 
 # 从 GitHub 下载代码（国际用户）
-# repo init -u https://github.com/canmv-k230/manifest -m rtsmart.xml \
-#   --repo-url=https://github.com/canmv-k230/git-repo.git
+# repo init -u https://github.com/canmv-k230/manifest --repo-url=https://github.com/canmv-k230/git-repo.git
 
 # 同步代码仓库
 repo sync -j $(nproc)

@@ -197,10 +197,10 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 cat ~/.ssh/id_rsa.pub
 
 # 使用github
-repo init -u https://github.com/canmv-k230/manifest -b master -m rtsmart.xml --repo-url=https://github.com/canmv-k230/git-repo.git
+repo init -u https://github.com/canmv-k230/manifest -b master --repo-url=https://github.com/canmv-k230/git-repo.git
 
 # 使用gitee
-repo init -u https://gitee.com/canmv-k230/manifest -b master -m rtsmart.xml --repo-url=https://gitee.com/canmv-k230/git-repo.git
+repo init -u https://gitee.com/canmv-k230/manifest -b master --repo-url=https://gitee.com/canmv-k230/git-repo.git
 
 repo sync
 # 下载工具链
