@@ -55,7 +55,6 @@ html_favicon = 'favicon.ico'
 
 # html_show_sphinx = False
 
-# html_theme = 'alabaster'
 html_theme = "sphinx_book_theme"
 html_static_path = ['_static']
 
