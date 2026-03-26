@@ -29,24 +29,23 @@ make rtsmart-menuconfig
 我们准备了两个示例程序。
 
 ```bash
-src/rtsmart/mpp/userapps/sample/sample_uvc_dev_picture # 这个示例的数据源是一张静态的JPEG图片
-src/rtsmart/mpp/userapps/sample/sample_uvc_dev_vicap   # 这个示例的数据源是板端的COMS摄像头，使用前请接入摄像头
+src/rtsmart/examples/mpp/sample_uvc_dev_picture # 这个示例的数据源是一张静态的JPEG图片
+src/rtsmart/examples/mpp/sample_uvc_dev_vicap   # 这个示例的数据源是板端的COMS摄像头，使用前请接入摄像头
 
 如果需要使用上述两个示例程序，需要打开如下配置：
 
 make menuconfig
- > MPP Configuration > Enable build MPP samples > Enable userapps samples
-        -> UVC Device Sample # 选中该配置
+        > RT-Smart UserSpace Examples Configuration > Enable MPP examples
+                -> Enable Build sample_uvc_dev_picture # 选中该配置
+                -> Enable Build sample_uvc_dev_vicap
 ```
-
-![UVC SAMPLE](https://www.kendryte.com/api/post/attachment?id=778)
 
 做完上述配置后，就可以在板端运行示例程序了
 
 ```bash
-msh />/sdcard/app/userapps/sample_uvc_dev_picture.elf
+msh />/sdcard/app/examples/mpp/sample_uvc_dev_picture.elf
 或者
-msh />/sdcard/app/userapps/sample_uvc_dev_vicap.elf
+msh />/sdcard/app/examples/mpp/sample_uvc_dev_vicap.elf
 ```
 
 ## 故障排除

@@ -1,204 +1,423 @@
-# RTOS UVC 介绍
+# RTOS UVC Host 使用说明
 
-我们在RTOS上对UVC设备进行了支持，现在默认仅支持MJPEG格式。
+## 概述
 
-## API介绍
+RT-Smart UVC Host 用户态接口使用 `uvc_host_*` 命名，图像格式使用 `FOURCC` 描述。
 
-我们使用struct uvc_format 来描述需要获取图像的格式，使用struct uvc_frame来描述获取到的一帧UVC的图像。
+当前支持的输入格式为：
+
+- `USBH_VIDEO_FOURCC_YUY2`
+- `USBH_VIDEO_FOURCC_UYVY`
+- `USBH_VIDEO_FOURCC_NV12`
+- `USBH_VIDEO_FOURCC_I420`
+- `USBH_VIDEO_FOURCC_MJPEG`
+
+其中：
+
+- `MJPEG` 是压缩码流格式
+- `YUY2`、`UYVY`、`NV12`、`I420` 是原始像素格式
+
+## 数据结构
+
+用户态头文件：`src/rtsmart/mpp/userapps/api/mpi_uvc_api.h`
+
+### `struct uvc_format`
 
 ```c
-  struct uvc_format {
-      unsigned int width;               /* 图像的宽 */
-      unsigned int height;              /* 图像的高 */
-      unsigned char format_type;        /* 图像格式，1代表MJPEG格式，0代表YUYV格式，现在默认仅支持MJPEG格式 */
-      unsigned int frameinterval;       /* 图像帧率，单位是100ns，例如输入333333就是30fps（1000000000/(333333 * 100)) */
-  };
-
-  struct uvc_frame {
-      unsigned int index;               /* 系统默认会开4个Buffer来存UVC的图像，这代表其中的第几个Buffer */
-      unsigned int reserve_1;           /* 系统保留字段 */
-      unsigned int reserve_2;           /* 系统保留字段 */
-      unsigned int len;                 /* 表示获取到的UVC图像的大小 */
-      char *userptr;                    /* 表示获取到的UVC图像的用户态地址，例如可以将其内容写入到文件 */
-      union {
-          k_video_frame_info v_info;    /* 当支持YUYV的时候，返回的k_video_frame_info结构，可以传给kd_mpi_vo_chn_insert_frame显示 */
-          k_vdec_stream v_stream;       /* 当支持MJPEG的时候，返回的k_vdec_stream结构，可以传给kd_mpi_vdec_send_stream解码 */
-      };
-  };
+struct uvc_format {
+    unsigned int width;
+    unsigned int height;
+    unsigned int fourcc;
+    unsigned int frameinterval;
+};
 ```
 
-我们对UVC代码进行了简单封装后，主要提供了以下接口给用户调用，下面一一介绍：
+字段说明：
+
+| 字段 | 说明 |
+|---|---|
+| `width` | 期望或协商后的图像宽度 |
+| `height` | 期望或协商后的图像高度 |
+| `fourcc` | 图像格式，使用 `USBH_VIDEO_FOURCC_*` |
+| `frameinterval` | 帧间隔，单位为 100ns；例如 30fps 可写为 `10000000 / 30` |
+
+说明：
+
+- `uvc_host_init()` 既使用它接收用户输入，也会把协商后的实际模式写回去
+- 如果用户指定的分辨率/帧率无法完全匹配，底层会返回实际协商结果
+
+### `struct uvc_frame`
 
 ```c
-/**
- * uvc_init - 对枚举成功后的UVC设备进行初始化。
- * @fmt：用于输入用户的指定的格式参数，struct uvc_format结构体如上所述。
- *
- * 用户输入的宽高代表着用户预期的分辨率，系统会将预期分辨率与该UVC设备支持的所有分辨率进行比较，
- * 最后找出的最接近的分辨率，然后通过fmt->width和fmt->height返回给用户，用户后续应当使用系统返回的分辨率。
- * 用户如果输入了设备不支持的帧率，系统会通过fmt->frameinterval返回该分辨率下默认的帧率给到用户。
- *
- * 此接口会分配一些内存以支持UVC图像的流转，默认内存是在VB里面分配的。
- *
- * @Return：成功返回0，失败返回负值。
- */
-int uvc_init(struct uvc_format *fmt);
-
-/**
- * uvc_start_stream - 开启摄像头。
- *
- * @Return：成功返回0，失败返回负值。
- */
-int uvc_start_stream(void);
-
-/**
- * uvc_get_frame - 获取一帧UVC图像，也就是拿到了一帧图像的Buffer。
- * @frame：用于返回一帧图像，struct uvc_frame结构体如上所述。
- * @timeout_ms：超时等待时间
- *
- * 该接口会阻塞等待直到一帧图像返回或者超时时间到。
- *
- * @Return：成功返回0，失败返回负值。
- */
-int uvc_get_frame(struct uvc_frame *frame, unsigned int timeout_ms);
-
-/**
- * uvc_put_frame - 释放一帧图像Buffer给系统使用
- *
- * @Return：成功返回0，失败返回负值。
- */
-int uvc_put_frame(struct uvc_frame *frame);
-
-/**
- * uvc_exit - 关闭摄像头，释放uvc_init申请的内存。
- */
-void uvc_exit();
-
-/**
- * uvc_get_devinfo - 用于获取设备的厂商和产品信息
- * @info：用来存储字符串信息的buffer
- * @len：buffer的长度
- *
- * @Return：成功返回0，失败返回负值。
- */
-int uvc_get_devinfo(char *info, int len);
-
-/**
- * uvc_get_formats - 获取设备支持的所有格式。
- * @fmts：用以返回所有格式的指针。
- *
- * uvc_get_formats内部实现会申请内存以存储所有格式，调用者仅提供二级指针即可。
- *
- * @Return：成功返回支持的格式数量，所有格式存在fmts中，失败返回负值。
- */
-int uvc_get_formats(struct uvc_format **fmts);
-
-/**
- * uvc_free_formats - 释放uvc_get_formats申请的空间。
- * @fmts：同uvc_get_formats。
- */
-void uvc_free_formats(struct uvc_format **fmts);
+struct uvc_frame {
+    unsigned int index;
+    unsigned int bytesused;
+    char *userptr;
+    union {
+        k_video_frame_info v_info;
+        k_vdec_stream v_stream;
+    };
+};
 ```
 
-## 示例介绍
+字段说明：
 
-### 对于UVC来说，它的主体使用框架应该如下：(假设UVC设备已经插入且枚举成功)
+| 字段 | 说明 |
+|---|---|
+| `index` | 当前帧对应的 UVC buffer 索引 |
+| `bytesused` | 当前帧实际有效数据长度 |
+| `userptr` | 当前帧的用户态虚拟地址 |
+| `v_info` | 原始图像对应的视频帧信息 |
+| `v_stream` | MJPEG 码流对应的 VDEC 输入信息 |
 
-  1. 调用kd_mpi_vb_set_config(&config) 和 kd_mpi_vb_init() 进行VB的初始化，因为uvc_init分配的内存将来自VB。
-  1. 调用uvc_init，进行uvc设备的初始化。
-  1. 调用uvc_start_stream打开UVC摄像头。
-  1. 循环调用uvc_get_frame和uvc_put_frame，不断获取UVC图像。
-  1. 程序结束，调用uvc_exit()，关闭UVC设备。
+说明：
+
+- 用户态结构中不包含内部使用的 buffer 映射字段，例如 `length`、`offset` 等
+- `userptr` 仅在该帧持有期间有效，调用 `uvc_host_put_frame()` 后不能继续使用
+- 对于 MJPEG，如果要直接写文件，通常使用 `bytesused`
+
+## FOURCC 定义
 
 ```c
-/* 示意性代码如下 */
+#define USBH_VIDEO_FOURCC(a, b, c, d) \
+    ((uint32_t)(uint8_t)(a) | ((uint32_t)(uint8_t)(b) << 8) | \
+     ((uint32_t)(uint8_t)(c) << 16) | ((uint32_t)(uint8_t)(d) << 24))
 
-int i = 1;
+#define USBH_VIDEO_FOURCC_YUY2  USBH_VIDEO_FOURCC('Y', 'U', 'Y', '2')
+#define USBH_VIDEO_FOURCC_UYVY  USBH_VIDEO_FOURCC('U', 'Y', 'V', 'Y')
+#define USBH_VIDEO_FOURCC_NV12  USBH_VIDEO_FOURCC('N', 'V', '1', '2')
+#define USBH_VIDEO_FOURCC_I420  USBH_VIDEO_FOURCC('I', '4', '2', '0')
+#define USBH_VIDEO_FOURCC_MJPEG USBH_VIDEO_FOURCC('M', 'J', 'P', 'G')
+```
+
+## API 介绍
+
+### `int uvc_host_init(struct uvc_format *fmt);`
+
+初始化 UVC Host 设备。
+
+```c
+int uvc_host_init(struct uvc_format *fmt);
+```
+
+说明：
+
+- `fmt` 输入用户期望的 `width` / `height` / `fourcc` / `frameinterval`
+- 初始化成功后，`fmt` 会被更新为协商后的实际模式
+- 当前 UVC buffer 由底层统一管理，使用前建议先完成 VB 初始化
+
+返回值：
+
+- 成功返回 `0`
+- 失败返回负值
+
+### `int uvc_host_start_stream(void);`
+
+启动 UVC 视频流。
+
+```c
+int uvc_host_start_stream(void);
+```
+
+返回值：
+
+- 成功返回 `0`
+- 失败返回负值
+
+### `int uvc_host_get_frame(struct uvc_frame *frame, unsigned int timeout_ms);`
+
+获取一帧 UVC 数据。
+
+```c
+int uvc_host_get_frame(struct uvc_frame *frame, unsigned int timeout_ms);
+```
+
+说明：
+
+- 该接口会阻塞，直到获取到一帧数据或超时
+- 成功后 `frame` 中会返回 buffer 信息和 `userptr`
+- 每次成功获取后，都必须配对调用一次 `uvc_host_put_frame()`
+
+返回值：
+
+- 成功返回 `0`
+- 失败返回负值
+
+### `int uvc_host_put_frame(struct uvc_frame *frame);`
+
+归还一帧 buffer。
+
+```c
+int uvc_host_put_frame(struct uvc_frame *frame);
+```
+
+说明：
+
+- 归还后该 buffer 可以重新被驱动复用
+- 调用后不能再继续使用该帧的 `userptr`
+
+### `void uvc_host_exit(void);`
+
+关闭 UVC 设备并释放资源。
+
+```c
+void uvc_host_exit(void);
+```
+
+说明：
+
+- 如果流已经启动，`uvc_host_exit()` 会负责执行停流清理
+- 当前没有额外提供独立的 `uvc_host_stop_stream()`
+
+### `int uvc_host_get_devinfo(char *info, int len);`
+
+获取设备厂商/产品信息。
+
+```c
+int uvc_host_get_devinfo(char *info, int len);
+```
+
+说明：
+
+- 成功时会返回形如 `厂商#产品` 的字符串
+- 即使尚未 `uvc_host_init()`，接口也会临时打开设备进行查询
+
+### `int uvc_host_get_formats(struct uvc_format **fmts);`
+
+枚举设备支持的全部模式。
+
+```c
+int uvc_host_get_formats(struct uvc_format **fmts);
+```
+
+说明：
+
+- 返回值为模式数量
+- `*fmts` 由接口内部申请，使用完成后必须调用 `uvc_host_free_formats()`
+- 每一项 `uvc_format` 都对应一个具体的 `width + height + fourcc + frameinterval`
+
+### `void uvc_host_free_formats(struct uvc_format **fmts);`
+
+释放 `uvc_host_get_formats()` 返回的模式数组。
+
+```c
+void uvc_host_free_formats(struct uvc_format **fmts);
+```
+
+## 原始格式转换辅助接口
+
+除了直接取流，当前还提供了 3 个常用原始格式转换接口：
+
+```c
+int uvc_host_raw_to_nv12(const struct uvc_frame *frame, void *dst, size_t dst_len);
+int uvc_host_raw_to_rgb565(const struct uvc_frame *frame, void *dst, size_t dst_len);
+int uvc_host_raw_to_yuyv(const struct uvc_frame *frame, void *dst, size_t dst_len);
+```
+
+这些接口的特点：
+
+- 不再需要额外传入 `struct uvc_format`
+- 它们直接使用最近一次 `uvc_host_init()` 协商得到的格式
+- 只适用于原始像素格式，不适用于 `MJPEG`
+
+### `uvc_host_raw_to_nv12`
+
+支持输入格式：
+
+- `YUY2`
+- `UYVY`
+- `NV12`
+- `I420`
+
+目标缓冲区大小要求：
+
+```c
+dst_len >= width * height * 3 / 2
+```
+
+说明：
+
+- `NV12 -> NV12` 时属于直通复制
+- 当 `dst == frame->userptr` 且当前格式已经是 `NV12` 时，不会重复拷贝
+
+### `uvc_host_raw_to_rgb565`
+
+支持输入格式：
+
+- `YUY2`
+- `UYVY`
+
+目标缓冲区大小要求：
+
+```c
+dst_len >= width * height * 2
+```
+
+### `uvc_host_raw_to_yuyv`
+
+支持输入格式：
+
+- `YUY2`
+- `UYVY`
+
+目标缓冲区大小要求：
+
+```c
+dst_len >= width * height * 2
+```
+
+说明：
+
+- `YUY2` 本身就是 YUYV 字节序
+- 当当前格式为 `YUY2` 且 `dst == frame->userptr` 时，不会重复拷贝
+- 当当前格式为 `UYVY` 时，会转换成 YUYV 排列
+
+## 基本使用流程
+
+典型调用顺序如下：
+
+1. 初始化 VB
+1. 可选：调用 `uvc_host_get_devinfo()` / `uvc_host_get_formats()`
+1. 调用 `uvc_host_init()`
+1. 调用 `uvc_host_start_stream()`
+1. 循环调用 `uvc_host_get_frame()` / `uvc_host_put_frame()`
+1. 程序结束时调用 `uvc_host_exit()`
+
+### 示例 1：MJPEG 数据写文件
+
+```c
+struct uvc_format fmt = {
+    .width = 640,
+    .height = 480,
+    .fourcc = USBH_VIDEO_FOURCC_MJPEG,
+    .frameinterval = 10000000 / 30,
+};
 struct uvc_frame frame;
 
 kd_mpi_vb_set_config(&config);
 kd_mpi_vb_init();
 
-uvc_init(w, h , 1);
-uvc_start_stream();
+if (uvc_host_init(&fmt) != 0) {
+    return -1;
+}
 
-do {
+if (uvc_host_start_stream() != 0) {
+    uvc_host_exit();
+    return -1;
+}
 
-    uvc_get_frame(&frame, 3000);
+if (uvc_host_get_frame(&frame, 3000) == 0) {
+    FILE *file = fopen("/sdcard/test.jpg", "wb");
+    if (file) {
+        fwrite(frame.userptr, 1, frame.bytesused, file);
+        fclose(file);
+    }
+    uvc_host_put_frame(&frame);
+}
 
-    /* Write frame to SDcard */
-    FILE *file = fopen("sdcard/app/userapps/test.jpg", "wb");
-    size_t written = fwrite((char *)frame.userptr, sizeof(char), frame.len, file);
-    fclose(file);
-
-    uvc_put_frame(&frame);
-} while (--i);
-
-uvc_exit();
-
+uvc_host_exit();
 ```
 
-### 一个稍微复杂一些的的示例代码放在`src/rtsmart/mpp/userapps/sample/sample_uvc/uvc_test.c`
+### 示例 2：原始格式转 NV12 后送 VO 显示
 
 ```c
+struct uvc_format fmt = {
+    .width = 640,
+    .height = 480,
+    .fourcc = USBH_VIDEO_FOURCC_YUY2,
+    .frameinterval = 10000000 / 30,
+};
+struct uvc_frame frame;
 
-不带任何参数，直接运行sample_uvc，默认会给出如下提示：
-Usage: ./sample_uvc [connector_type] [rotation] [is_jpeg] [width] [height] [total_frame]
+/* vo_vaddr / vo_size / vf_info 由 VO 侧提前准备好 */
 
-connector_type：表示接入的panel类型（下面会讲如何获取该值）
-rotation：表示图像是否要翻转（HDMI不支持旋转）
-is_jpeg：表示是用MJPEG还是YUYV格式，默认仅支持MJPEG格式，1代表MJPEG，0代表YUYV
-width：表示图像宽度
-height：表示图像高度
-total_frame：表示需要显示多少帧
+if (uvc_host_init(&fmt) != 0) {
+    return -1;
+}
 
+if (uvc_host_start_stream() != 0) {
+    uvc_host_exit();
+    return -1;
+}
 
-例如该例程在01studio的板子上运行:
-1. 接入了一个ST7701_V1_MIPI_2LAN_480X800_30FPS（枚举值为20）的屏幕，再接入了一个支持640 * 480分辨率（MJPEG）的UVC摄像头，
-   那么我们可以这样运行程序：sdcard/app/userapps/sample_uvc.elf 20 1 1 640 480 1000000
+while (uvc_host_get_frame(&frame, 5000) == 0) {
+    if (uvc_host_raw_to_nv12(&frame, vo_vaddr, vo_size) == 0) {
+        kd_mpi_vo_insert_frame(K_VO_LAYER_VIDEO1, &vf_info);
+    }
+    uvc_host_put_frame(&frame);
+}
 
-2. 接入了HDMI线并连接到一个可支持1080p的显示器（枚举值为101）上，再接入一个支持 1920 * 1280分辨率（MJPEG）的UVC摄像头，
-   那么我们可以这样运行程序：sdcard/app/userapps/sample_uvc.elf 101 0 1 1920 1080 1000000
+uvc_host_exit();
+```
 
-如果程序运行正常，就会看到屏幕/显示器有图像显示。
+## 示例程序
 
-TIPS: 我们有两个方式可以获取到对应connector_type的枚举值:
-a. 通过查找文档，阅读源码
-b. 通过以下命令：
+当前 Host 示例位于：
 
+- `src/rtsmart/examples/mpp/sample_uvc_host/uvc_test.c`
+
+命令行参数：
+
+```text
+Usage: ./sample_uvc_host [connector_type] [rotation] [fourcc] [width] [height] [total_frame]
+```
+
+参数说明：
+
+| 参数 | 说明 |
+|---|---|
+| `connector_type` | 屏幕类型枚举值 |
+| `rotation` | 是否旋转，`0` 或 `1` |
+| `fourcc` | 支持 `YUY2` / `UYVY` / `NV12` / `I420` / `MJPEG`，也支持直接传数值 |
+| `width` | 目标宽度 |
+| `height` | 目标高度 |
+| `total_frame` | 处理帧数 |
+
+运行示例：
+
+```sh
+/sdcard/app/examples/mpp/sample_uvc_host.elf 20 1 MJPEG 640 480 1000000
+/sdcard/app/examples/mpp/sample_uvc_host.elf 20 1 YUY2 640 480 1000000
+```
+
+说明：
+
+- 程序会打印输入 `fourcc` 和实际协商后的 `fourcc`
+- `MJPEG` 路径内部走 VDEC 解码后显示
+- 非 `MJPEG` 路径会先调用 `uvc_host_raw_to_nv12()` 再送 VO 显示
+- 程序会周期性打印 FPS
+
+### 获取 `connector_type`
+
+可以通过以下命令查看：
+
+```sh
 msh />list_connector
-Connector Type List:
-                0 -> HX8377_V2_MIPI_4LAN_1080X1920_30FPS
-                1 -> ILI9806_MIPI_2LAN_480X800_30FPS
-                2 -> ILI9881_MIPI_4LAN_800X1280_60FPS
-               20 -> ST7701_V1_MIPI_2LAN_480X800_30FPS
-               21 -> ST7701_V1_MIPI_2LAN_480X854_30FPS
-               22 -> ST7701_V1_MIPI_2LAN_480X640_30FPS
-               23 -> ST7701_V1_MIPI_2LAN_368X544_60FPS
-              100 -> LT9611_MIPI_ADAPT_RESOLUTION
-              101 -> LT9611_MIPI_4LAN_1920X1080_30FPS
-              102 -> LT9611_MIPI_4LAN_1920X1080_60FPS
-              103 -> LT9611_MIPI_4LAN_1920X1080_50FPS
-              104 -> LT9611_MIPI_4LAN_1920X1080_25FPS
-              105 -> LT9611_MIPI_4LAN_1920X1080_24FPS
-              110 -> LT9611_MIPI_4LAN_1280X720_60FPS
-              111 -> LT9611_MIPI_4LAN_1280X720_50FPS
-              112 -> LT9611_MIPI_4LAN_1280X720_30FPS
-              120 -> LT9611_MIPI_4LAN_640X480_60FPS
-              200 -> VIRTUAL_DISPLAY_DEVICE
-               -1 -> UNKNOWN
 ```
 
 ## 配置选项
 
-### make menuconfig
+### `make menuconfig`
 
-![make menuconfig](https://www.kendryte.com/api/post/attachment?id=563)
+```bash
+    > RT-Smart UserSpace Examples Configuration > Enable MPP examples
+        -> Enable Build sample_uvc_host # 选中该配置
+```
 
-### make rtsmart-menuconfig
+### `make rtsmart-menuconfig`
 
-![make rtsmart-menuconfig](https://www.kendryte.com/api/post/attachment?id=564)
+```bash
+    > Components Configuration > Enable CherryUSB > Enable CherryUSB Host
+        -> CherryUSB Host Controller Driver (Using DesignWare Driver)  #选择 (Using DesignWare Driver
+
+    > Components Configuration > Enable CherryUSB > Enable CherryUSB Host > Enable CherryUSB Host Class Driver
+        ->  Enable UVC
+```
 
 ## 注意事项
 
-不建议接入Hub后，接入UVC设备和其他使用Bulk传输的设备一起用，可能会有带宽不够的问题。如果一定要这么用，请先接入UVC设备使用起来后再接入其他设备，但不确保一定不会遇到带宽不足的问题。
+1. `uvc_host_get_frame()` 成功后，必须配对调用 `uvc_host_put_frame()`。
+1. `userptr` 不能跨 `uvc_host_put_frame()` 保存和使用。
+1. 如果只是做格式枚举或读取设备信息，可以只调用 `uvc_host_get_formats()` / `uvc_host_get_devinfo()`，不必先 `uvc_host_init()`。
+1. 对于 `VO` 显示路径，当前更常见的做法是把原始格式先转换为 `NV12`。
+1. 不建议把 UVC 摄像头和高带宽 Bulk 设备长期挂在同一个 Hub 后使用，可能会遇到 USB 带宽不足问题。
