@@ -5,14 +5,67 @@
 # markdown-link-check: https://github.com/tcort/markdown-link-check
 
 variables:
-  GITLAB_REPO: git@g.a-bug.org:maix_sw/k230_rtos_sdk_docs.git
+  GIT_DEPTH: "0"
   GITHUB_REPO: git@github.com:kendryte/k230_rtos_docs.git
-  # GITEE_REPO: git@gitee.com:kendryte/k230_canmv_docs.git
+  MARKDOWN_IMAGE: ai.b-bug.org:5000/markdown:latest
+  DOCS_BUILDER_IMAGE: ai.b-bug.org:5000/huangziyi/web-docs-builder:3d9c3f0b2be1fe67b3b2f4e5d47504f6c2662b76
+  DEPLOY_IMAGE: ai.b-bug.org:5000/huangziyi/deploy:v1
+
+stages:
+  - test
+  - build
+  - deploy
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main|dev)$/
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH =~ /^(main|dev)$/
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG =~ /^v\d+\.\d+.*$/
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - when: never
 
 default:
   image: ai.b-bug.org:5000/k230_sdk:latest
   tags:
     - k230_sdk
+  interruptible: true
+
+.markdown_mr_job:
+  stage: test
+  timeout: 10m
+  image: $MARKDOWN_IMAGE
+  tags:
+    - k230
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main|dev)$/
+  before_script:
+    - git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+
+.docs_build_job:
+  stage: build
+  image: $DOCS_BUILDER_IMAGE
+  tags:
+    - k230
+  script:
+    - git fetch origin "$DOCS_BRANCH" --tags
+    - git checkout -B "$DOCS_BRANCH" "origin/$DOCS_BRANCH"
+    - make clean
+    - make mhtml
+    - mkdir -p "$DOCS_LOCAL_DIR"
+    - rm -rf "${DOCS_LOCAL_DIR:?}"/*
+    - cp -r _build/. "$DOCS_LOCAL_DIR/"
+  artifacts:
+    paths:
+      - _build
+    expire_in: 1 week
+
+.deploy_job:
+  stage: deploy
+  image: $DEPLOY_IMAGE
+  tags:
+    - k230
+  retry: 2
 
 # MR merged
 merge_sync:
@@ -49,74 +102,31 @@ manual_sync:
 
 # new MR open
 markdown-link-check:
-  rules:
-    # MR job
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
-  stage: test
-  timeout: 10m
-  image: ai.b-bug.org:5000/markdown:latest
-  tags:
-    - k230
+  extends: .markdown_mr_job
   script:
-    - uname -a
-    - whoami
-    - pwd
-    - find . -name \*.md -print0 | xargs -0 -n1 markdown-link-check -q
-    # - git fetch
-    # - FILELIST=$(git diff origin/dev --name-only -z --diff-filter=AM | grep "\\.md$" || true)
-    # - echo $FILELIST
-    # - if [ -n "$FILELIST" ]; then echo $FILELIST | xargs markdown-link-check; fi
+    - git diff --name-only -z --diff-filter=AM "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME...HEAD" -- '*.md' | xargs -0 -r -n1 markdown-link-check -q
 
 # new MR open
 markdownlint:
-  rules:
-    # MR job
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
-  stage: test
-  timeout: 10m
-  image: ai.b-bug.org:5000/markdown:latest
-  tags:
-    - k230
+  extends: .markdown_mr_job
   script:
-    - uname -a
-    - whoami
-    - pwd
-    #- markdownlint-cli2 *.md **/*.md **/**/*.md **/**/**/*.md **/**/**/**/*.md
-    - find . -name \*.md -print0 | xargs -0 markdownlint-cli2
-    # - git fetch
-    # - FILELIST=$(git diff origin/dev --name-only -z --diff-filter=AM | grep "\\.md$" || true)
-    # - echo $FILELIST
-    # - if [ -n "$FILELIST" ]; then echo $FILELIST | xargs markdownlint-cli2; fi
+    - git diff --name-only -z --diff-filter=AM "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME...HEAD" -- '*.md' | xargs -0 -r markdownlint-cli2
 
 .setup_env:
   before_script:
-    - echo '----------Build ENV Prepare----------'
-    - echo 'Add SSH KEY for Multiple repo'
-    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
-    - eval $(ssh-agent -s)
+    - test -n "$SSH_PRIVATE_KEY"
+    - test -n "$GITLAB_USER_EMAIL"
+    - test -n "$GITLAB_USER_NAME"
+    - command -v ssh-agent >/dev/null || (apt-get update -y && apt-get install -y openssh-client)
+    - eval "$(ssh-agent -s)"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" | ssh-add - > ~/.ssh/id_ed25519 || exit 1
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n    StrictHostKeyChecking no\n" > ~/.ssh/config'
-    - echo $SHELL
-    - echo "increate ssh timeout for github"
-    - echo "    ServerAliveInterval 30" >> ~/.ssh/config
-    - echo "    ServerAliveCountMax 60" >> ~/.ssh/config
-    - echo "    TCPKeepAlive yes" >> ~/.ssh/config
-    - cat ~/.ssh/config
-    - whoami
-    - uptime
-    - pwd
-    - uname -a
-    - cat /etc/issue
-    - echo $CI_PROJECT_DIR
-    - echo $CI_PROJECT_NAME
-    - echo '----------set git config ----------'
-    - echo "${GITLAB_USER_EMAIL}"
-    - echo "${GITLAB_USER_NAME}"
+    - printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - ssh-keyscan -H github.com g.a-bug.org >> ~/.ssh/known_hosts 2>/dev/null
+    - chmod 600 ~/.ssh/known_hosts
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"
-    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
 
 .sync_github_gitee:
   stage: build
@@ -125,62 +135,59 @@ markdownlint:
   tags:
     - k230_sdk
   script:
-    - cd $CI_PROJECT_DIR
-    - ls -alht
-    - rm -rf ./k230_rtos_sdk_docs/
-    - git clone ${GITLAB_REPO} k230_rtos_sdk_docs || exit 1
-    - cd k230_rtos_sdk_docs || exit 1
-    - pwd
-    - git checkout main
-    - git branch -a
-    - git status
-    - echo '---pull latest main branch---'
-    - git pull origin main
-    - echo '---fetch all tags---'
-    - git fetch --tags
-    - git remote add github ${GITHUB_REPO}
-    # - git remote add gitee ${GITEE_REPO}
-    - git remote -v
-    - git branch -a
-    - git status
-    # - echo "---push to gitee---"
-    # - git push --atomic --tags -u -f gitee main || git push --atomic --tags -u -f gitee main
-    - echo "---push to github---"
-    - git push --atomic --tags -u -f github main || git push --atomic --tags -u -f github main || git push --atomic --tags -u -f github main
+    - cd "$CI_PROJECT_DIR"
+    - git remote remove github || true
+    - git remote add github "${GITHUB_REPO}"
+    - git fetch origin main --tags
+    - git checkout -B main origin/main
+    - |
+      for attempt in 1 2 3; do
+        git push --atomic --tags -u -f github main && exit 0
+        sleep 5
+      done
+      exit 1
 
-build web docs:
-  stage: build
+build docs for production:
+  extends: .docs_build_job
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
-  image: ai.b-bug.org:5000/huangziyi/web-docs-builder:3d9c3f0b2be1fe67b3b2f4e5d47504f6c2662b76
-  tags:
-    - k230
-  script:
-    - git fetch --tags
-    - git branch main origin/main
-    - git checkout main
-    - git config --global user.email "auto@canaan-creative.com"
-    - git config --global user.name "GitLab CI"
-    - git commit "*.md" -m "remove cover" || true
-    - make mhtml
-    - rm -rf /data1/k230/k230_rtos_sdk_docs/*
-    - cp -r _build/* /data1/k230/k230_rtos_sdk_docs
-  artifacts:
-    paths:
-      - _build
+  variables:
+    DOCS_BRANCH: main
+    DOCS_LOCAL_DIR: /data1/k230/k230_rtos_sdk_docs
 
-deploy production:
-  stage: deploy
-  dependencies:
-    - build web docs
+deploy docs for production:
+  extends: .deploy_job
+  needs:
+    - job: build docs for production
+      artifacts: true
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
-  image: ai.b-bug.org:5000/huangziyi/deploy:v1
-  tags:
-    - k230
   environment:
     name: production
-    url: https://www.kendryte.com/k230_rtos/zh/$CI_COMMIT_BRANCH/index.html
-  retry: 2
+    url: https://developer.canaan-creative.com/k230_rtos/zh/$CI_COMMIT_BRANCH/index.html
   script:
-    - scp -P $AWS_PORT -C -r _build/* $AWS/data/webapp/k230_rtos
+    - test -n "$AWS"
+    - test -n "$AWS_PORT"
+    - scp -P "$AWS_PORT" -C -r _build/* "$AWS/data/webapp/k230_rtos"
+
+build docs for development:
+  extends: .docs_build_job
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"
+  variables:
+    DOCS_BRANCH: dev
+    DOCS_LOCAL_DIR: /data1/k230/k230_rtos_sdk_docs
+
+deploy docs for development:
+  extends: .deploy_job
+  needs:
+    - job: build docs for development
+      artifacts: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"
+  environment:
+    name: development
+    url: https://$DEV_SERVER/k230_rtos/zh/$CI_COMMIT_BRANCH/index.html
+  script:
+    - mkdir -p /data/webapp/k230_rtos
+    - cp -r _build/. /data/webapp/k230_rtos/

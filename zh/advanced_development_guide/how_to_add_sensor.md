@@ -1,8 +1,16 @@
 # 如何适配Sensor
 
+> 说明：本文是 Sensor 适配的完整实战文档（配置、驱动、应用层、调试）。
+> 建议流程：先完成本文（驱动接入），再继续 [`how_to_calibrate_isp.md`](./how_to_calibrate_isp.md) 和 [`how_to_tune_isp.md`](./how_to_tune_isp.md)。
+
 ## 概述
 
 K230 Sensor 框架分为驱动层和应用层，底层为硬件层（如 ov9732、ov9286 等 Sensor），中间为驱动层（对应 /dev/sensor_xxx 设备节点），上层通过媒体接口层（kd_mpi_sensor_xxx）和 sensor_ops 实现对 Sensor 的操作。本文将以 IMX219 为例，详细介绍在 RTOS 操作系统中新增 Sensor 适配的完整流程，包括配置、驱动开发、应用层适配、编译运行及问题调试。
+
+本文聚焦“驱动接入”步骤，不展开 ISP 标定与调优细节：
+
+1. ISP 标定请看：[`how_to_calibrate_isp.md`](./how_to_calibrate_isp.md)
+1. ISP 调优请看：[`how_to_tune_isp.md`](./how_to_tune_isp.md)
 
 ![1740391632750](https://www.kendryte.com/api/post/attachment?id=806)
 
@@ -154,7 +162,7 @@ static const struct sensor_type_name sth_table[] = {
 
 在`~/src/rtsmart/mpp/kernel/sensor/src/sensor_dev.h`中声明 IMX219 的探针函数。
 
-```cpp
+```c
 extern k_s32 sensor_imx219_probe(struct k_sensor_probe_cfg *cfg, struct sensor_driver_dev *dev);
 ```
 
@@ -162,7 +170,7 @@ extern k_s32 sensor_imx219_probe(struct k_sensor_probe_cfg *cfg, struct sensor_d
 
 拷贝现有类似 Sensor（如 gc2093）的驱动目录，修改为 IMX219 专属目录及文件名称。
 
-```cpp
+```bash
 cp -rf gc2093 imx219
 
 cd imx219

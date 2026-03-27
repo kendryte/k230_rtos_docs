@@ -4,6 +4,12 @@
 
 RT-Smart UVC Host 用户态接口使用 `uvc_host_*` 命名，图像格式使用 `FOURCC` 描述。
 
+相关示例目录：
+
+- `src/rtsmart/examples/mpp/sample_uvc_host`
+- `src/rtsmart/examples/mpp/sample_uvc_dev_picture`
+- `src/rtsmart/examples/mpp/sample_uvc_dev_vicap`
+
 当前支持的输入格式为：
 
 - `USBH_VIDEO_FOURCC_YUY2`

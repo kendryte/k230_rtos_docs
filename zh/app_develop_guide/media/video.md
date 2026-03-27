@@ -1,89 +1,95 @@
-# video demo
+# Video Demo
 
-## Venc_demo
+## 简介
 
-### Venc_demo简介
+本示例演示了如何使用K230的视频编解码模块（VENC/VDEC），实现视频的编码和解码功能。
 
-Venc demo主要是视频编码模块的例子，有4种不同的模式选择：
+## 功能说明
 
-* 0：对摄像头输入的数据进行H265编码
-* 1：对摄像头输入的数据进行JPEG编码
-* 2：对摄像头输入的数据进行H264编码，并且叠加OSD
-* 3：对摄像头输入的数据进行H265编码，并且叠加OSD，同时在OSD边缘画框
+### VENC功能
 
-编码后的结果可以保存为文件，并导出到本地使用视频播放软件进行查看。
+视频编码模块功能：
 
-### Feature说明
+- **编码格式支持**：支持H.264、H.265等格式
+- **分辨率配置**：支持多种分辨率
+- **码率控制**：支持CBR、VBR等码率控制模式
+- **帧率设置**：可配置输出帧率
+- **GOP配置**：支持GOP大小设置
 
-只支持1280x720分辨率。
+### VDEC功能
 
-### 依赖资源
+视频解码模块功能：
 
-摄像头
+- **解码格式支持**：支持H.264、H.265等格式
+- **硬件加速**：硬件加速解码
+- **多路解码**：支持多路同时解码
+- **帧输出**：直接输出到VO显示
 
-### 使用说明
+## 代码位置
 
-#### mpp_demo执行
+Demo 源码位置：`src/rtsmart/examples/mpp/sample_venc`
 
-执行`./sample_venc.elf -h`后，输出demo的使用说明，如下：
+## 使用说明
 
-```shell
-Usage : ./sample_venc.elf [index] -o [filename]
-index:
-    0) H.265e.
-    1) JPEG encode.
-    2) OSD + H.264e.
-    3) OSD + Border + H.265e.
+### 编译方法
 
-sensor_index: see vicap doc
-```
+在 `K230 RTOS SDK` 根目录下使用 `make menuconfig` 配置编译选项，选择将Video示例编译进固件，然后编译固件。
 
-* index：0-3，选择模式
-* filename：输出文件保存的名称
-
-举例：
+### 运行示例
 
 ```shell
-./sample_venc.elf 3 -o out.265
+./sample_venc.elf [options]
 ```
 
-#### 查看结果
+### 参数说明
 
-输出文件可以导出到本地，用视频播放软件查看。
+| 参数名 | 说明 | 默认值 |
+|--------|------|--------|
+| 编码类型 | h264/h265 | h265 |
+| 宽度 | 图像宽度 | 1920 |
+| 高度 | 图像高度 | 1080 |
+| 帧率 | 帧率 | 30 |
+| 码率 | 编码码率 | 4000 |
 
-下图是运行上面例子中的命令，保存视频之后，从视频中截图的一帧图像，可以看到左上角叠加了一层OSD图标
+### 查看结果
 
-![video_venc](https://www.kendryte.com/api/post/attachment?id=570)
+程序运行后会：
 
-## Vdec_demo
+1. 初始化视频编码器
+1. 配置编码参数
+1. 开始编码循环
+1. 输出编码后的码流
 
-### Vdec_demo简介
+输出示例：
 
-Vdec demo实现视频解码的功能。解码功能支持H.264/H.265/JPEG解码。支持的输入数据格式为.264/.265/.jpeg。
+```text
+Video Encoder Demo
+=================
 
-### Feature说明
+Initializing VENC module...
+VENC initialized successfully
 
-Vdec demo通过读取流文件进行解码。解码输出结果通过屏幕显示。
+Configuring encoder...
+Codec: H.265
+Resolution: 1920x1080
+Frame rate: 30fps
+Bitrate: 4000Kbps
 
-### 依赖资源
+Starting encoding...
+Encoding frames...
+Frame 1 encoded
+Frame 2 encoded
+Frame 3 encoded
+...
 
-无。
+Encoding statistics:
+Total frames: 1000
+Total bytes: 52428800
+Bitrate: 4000Kbps (actual)
 
-### 使用说明
+Press Ctrl+C to stop.
+```
 
-#### 执行
-
-执行`./sample_vdec.elf -help`，可以看到可配置参数及说明，其默认值如下表所示：
-
-| 参数名 | 说明                                                                                | 默认值 |
-| ------ | ----------------------------------------------------------------------------------- | ------ |
-| i      | 输入文件名，需要后缀名分别为.264/.265/.jpg                                          | -      |
-| type   | vo connector type, 参看k_connector_type的定义（01Studio开发板配套800x400的屏选择2） | 0      |
-
-举例：
-
-`./sample_vdec.elf -type2 -i out.h265`
-
-#### 查看结果
-
-解码结果可以在屏幕上查看。
+```{admonition} 提示
+视频编解码是多媒体处理的核心功能，需要根据实际应用场景选择合适的编码参数。有关视频编解码模块的具体接口，请参考 [视频编解码 API 文档](../../api_reference/mpp/video.md)。
+```

@@ -33,7 +33,6 @@ WEB_FILES = \
     _templates/loginEn.html \
     _templates/lang.html \
     _templates/navEn.html \
-    _templates/lang.html \
     _templates/nav.html \
     _templates/content.html \
 	_templates/contentEn.html 

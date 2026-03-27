@@ -50,7 +50,7 @@ Components Configuration > Enable CherryUSB > Enable CherryUSB Device
 
 1. 验证安装：
 
-```cmd
+```text
    adb version
 ```
 
@@ -73,7 +73,7 @@ export PATH=$PATH:$(pwd)/platform-tools
 
 连接设备后，在PC端执行以下命令验证连接：
 
-```cmd
+```text
 # 查看连接的设备列表
 adb devices
 
@@ -86,7 +86,7 @@ adb devices
 
 #### 进入交互式shell
 
-```cmd
+```text
 adb shell
 ```
 
@@ -94,13 +94,13 @@ adb shell
 
 ##### 基本语法
 
-```cmd
+```text
 adb shell <command>
 ```
 
 ##### 使用示例
 
-```cmd
+```text
 # 查看内存使用情况
 adb shell free
 ```
@@ -111,13 +111,13 @@ adb shell free
 
 ##### 基本语法
 
-```cmd
+```text
 adb push <local_file_path> <remote_file_path>
 ```
 
 ##### 使用示例
 
-```cmd
+```text
 # 上传单个文件
 adb push C:\Users\user\test.txt /tmp/test.txt
 
@@ -132,13 +132,13 @@ adb push ./app.bin /tmp
 
 ##### 基本语法
 
-```cmd
+```text
 adb pull <remote_file_path> [local_file_path]
 ```
 
 ##### 使用示例
 
-```cmd
+```text
 # 下载单个文件
 adb pull /tmp/syslog ./logs/
 

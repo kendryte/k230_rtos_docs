@@ -1,18 +1,22 @@
 # AI Demo 应用指南
 
+```{attention}
+AI Demo部署代码的开发逻辑均使用单摄双通道实现，开发逻辑参见文档: [单模型开发应用指南](./single_model_example.md)。
+```
+
 ## 概述
 
 K230 AI Demo集成了人脸、人体、手部、车牌、单词续写、语音、dms等模块，包含了分类、检测、分割、识别、跟踪、单目测距等多种功能，给客户提供如何使用K230开发AI相关应用的参考。上述应用用于验证K230的能力，丰富应用场景，实际应用场景需要有针对性的进行优化，以达到更好的效果。参考优化方向包括调整阈值、代码优化、量化优化、模型优化、训练数据优化等方向。
 
 ## 支持开发板
 
-- CanMV-K230-V1.1 / CanMV-K230-V3.0 / 01Studio CanMV K230/ Bpi-CanMV-K230D-Zero/ 庐山派-K230
+- CanMV-K230-V1.1 / CanMV-K230-V3.0 / 01Studio CanMV K230/ Bpi-CanMV-K230D-Zero/ 庐山派-K230等
 
 ## 源码说明
 
 ### 文件树
 
-源码路径位于 `src/rtsmart/examples/ai_poc`，目录结构如下：
+源码路径位于 `src/rtsmart/examples/ai/ai_demo`，目录结构如下：
 
 ```shell
 # AI Demo子目录（eg：bytetrack、face_detection等）中有详细的Demo说明文档README.md
@@ -149,34 +153,10 @@ kmodel、image及相关依赖路径位于 `src/rtsmart/libs/kmodel/ai_poc`，该
 
 ## 编译及运行程序
 
-### 固件编译
+### 切换开发板并编译应用
 
-#### 搭建环境并安装依赖
+回到 `RTOS` 根目录下，查看支持的开发板：
 
-- 使用本地Linux主机，或者安装虚拟机，或者安装WSL;
-- 安装必要的依赖软件；
-  
-```shell
-# 添加 i386 架构支持
-sudo bash -c 'dpkg --add-architecture i386 && \
-  apt-get clean all && \
-  apt-get update && \
-  apt-get install -y --fix-broken --fix-missing --no-install-recommends \
-    sudo vim wget curl git git-lfs openssh-client net-tools sed tzdata expect mtd-utils inetutils-ping locales \
-    sed make cmake binutils build-essential diffutils gcc g++ bash patch gzip bzip2 perl tar cpio unzip rsync \
-    file bc findutils dosfstools mtools bison flex autoconf automake python3 python3-pip python3-dev python-is-python3 \
-    lib32z1 scons libncurses5-dev kmod fakeroot pigz tree doxygen gawk pkg-config libyaml-dev libconfuse2 libconfuse-dev \
-    libssl-dev libc6-dev-i386 libncurses5:i386'
-```
-
-- 安装Python依赖；
-
-```shell
-pip3 install -U pyyaml pycryptodome gmssl
-```
-
-- 安装repo工具，并添加环境变量；
-  
 ```shell
 mkdir -p ~/.bin
 curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
@@ -207,77 +187,64 @@ repo sync
 make dl_toolchain
 # 列出可用的配置选项
 make list-def
-# 选择对应的板子配置文件
-make xxxx_defconfig
-# 开始编译
-time make log
 ```
 
-编译生成的固件在output目录下。
-
-#### 编译带 AI Demo 的固件
-
-在RT-Smart SDK 根目录下使用 `make menuconfig` 配置 `RT-Smart Configuration->Enable build RTsmart examples->Enable build ai examples` 使能。退出时保存配置，回到根目录下重新执行 `make` 命令。
-
-### AI Demo 编译
-
-#### 切换不同的开发板
-
-在RT-Smart SDK 根目录下使用 `make list-def` 命令查看开发板类型，使用 `make ***_defconfig` 命令选择AI Demo支持的开发板，然后执行 `make` 命令实现开发板切换和固件编译。
-
-比如，使用如下命令编译立创庐山派固件：
+切换使用的开发板并编译，切换您使用的开发板：
 
 ```shell
-# 查看支持的开发板列表
-make list-def
-# 切换某一开发板类型
-make k230_canmv_lckfb_defconfig
-# 编译固件
-make
+make ***_defconfig
+
+make -j
 ```
 
-#### 切换显示支持
+执行结束后，在`output`目录下会生成编译的镜像。
 
-ai_demo支持两种显示类型，`lt9611`表示HDMI显示模式，`st7701`表示`800*480`的LCD屏幕。切换ai_demo屏幕类型需要在`make menuconfig`中进行配置，配置路径见下图：
+- **编译方法一**
 
-![切换显示类型](https://www.kendryte.com/api/post/attachment?id=641)
-
-#### AI Demo 编译
-
-在RT-Smart SDK 根目录下，进入 `src/rtsmart/examples/ai_poc`目录，按照如下命令进行编译：
-
-```shell
-cd src/rtsmart/examples/ai_poc
-
-# 不带参数默认编译所有的demo
-./build_app.sh
-
-# 仅编译某一个demo
-./build_app_rtos_only.sh face_detection
-```
-
-编译产物在 `src/rtsmart/examples/ai_poc/k230_bin` 目录下，生成文件目录结构如下：
+上面章节讲述的代码修改完成后，进入到`src/rtsmart/examples/ai/ai_demo`目录下，执行：
 
 ```bash
-k230_bin/
-├── face_detection
-│   ├── 1024x624.jpg
-│   ├── face_detect_image.sh
-│   ├── face_detection_320.kmodel
-│   ├── face_detection_640.kmodel
-│   ├── face_detection.elf
-│   └── face_detect_isp.sh
-├── ...
+# 只编译人脸检测
+./build_app.sh face_detection
+
+#编译所有的AIDemo
+./build_app.sh
 ```
 
-#### AI Demo 上板运行
+脚本执行完成后，编译中间产物位于`build`目录下，部署汇总文件位于`k230_bin`目录下。
 
-将感兴趣的demo编译产物目录，比如 `face_detection` 目录拷贝到开发板，即可在RTOS系统运行对应的 AI Demo。拷贝方法可以使用离线插拔TF卡拷贝，将 `face_detection` 目录拷贝到TF卡根目录，然后插卡上电，连接调试串口，进入`/sdcard/face_detection` 目录执行 Demo 对应的 `***_isp.sh` 或 `***_image.sh` 脚本。比如：
+- **编译方法二**
+
+在`RTOS SDK`根目录下执行`make menuconfig`，选择`RT-Smart UserSpace Examples Configuration`->`Enable build ai examples`->`Enable Build AI Demo Programs`->`选择要编译的demo`，保存并退出。如下图：
+
+![rtos_ai_demo_menuconfig](https://www.kendryte.com/api/post/attachment?id=858)
+
+因为附带提供了`Makefile文件`，直接执行
+
+```bash
+make -j
+```
+
+这样部署汇总文件会在编译过程中直接编译到固件中的`/sdcard/app/examples/ai/ai_demo/<demo_name>`目录下。也可以进入`/sdcard/app/examples/ai/ai_demo`目录下执行：
+
+```bash
+make -j
+```
+
+该命令也可实现编译选中的demo，编译产物将生成在`k230_bin` 目录下。编译过程实现了增量编译。
+
+### 开发板部署
+
+烧录固件上电，固件烧录参考文档：[how_to_flash](../../userguide/how_to_flash.md)。
+
+在盘符处可以看到一个虚拟磁盘`CanMV`,将`k230_bin`下对应demo的编译完成的elf文件、kmodel文件以及其他使用的文件比如测试图片等拷贝到`CanMV/sdcard`目录下。
+
+然后使用串口工具连接开发板，在命令行执行目录执行 Demo 对应的 `***_isp.sh` 或 `***_image.sh` 脚本。比如：
 
 ```shell
 #进入开发板大核sharefs目录
 cd /sdcard/face_detection
 #执行相应脚本即可运行人脸检测
-#详细人脸检测说明可以参考src/rtsmart/examples/ai_poc/face_detection/README.md
+#详细人脸检测说明可以参考 src/rtsmart/examples/ai/face_detection 目录下的源码与脚本
 ./face_detect_isp.sh
 ```

@@ -158,40 +158,40 @@ Makefile  canmv_01studio_lpddr3_init_1600.c  canmv_01studio_lpddr3_init_800.c   
 
 此外，还需要对 Makefile 文件根据修改后的文件名和目录进行相应的修改。同时，Kconfig 文件需要修改的信息如下：
 
-```makefile
+```text
 +  if TARGET_K230_CANMV_01STUDIO
 
-	config SYS_CPU
-		default "k230"
+  config SYS_CPU
+    default "k230"
 
-	config SYS_VENDOR
-		default "kendryte"
+  config SYS_VENDOR
+    default "kendryte"
 
-	config SYS_BOARD
-+		default "k230_canmv_01studio"
+  config SYS_BOARD
++        default "k230_canmv_01studio"
 
-	config SYS_CONFIG_NAME
-+		default "k230_common"
+  config SYS_CONFIG_NAME
++        default "k230_common"
 
-	config BOARD_SPECIFIC_OPTIONS
-		def_bool y
-		select KENDRYTE_K230
+  config BOARD_SPECIFIC_OPTIONS
+    def_bool y
+    select KENDRYTE_K230
 
-	choice
-		prompt "DDR Type And Frequency"
-+		default CANMV_01STUDIO_LPDDR4_2667
+  choice
+    prompt "DDR Type And Frequency"
++        default CANMV_01STUDIO_LPDDR4_2667
 
-+		config CANMV_01STUDIO_LPDDR3_2133
-			bool "LPDDR3@2133"
-+		config CANMV_01STUDIO_LPDDR3_1600
-			bool "LPDDR3@1600"
-+		config CANMV_01STUDIO_LPDDR3_800
-			bool "LPDDR3@800"
-+		config CANMV_01STUDIO_LPDDR4_2667
-			bool "LPDDR4@2667"
-+		config CANMV_01STUDIO_LPDDR4_3200
-			bool "LPDDR4@3200"
-	endchoice
++        config CANMV_01STUDIO_LPDDR3_2133
+      bool "LPDDR3@2133"
++        config CANMV_01STUDIO_LPDDR3_1600
+      bool "LPDDR3@1600"
++        config CANMV_01STUDIO_LPDDR3_800
+      bool "LPDDR3@800"
++        config CANMV_01STUDIO_LPDDR4_2667
+      bool "LPDDR4@2667"
++        config CANMV_01STUDIO_LPDDR4_3200
+      bool "LPDDR4@3200"
+  endchoice
 
 endif
 

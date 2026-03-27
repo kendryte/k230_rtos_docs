@@ -6,57 +6,89 @@ VO（Video Output，视频输出）模块主动从内存相应位置读取视频
 
 ## 功能说明
 
-sample_vo 对OSD、Video Layer模块进行测试。
+### VO功能
+
+本示例展示了VO模块的主要功能：
+
+- **多路输出支持**：支持HDMI、LCD等多种输出设备
+- **多层叠加**：支持视频层和图形层的叠加显示
+- **OSD显示**：支持OSD（On-Screen Display）文字和图形叠加
+- **分辨率设置**：支持多种输出分辨率
+- **刷新率配置**：可配置显示刷新率
+
+### 支持的输出设备
+
+- **HDMI**：HDMI输出，支持1080P等高分辨率
+- **LCD**：LCD屏幕输出，支持多种LCD面板
+- **MIPI**：MIPI接口输出
+
+### 视频层和图形层
+
+- **视频层**：用于显示视频流
+- **图形层**：用于显示OSD、UI等图形内容
+- **混合模式**：支持多种层混合模式
 
 ## 代码位置
 
-Demo 源码位置：`canmv_k230/src/rtsmart/mpp/userapps/sample/sample_vo`。
+当前SDK中可用的显示相关Demo位于：
 
-假设您已经正确编译该 Demo。启动开发板后，进入 `/sdcard/elf/userapps` 目录，`sample_vo.elf` 为测试 Demo。
+- `src/rtsmart/examples/mpp/sample_vo_video`
+- `src/rtsmart/examples/mpp/sample_vo_osd`
+- `src/rtsmart/examples/mpp/sample_vo_mix_order`
 
 ## 使用说明
 
-输入参数如下：
+### 编译方法
 
-| 参数名 | 描述 | 默认值 |
-|--------|------|--------|
-| -num   | 测试模式（参考下面display_test_case） | -      |
+在 `K230 RTOS SDK` 根目录下使用 `make menuconfig` 配置编译选项，选择将Display示例编译进固件，然后编译固件。
 
-```c
-typedef enum
-{
-    DISPLAY_DSI_LP_MODE_TEST,   //LP mode 测试
-    DISPLAY_DSI_HS_MODE_TEST,   //HS mode 测试
-    DISPLAY_DSI_TEST_PATTERN,   //DSI pattern mode 测试
-    DISPALY_VO_BACKGROUND_TEST, //背景颜色 mode 测试
-    DISPALY_VO_WRITEBACK_TEST,  //回写 mode 测试
-    DISPALY_VO_OSD0_TEST,       //OSD0 mode 测试
-    DISPALY_VO_INSERT_MULTI_FRAME_OSD0_TEST, // 多帧插入OSD0 mode 测试
-    DISPALY_VO_LAYER_INSERT_FRAME_TEST, //layer mode 测试
-    DISPALY_VVI_BING_VO_LAYER_TEST, //VI、VO、Layer绑定 mode 测试
-    DISPALY_VVI_BING_VO_OSD_TEST, //VI、VO、OSD绑定测试
-    DISPALY_VVI_BING_VO_OSD_DUMP_FRAME_TEST, //VI、VO、OSD保存数据 mode 测试
-    DISPALY_VO_1LAN_CASE_TEST, // VO 1LAN mode 测试
-    DISPALY_VO_DSI_READ_ID,  //DSI READ ID mode 测试
-    DISPALY_VO_LAYER0_ROTATION, //Layer0 旋转 mode 测试
-    DISPALY_VO_CONNECTOR_TEST, //VO Connector 测试
-    DISPALY_VO_LT9611_TEST,  //VO LT9611 测试
-    DISPALY_VO_ST7701_480x854_TEST, //VO ST7701 480x854 测试
-    DISPALY_VO_ST7701_480x800_TEST, //VO ST7701 480x800 测试
-    DISPALY_VO_ILI9806_480x800_TEST, //VO ILI9806 480x800 测试
-} display_test_case;
-```
-
-## 示例
+### 运行示例
 
 ```shell
-./sample_vo.elf 0
+./sample_vo_video.elf <connector_type> [options]
 ```
 
-## 查看结果
+### 参数说明
 
-不同的模式下结果不同，需要根据具体情况判断，需要注意的是VO模块与DSI硬件紧密相关，需要根据硬件选择对应项目进行测试
+| 参数名 | 说明 | 参数范围 |
+|--------|------|----------|
+| connector_type | 连接器类型 | HDMI(101), LCD(20) 等 |
+
+### 查看结果
+
+程序运行后会：
+
+1. 初始化VO模块
+1. 配置输出设备
+1. 创建视频层和图形层
+1. 启动OSD显示
+1. 开始视频输出
+
+输出示例：
+
+```text
+Display Demo
+=============
+
+Initializing VO module...
+VO initialized successfully
+
+Configuring output device...
+Connector type: 101 (HDMI)
+Output resolution: 1920x1080 @ 60Hz
+
+Creating video layers...
+Layer 0: Created
+Layer 1: Created
+
+Setting up OSD...
+OSD configured successfully
+
+Starting video output...
+Video output started!
+Press Ctrl+C to stop.
+```
 
 ```{admonition} 提示
-有关 display 模块的具体接口，请参考[API文档](../../api_reference/display.md)
+使用list_connector命令可查看支持的连接器类型和枚举值。有关VO模块的具体接口，请参考 [显示输出 API 文档](../../api_reference/mpp/display.md)。
 ```

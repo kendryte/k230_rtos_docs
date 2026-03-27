@@ -1,5 +1,8 @@
 # Sensor ISP 标定流程
 
+> 说明：本文是 BLC/LSC/CC 标定的操作手册。
+> 若需要查看完整 ISP 调优框架与各模块参数含义，请参考：[`how_to_tune_isp.md`](./how_to_tune_isp.md)。
+
 ## 软件下载和安装
 
 - Matlab：[MATLAB Runtime R2023a（Windows 64 位）](https://ssd.mathworks.com/supportfiles/downloads/R2023a/Release/0/deployment_files/installer/complete/win64/MATLAB_Runtime_R2023a_win64.zip)
@@ -232,7 +235,7 @@ JSON 文件（imx219-1920x1080_manual.json），修改bls参数：
 
 生成的参数文件示例（A_param.txt）：
 
-```txt
+```text
 %
 
 % date of creation : 26-Sep-2025
@@ -361,7 +364,7 @@ JSON 文件（imx219-1920x1080_manual.json）：
 
 选择接近自然光源（TL84、D50、D65 任选一个）的参数写入：
 
-```json
+```text
 "class": "CLscv2",
 
 "enable": true,
@@ -445,7 +448,7 @@ JSON 文件（imx219-1920x1080_manual.json）：
 
 生成的参数文件示例：
 
-```txt
+```text
 %
 
 % date of creation: 2025-09-26 11:28:26

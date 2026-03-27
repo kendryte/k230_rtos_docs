@@ -4,9 +4,9 @@
 
 ### 概述
 
-本文档旨在为开发者提供 K230 多媒体中间件的详细信息，包括各模块的 API 接口、头文件及使用说明。该中间件涵盖 RTSP 服务器、RTSP 客户端、RTSP 推流器、媒体播放器以及 MP4 格式封装与解封装等多个功能模块，有助于开发者深入了解其应用场景与工作原理。请注意，本指南可能会不定期更新，建议开发者始终参考最新版本的文档。
+本文档旨在为开发者提供 K230 多媒体中间件的详细信息，包括各模块的 API 接口、头文件及使用说明。该中间件涵盖 RTSP 服务器、RTSP 客户端、RTSP 推流器、媒体播放器以及 MP4 格式封装与解封装、ogg 格式封装接封装等多个功能模块，有助于开发者深入了解其应用场景与工作原理。请注意，本指南可能会不定期更新，建议开发者始终参考最新版本的文档。
 
-中间件代码位于系统路径`canmv_k230/src/rtsmart/mpp/middleware`，其中`canmv_k230/src/rtsmart/mpp/middleware/src`目录包含多媒体封装的API接口，`canmv_k230/src/rtsmart/mpp/middleware/sample`目录包含使用这些API接口的示例代码。
+中间件代码位于系统路径`src/rtsmart/mpp/middleware`，其中`src/rtsmart/mpp/middleware/src`目录包含多媒体封装的API接口，`src/rtsmart/examples/mpp`目录包含使用这些API接口的示例代码。
 
 本文档提供了每个模块的API接口的详细描述和示例，帮助用户更好地理解和使用不同模块的API。
 
@@ -1366,3 +1366,398 @@ int  PushVideoData(const uint8_t *data, size_t size, bool key_frame,uint64_t tim
 【相关主题】
 
 无。
+
+### ogg
+
+本模块提供对 Ogg 容器格式的支持，可用于音频数据的封装（muxing）与解封装（demuxing）。适用于需要将原始音频帧打包为 Ogg 文件/流，或从 Ogg 数据中提取音频帧的场景。
+Ogg Muxer（封装器）
+[kd_ogg_muxer_init](#kd_ogg_muxer_init)：初始化 Ogg 封装器实例。
+[kd_ogg_write_frame](#kd_ogg_write_frame)：向 Ogg 封装器写入一帧音频数据。
+[kd_ogg_write_frame_ex](#kd_ogg_write_frame_ex)：扩展版本，支持获取生成的 Ogg 页面数据。
+[kd_ogg_muxer_destroy](#kd_ogg_muxer_destroy)：销毁 Ogg 封装器实例并释放资源。
+Ogg Demuxer（解封装器）
+[kd_ogg_demuxer_init](#kd_ogg_demuxer_init)：初始化 Ogg 解封装器实例。
+[kd_ogg_demuxer_feed_page](#kd_ogg_demuxer_feed_page)：向解封装器输入一个完整的 Ogg 页面数据（用于流模式）。
+[kd_ogg_demuxer_feed_page_ex](#kd_ogg_demuxer_feed_page_ex)：扩展版本，支持从页面中提取原始帧数据到指定缓冲区。
+[kd_ogg_demuxer_destroy](#kd_ogg_demuxer_destroy)：销毁 Ogg 解封装器实例。
+
+#### 功能描述
+
+- **Ogg Muxer（封装器）**：将原始音频帧（如 Opus 编码格式）按 Ogg 容器规范封装为 Ogg 页面（page），支持写入文件或通过回调输出到内存/网络流。
+- **Ogg Demuxer（解封装器）**：从 Ogg 文件或流中解析出音频帧数据，并通过回调通知上层应用。
+
+当前实现不绑定具体音频编码（如 Opus），仅处理 Ogg 容器层。音频编码/解码需由上层负责。
+
+#### 使用场景
+
+- 音频录制并保存为 Ogg 格式文件；
+- 通过 RTSP 或自定义协议传输 Ogg 封装的音频流；
+- 从 Ogg 文件中提取原始音频帧用于播放或分析；
+- 与 WebRTC、VoIP 等系统集成，处理 Ogg 封装的音频数据。
+- 采用 Ogg 搭配 Opus 编码的格式，承载语音 ASR 输入数据的存储与流传输、TTS 输出数据的封装与分发，适配实时语音交互场景。
+
+#### API 参考
+
+##### 类型定义
+
+```c
+typedef void kd_ogg_muxer;
+typedef void kd_ogg_demuxer;
+```
+
+##### 回调函数类型
+
+- **kd_ogg_write_callback**：用于流式写入 Ogg 页面。
+
+```c
+typedef int (*kd_ogg_write_callback)(const void *ptr, size_t size, void *user_data);
+```
+
+- **kd_ogg_frame_callback**：用于接收解封装后的音频帧。
+
+```c
+typedef void (*kd_ogg_frame_callback)(const uint8_t *data, size_t len, void *user_data);
+```
+
+##### Ogg Muxer API
+
+###### kd_ogg_muxer_init
+
+【描述】
+
+初始化 Ogg 封装器实例。
+
+【语法】
+
+```c
+int kd_ogg_muxer_init(kd_ogg_muxer **ogg_muxer, kd_ogg_muxer_params *params);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_muxer | 输出的封装器句柄 | 输出 |
+| params | 初始化参数（见下表） | 输入 |
+
+`kd_ogg_muxer_params` 结构体成员：
+
+| 成员 | 描述 |
+|---|---|
+| filename[128] | 若非空，则写入文件；若为空，则使用 write_cb 流式输出 |
+| sample_rate | 音频采样率（如 48000） |
+| channels | 声道数（如 1 或 2） |
+| serial_no | Ogg 流序列号（设为 0 表示自动生成） |
+| write_cb | 流模式下的写回调（当 filename 为空时必须提供） |
+| user_data | 传递给回调的用户数据指针 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+无。
+
+【相关主题】
+
+无。
+
+###### kd_ogg_write_frame
+
+【描述】
+
+向 Ogg 封装器写入一帧音频数据。
+
+【语法】
+
+```c
+int kd_ogg_write_frame(kd_ogg_muxer *ogg_muxer, kd_ogg_frame_params *frame);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_muxer | 已初始化的封装器句柄 | 输入 |
+| frame | 包含 data, len, frame_samples 的帧信息 | 输入 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+无。
+
+【相关主题】
+
+无。
+
+###### kd_ogg_write_frame_ex
+
+【描述】
+
+扩展版本，支持获取生成的 Ogg 页面数据（适用于需要手动处理页面的场景）。
+
+【语法】
+
+```c
+int kd_ogg_write_frame_ex(kd_ogg_muxer *ogg_muxer, kd_ogg_frame_params_ex *frame);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_muxer | 已初始化的封装器句柄 | 输入 |
+| frame | 包含输入帧数据及输出页面缓冲区的扩展帧信息 | 输入/输出 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+调用者需确保 out_page 缓冲区足够大.
+
+【相关主题】
+
+无。
+
+###### kd_ogg_muxer_destroy
+
+【描述】
+
+销毁 Ogg 封装器实例并释放资源。
+
+【语法】
+
+```c
+int kd_ogg_muxer_destroy(kd_ogg_muxer *ogg_muxer);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_muxer | 已初始化的封装器句柄 | 输入 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+无。
+
+【相关主题】
+
+无。
+
+##### Ogg Demuxer API
+
+###### kd_ogg_demuxer_init
+
+【描述】
+
+初始化 Ogg 解封装器实例。
+
+【语法】
+
+```c
+int kd_ogg_demuxer_init(kd_ogg_demuxer **ogg_demuxer, kd_ogg_demuxer_params *params);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_demuxer | 输出的解封装器句柄 | 输出 |
+| params | 初始化参数（见下表） | 输入 |
+
+`kd_ogg_demuxer_params` 结构体成员：
+
+| 成员 | 描述 |
+|---|---|
+| filename[128] | 若非空，从文件读取；若为空，需通过 feed_page 输入数据 |
+| frame_cb | 接收解封装后音频帧的回调（必须提供） |
+| user_data | 传递给回调的用户数据 |
+| sample_rate | 初始化后由 demuxer 填充实际值 |
+| channels | 初始化后由 demuxer 填充实际值 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+无。
+
+【相关主题】
+
+无。
+
+###### kd_ogg_demuxer_feed_page
+
+【描述】
+
+向解封装器输入一个完整的 Ogg 页面数据（用于流模式）。
+
+【语法】
+
+```c
+int kd_ogg_demuxer_feed_page(kd_ogg_demuxer *ogg_demuxer, const uint8_t *page_data, size_t page_size);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_demuxer | 已初始化的解封装器句柄 | 输入 |
+| page_data | Ogg 页面数据地址 | 输入 |
+| page_size | Ogg 页面数据大小 | 输入 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+无。
+
+【相关主题】
+
+无。
+
+###### kd_ogg_demuxer_feed_page_ex
+
+【描述】
+
+扩展版本，支持从页面中提取原始帧数据到指定缓冲区。
+
+【语法】
+
+```c
+int kd_ogg_demuxer_feed_page_ex(kd_ogg_demuxer *ogg_demuxer, kd_ogg_page_params_ex *page);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_demuxer | 已初始化的解封装器句柄 | 输入 |
+| page | 包含输入页面数据及输出帧缓冲区的扩展页面信息 | 输入/输出 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+无。
+
+【相关主题】
+
+无。
+
+###### kd_ogg_demuxer_destroy
+
+【描述】
+
+销毁 Ogg 解封装器实例。
+
+【语法】
+
+```c
+int kd_ogg_demuxer_destroy(kd_ogg_demuxer *ogg_demuxer);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+|---|---|---|
+| ogg_demuxer | 已初始化的解封装器句柄 | 输入 |
+
+【返回值】
+
+| 返回值 | 描述 |
+|---|---|
+| 0 | 成功 |
+| 非0 | 失败 |
+
+【需求】
+
+- 头文件：libogg.h
+- 库文件：libogg.a
+
+【注意】
+
+无。
+
+【相关主题】
+
+无。
+
+##### 注意事项
+
+1. Ogg 封装器内部自动处理页分割、序列号、校验和等 Ogg 协议细节。
+1. 时间戳由上层管理，Ogg 容器本身不存储绝对时间戳，仅记录样本偏移。
+1. 当前仅支持单音频轨道。
+1. 若使用流模式（stream mode），需确保 write_cb 或 feed_page 被正确调用以维持数据流连续性。

@@ -8,7 +8,7 @@
 
 ## 编译示例
 
-本节介绍如何使用 `SDK` 中预置的 `OpenBLAS` 静态库，来进行可执行程序的编译。`SDK` 中已包含4个基于 `OpenBLAS` 实现的可执行程序编译示例(位于`src/rtsmart/libs/openblas/`路径下)。
+本节介绍如何使用 `SDK` 中预置的 `OpenBLAS` 静态库，来进行可执行程序的编译。`SDK` 中已包含4个基于 `OpenBLAS` 实现的可执行程序编译示例(位于`src/rtsmart/examples/3rd-party/openblas/`路径下)。
 
 ### 代码结构
 
@@ -36,19 +36,21 @@
 
 ### 固件编译
 
-如果您想在编译固件时将示例编译进固件，在 `K230 RTOS SDK` 根目录下使用`make menuconfig` 配置编译选项，示例将被编译到固件中的 `sdcard/app/examples/openblas_examples` 路径下，直接烧录固件运行即可。
+如果您想在编译固件时将示例编译进固件，在 `K230 RTOS SDK` 根目录下使用`make menuconfig` 配置编译选项，选择`RT-Smart UserSpace Examples Configuration`->`Enable build 3rd-party examples`->`Enable Build OpenBlas Sample Programs`，保存并退出。如下图：
 
-![openblas_examples_menuconfig](https://www.kendryte.com/api/post/attachment?id=550)
+![openblas_examples_menuconfig](https://www.kendryte.com/api/post/attachment?id=859)
+
+示例将被编译到固件中的 `sdcard/app/examples/3rd-party/openblas` 路径下，直接烧录固件运行即可。
 
 ### 示例编译
 
-如果您想只编译`OpenBLAS`示例程序，可以进入`src/rtsmart/examples/openblas_examples`，运行`build_app.sh`文件：
+如果您想只编译`OpenBLAS`示例程序，可以进入`src/rtsmart/examples/3rd-party/openblas`，运行`build_app.sh`文件：
 
 ```shell
 ./build_app.sh
 ```
 
-编译成功后，在 `src/rtsmart/examples/openblas_examples/k230_bin` 文件夹中即包含了编译好的所有elf文件和测试文件。您可以拷贝到开发板上测试运行。
+编译成功后，在 `src/rtsmart/examples/3rd-party/openblas/k230_bin` 文件夹中即包含了编译好的所有elf文件和测试文件。您可以拷贝到开发板上测试运行。
 
 ## 运行示例
 
@@ -57,7 +59,7 @@
 运行方式及输出结果示例如下：
 
 ```shell
-msh /sdcard/app/examples/openblas_examples>./openblas_cblas_saxpy.elf
+msh /sdcard/app/examples/3rd-party/openblas>./openblas_cblas_saxpy.elf
 *********************************************************
 This is the result:
 4 7 11 14
@@ -72,7 +74,7 @@ This is the reference:
 运行方式及输出结果示例如下：
 
 ```shell
-msh /sdcard/app/examples/openblas_examples>./openblas_cblas_sgemm.elf
+msh /sdcard/app/examples/3rd-party/openblas>./openblas_cblas_sgemm.elf
 *********************************************************
 This is the result:
 7 10 15 22
@@ -87,7 +89,7 @@ This is the reference:
 运行方式及输出结果示例如下：
 
 ```shell
-msh /sdcard/app/examples/openblas_examples>./openblas_cblas_sger.elf
+msh /sdcard/app/examples/3rd-party/openblas>./openblas_cblas_sger.elf
 *********************************************************
 This is the result:
 20 40 10 20 30 60
@@ -103,7 +105,7 @@ This is the reference:
 运行方式及输出结果示例如下：
 
 ```shell
-msh /sdcard/app/examples/openblas_examples>./openblas_fortran_dgemm.elf
+msh /sdcard/app/examples/3rd-party/openblas>./openblas_fortran_dgemm.elf
 m=2,n=3,k=4,alpha=1.200000,beta=0.001000,sizeofc=6
 This is matrix A
 

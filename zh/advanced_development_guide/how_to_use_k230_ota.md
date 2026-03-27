@@ -15,18 +15,18 @@
 
 以 `boards/k230_canmv_01studio/genimage-sdcard.cfg` 为例，核心相关分区如下：
 
-| 分区名     | 偏移 / 大小        | load/boot | 对应内容                       | 说明                         |
-| ---------- | ------------------ | --------- | ------------------------------ | ---------------------------- |
-| TOC        | `0xe0000`          | -         | TOC 表（最多 16 项）           | U-Boot / OTA 共用的分区表    |
-| ota_meta   | `0xf0000`, `0x800` | -         | 槽位 A/B 版本块                | 2×512B，A 在前 B 在后        |
-| spl        | `0x100000`         | -         | U-Boot SPL                     | 启动代码                     |
-| uboot_env  | `0x1e0000`         | -         | U-Boot 环境                    |                              |
-| uboot      | `0x200000`         | -         | U-Boot 主镜像                  |                              |
-| rtt_a      | `10M`, `20M`       | load=1, boot=0x3 | opensbi_rtt_system.bin   | 槽位 A 的 RT-Smart 系统     |
-| rtapp_a    | `30M`, `30M`       | load=1    | rtapp.elf.gz                   | 槽位 A 的应用               |
-| rtt_b      | `60M`, `20M`       | load=1, boot=0x3 | opensbi_rtt_system.bin   | 槽位 B 的 RT-Smart 系统     |
-| rtapp_b    | `80M`, `30M`       | load=1    | rtapp.elf.gz                   | 槽位 B 的应用               |
-| bin/app    | `110M` 之后       | MBR FAT   | 用户 bin / app 分区            | 与 OTA 无直接关系           |
+| 分区名 | 偏移 / 大小 | load/boot | 对应内容 | 说明 |
+| --- | --- | --- | --- | --- |
+| TOC | `0xe0000` | - | TOC 表（最多 16 项） | U-Boot / OTA 共用的分区表 |
+| ota_meta | `0xf0000`, `0x800` | - | 槽位 A/B 版本块 | 2×512B，A 在前 B 在后 |
+| spl | `0x100000` | - | U-Boot SPL | 启动代码 |
+| uboot_env | `0x1e0000` | - | U-Boot 环境 | |
+| uboot | `0x200000` | - | U-Boot 主镜像 | |
+| rtt_a | `10M`, `20M` | `load=1, boot=0x3` | opensbi_rtt_system.bin | 槽位 A 的 RT-Smart 系统 |
+| rtapp_a | `30M`, `30M` | `load=1` | rtapp.elf.gz | 槽位 A 的应用 |
+| rtt_b | `60M`, `20M` | `load=1, boot=0x3` | opensbi_rtt_system.bin | 槽位 B 的 RT-Smart 系统 |
+| rtapp_b | `80M`, `30M` | `load=1` | rtapp.elf.gz | 槽位 B 的应用 |
+| bin/app | `110M` 之后 | MBR FAT | 用户 bin / app 分区 | 与 OTA 无直接关系 |
 
 其中：
 
@@ -328,9 +328,5 @@ int main(int argc, char* argv[])
 1. **调用 OTA 接口**
    - 简单场景：直接调用 `k230_ota_write_file("/data/update.kdimg", 64 * 1024)`；
    - 高级场景：自己控制循环读写，使用 `k230_ota_create` / `k230_ota_update` / `k230_ota_destroy` 实现进度条、断点续传等功能。
-1. **重启与验证**
-   - OTA 完成后重启板子；
-   - 查看串口日志中 SPL 的槽位选择信息，确认启动到了新的槽位；
-   - 可以实现应用层对 `ver_a`/`ver_b` 的检测，用于进一步做“健康检查 + 自动回滚”等高级策略。
 
----
+1. **重启与验证**：OTA 完成后重启板子；查看串口日志中 SPL 的槽位选择信息，确认启动到了新的槽位；可以实现应用层对 `ver_a`/`ver_b` 的检测，用于进一步做“健康检查 + 自动回滚”等高级策略。
