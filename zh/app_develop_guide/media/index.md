@@ -20,6 +20,7 @@ player.md
 pm.md
 rtsp.md
 sensor.md
+vicap.md
 uvc.md
 uvc_dev_picture.md
 vb.md
@@ -30,4 +31,5 @@ vo_mix_order.md
 vo_osd.md
 vo_video.md
 vo_wbc_dump.md
+vicap.md
 ```

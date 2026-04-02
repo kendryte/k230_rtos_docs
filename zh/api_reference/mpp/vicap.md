@@ -63,23 +63,47 @@ Sensor模块系统架构如下图1-4所示：
 
 该功能模块提供以下API：
 
-- [kd_mpi_vicap_get_sensor_info](#kd_mpi_vicap_get_sensor_info)
-- [kd_mpi_vicap_set_dev_attr](#kd_mpi_vicap_set_dev_attr)
-- [kd_mpi_vicap_get_dev_attr](#kd_mpi_vicap_get_dev_attr)
-- [kd_mpi_vicap_set_chn_attr](#kd_mpi_vicap_set_chn_attr)
-- [kd_mpi_vicap_get_chn_attr](#kd_mpi_vicap_get_chn_attr)
-- [kd_mpi_vicap_init](#kd_mpi_vicap_init)
-- [kd_mpi_vicap_deinit](#kd_mpi_vicap_deinit)
-- [kd_mpi_vicap_start_stream](#kd_mpi_vicap_start_stream)
-- [kd_mpi_vicap_stop_stream](#kd_mpi_vicap_stop_stream)
-- [kd_mpi_vicap_dump_frame](#kd_mpi_vicap_dump_frame)
-- [kd_mpi_vicap_dump_release](#kd_mpi_vicap_dump_release)
-- [kd_mpi_vicap_set_vi_drop_frame](#kd_mpi_vicap_set_vi_drop_frame)
-- [kd_mpi_vicap_set_mclk](#kd_mpi_vicap_set_mclk)
-- [kd_mpi_vicap_set_dump_reserved](#kd_mpi_vicap_set_dump_reserved)
-- [kd_mpi_vicap_set_slave_enable](#kd_mpi_vicap_set_slave_enable)
-- [kd_mpi_vicap_set_slave_attr](#kd_mpi_vicap_set_slave_attr)
-- [kd_mpi_vicap_3d_mode_crtl](#kd_mpi_vicap_3d_mode_crtl)
+VICAP API 按功能分为以下几类：
+
+#### 设备配置与管理
+
+- [kd_mpi_vicap_get_sensor_info](#kd_mpi_vicap_get_sensor_info) - 获取传感器配置信息
+- [kd_mpi_vicap_set_dev_attr](#kd_mpi_vicap_set_dev_attr) - 设置 VICAP 设备属性
+- [kd_mpi_vicap_get_dev_attr](#kd_mpi_vicap_get_dev_attr) - 获取 VICAP 设备属性
+- [kd_mpi_vicap_set_chn_attr](#kd_mpi_vicap_set_chn_attr) - 设置通道属性
+- [kd_mpi_vicap_get_chn_attr](#kd_mpi_vicap_get_chn_attr) - 获取通道属性
+- [kd_mpi_vicap_init](#kd_mpi_vicap_init) - 初始化 VICAP 设备
+- [kd_mpi_vicap_deinit](#kd_mpi_vicap_deinit) - 反初始化 VICAP 设备
+
+#### 流控制
+
+- [kd_mpi_vicap_start_stream](#kd_mpi_vicap_start_stream) - 启动数据流
+- [kd_mpi_vicap_stop_stream](#kd_mpi_vicap_stop_stream) - 停止数据流
+- [kd_mpi_vicap_set_vi_drop_frame](#kd_mpi_vicap_set_vi_drop_frame) - 设置丢帧
+
+#### 图像捕获与 Dump
+
+- [kd_mpi_vicap_dump_frame](#kd_mpi_vicap_dump_frame) - Dump 图像帧
+- [kd_mpi_vicap_dump_release](#kd_mpi_vicap_dump_release) - 释放 Dump 帧
+- [kd_mpi_vicap_set_dump_reserved](#kd_mpi_vicap_set_dump_reserved) - 设置 Dump 保留
+- [kd_mpi_vicap_load_image](#kd_mpi_vicap_load_image) - 加载图像数据（离线模式）
+- [kd_mpi_vicap_dump_register](#kd_mpi_vicap_dump_register) - Dump 寄存器配置
+
+#### 传感器控制
+
+- [kd_mpi_vicap_get_sensor_fd](#kd_mpi_vicap_get_sensor_fd) - 获取传感器文件描述符
+- [kd_mpi_vicap_again_set](#kd_mpi_vicap_again_set) - 设置模拟增益
+- [kd_mpi_vicap_again_get](#kd_mpi_vicap_again_get) - 获取模拟增益
+- [kd_mpi_vicap_intg_time_set](#kd_mpi_vicap_intg_time_set) - 设置积分时间（曝光）
+- [kd_mpi_vicap_set_af_enable](#kd_mpi_vicap_set_af_enable) - 设置自动对焦使能
+- [kd_mpi_vicap_tpg_enable](#kd_mpi_vicap_tpg_enable) - 使能测试图案发生器
+
+#### 时钟与同步
+
+- [kd_mpi_vicap_set_mclk](#kd_mpi_vicap_set_mclk) - 设置主时钟
+- [kd_mpi_vicap_set_slave_enable](#kd_mpi_vicap_set_slave_enable) - 设置从模式使能
+- [kd_mpi_vicap_set_slave_attr](#kd_mpi_vicap_set_slave_attr) - 设置从模式属性
+- [kd_mpi_vicap_3d_mode_crtl](#kd_mpi_vicap_3d_mode_crtl) - 3D 模式控制
 
 #### kd_mpi_vicap_get_sensor_info
 
@@ -769,6 +793,9 @@ k_s32 kd_mpi_vicap_3d_mode_crtl(k_bool enable)
 - [kd_mpi_sensor_intg_time_get](#kd_mpi_sensor_intg_time_get)
 - [kd_mpi_sensor_otpdata_get](#kd_mpi_sensor_otpdata_get)
 - [kd_mpi_sensor_otpdata_set](#kd_mpi_sensor_otpdata_set)
+- [kd_mpi_sensor_get_exposure_time_range](#kd_mpi_sensor_get_exposure_time_range)
+- [kd_mpi_sensor_get_gain_range](#kd_mpi_sensor_get_gain_range)
+- [kd_mpi_sensor_get_focus_caps](#kd_mpi_sensor_get_focus_caps)
 
 #### kd_mpi_sensor_open
 
@@ -1543,6 +1570,676 @@ k_s32 kd_mpi_sensor_otpdata_set(k_s32 fd, void *ota_data)
 无。
 
 【相关主题】
+
+#### kd_mpi_sensor_get_exposure_time_range
+
+【描述】
+
+获取 sensor 曝光时间范围
+
+【语法】
+
+k_s32 kd_mpi_sensor_get_exposure_time_range(k_s32 fd, k_sensor_exposure_time_range *range)
+
+【参数】
+
+| **参数名称** | **描述**             | **输入/输出** |
+|--------------|----------------------|---------------|
+| fd           | Sensor 设备文件描述符 | 输入          |
+| range        | 曝光范围配置参数     | 输出          |
+
+【返回值】
+
+| **返回值** | **描述**               |
+|------------|------------------------|
+| 0          | 成功。                 |
+| 非 0        | 失败，参考错误码定义。 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_sensor_api.h
+- 库文件：libsensor.a
+
+【注意】
+
+返回的曝光时间单位为微秒（us）
+
+【举例】
+
+```c
+k_sensor_exposure_time_range range;
+k_s32 ret = kd_mpi_sensor_get_exposure_time_range(fd, &range);
+if (ret == 0) {
+    printf("Exposure range: %.0f - %.0f us\n", 
+           range.min_intg_time_us, range.max_intg_time_us);
+}
+```
+
+【相关主题】
+
+#### kd_mpi_sensor_get_gain_range
+
+【描述】
+
+获取 sensor 增益范围（包括最小值、最大值和步长）
+
+【语法】
+
+k_s32 kd_mpi_sensor_get_gain_range(k_s32 fd, k_sensor_gain_range *range)
+
+【参数】
+
+| **参数名称** | **描述**             | **输入/输出** |
+|--------------|----------------------|---------------|
+| fd           | Sensor 设备文件描述符 | 输入          |
+| range        | 增益范围配置参数     | 输出          |
+
+【返回值】
+
+| **返回值** | **描述**               |
+|------------|------------------------|
+| 0          | 成功。                 |
+| 非 0        | 失败，参考错误码定义。 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_sensor_api.h
+- 库文件：libsensor.a
+
+【注意】
+
+返回的增益范围包含 min_gain、max_gain 和 step_gain
+
+【举例】
+
+```c
+k_sensor_gain_range range;
+k_s32 ret = kd_mpi_sensor_get_gain_range(fd, &range);
+if (ret == 0) {
+    printf("Gain range: %.2f - %.2f, step: %.6f\n", 
+           range.min_gain, range.max_gain, range.step_gain);
+}
+```
+
+【相关主题】
+
+#### kd_mpi_sensor_get_focus_caps
+
+【描述】
+
+获取 sensor 对焦能力信息（仅支持带自动对焦功能的传感器模组）
+
+【语法】
+
+k_s32 kd_mpi_sensor_get_focus_caps(k_s32 fd, k_sensor_autofocus_caps *caps)
+
+【参数】
+
+| **参数名称** | **描述**             | **输入/输出** |
+|--------------|----------------------|---------------|
+| fd           | Sensor 设备文件描述符 | 输入          |
+| caps         | 对焦能力配置参数     | 输出          |
+
+【返回值】
+
+| **返回值** | **描述**               |
+|------------|------------------------|
+| 0          | 成功。                 |
+| 非 0        | 失败，参考错误码定义。 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_sensor_api.h
+- 库文件：libsensor.a
+
+【注意】
+
+仅支持带自动对焦功能的传感器模组
+
+【举例】
+
+```c
+k_sensor_autofocus_caps caps;
+k_s32 ret = kd_mpi_sensor_get_focus_caps(fd, &caps);
+if (ret == 0) {
+    printf("Focus caps available\n");
+}
+```
+
+【相关主题】
+
+#### kd_mpi_vicap_get_sensor_fd
+
+【描述】
+
+获取 VICAP 设备关联的传感器文件描述符
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_get_sensor_fd(k_vicap_sensor_attr *sensor_attr)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| sensor_attr  | 传感器属性结构体指针，包含设备号和返回的 sensor_fd | 输入/输出 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| K_SUCCESS (0) | 成功 |
+| K_FAILED (非 0) | 失败，设备号无效或 sensor 未打开 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 必须先初始化 VICAP 设备并打开 sensor 后才能获取 fd
+- sensor_attr->dev_num 必须在有效范围内（VICAP_DEV_ID_0 到 VICAP_DEV_ID_MAX-1）
+- 返回的 sensor_fd 可用于后续 sensor 相关操作
+
+【举例】
+
+```c
+k_vicap_sensor_attr sensor_attr;
+sensor_attr.dev_num = VICAP_DEV_ID_0;
+
+k_s32 ret = kd_mpi_vicap_get_sensor_fd(&sensor_attr);
+if (ret == K_SUCCESS) {
+    printf("Sensor fd: %d\n", sensor_attr.sensor_fd);
+    // 可以使用 sensor_attr.sensor_fd 进行 sensor 操作
+}
+```
+
+【相关主题】
+
+- [kd_mpi_sensor_open](#kd_mpi_sensor_open)
+
+---
+
+#### kd_mpi_vicap_tpg_enable
+
+【描述】
+
+使能或禁用测试图案发生器（TPG, Test Pattern Generator）
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_tpg_enable(k_bool enable)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| enable       | K_TRUE: 使能 TPG, K_FALSE: 禁用 TPG | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，参考错误码定义 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- TPG 用于调试，不依赖真实 sensor 输入
+- 使能后 VICAP 将输出测试图案而非真实图像数据
+
+【举例】
+
+```c
+// 使能测试图案
+kd_mpi_vicap_tpg_enable(K_TRUE);
+
+// 禁用测试图案，使用真实 sensor 数据
+kd_mpi_vicap_tpg_enable(K_FALSE);
+```
+
+【相关主题】
+
+---
+
+#### kd_mpi_vicap_load_image
+
+【描述】
+
+加载用户图像数据到 VICAP（用于离线模式）
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_load_image(k_vicap_dev dev_num, const void *image_data, k_u32 data_len)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| dev_num      | VICAP 设备号 | 输入 |
+| image_data   | 图像数据指针 | 输入 |
+| data_len     | 图像数据长度（字节） | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，设备号无效或参数错误 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 仅在离线模式（VICAP_WORK_OFFLINE_MODE）下使用
+- image_data 不能为 NULL
+- 数据格式需要与 VICAP 配置匹配
+
+【举例】
+
+```c
+// 加载图像数据到 VICAP 设备 0
+const void *image_data = ...; // 图像数据
+k_u32 data_len = 1920 * 1080 * 3; // 1080P RGB 数据大小
+
+k_s32 ret = kd_mpi_vicap_load_image(VICAP_DEV_ID_0, image_data, data_len);
+if (ret == 0) {
+    printf("Image loaded successfully\n");
+}
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_init](#kd_mpi_vicap_init)
+
+---
+
+#### kd_mpi_vicap_dump_register
+
+【描述】
+
+Dump VICAP 寄存器配置到文件（用于调试）
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_dump_register(k_vicap_dev dev_num, const char *file_name)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| dev_num      | VICAP 设备号 | 输入 |
+| file_name    | 输出文件路径 | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，文件打开失败或 dump 失败 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 输出文件包含 ISP 和 Dewarp（如果使能）的寄存器配置
+- 用于调试和问题分析
+- 文件会被覆盖如果已存在
+
+【举例】
+
+```c
+// Dump VICAP 设备 0 的寄存器配置到文件
+k_s32 ret = kd_mpi_vicap_dump_register(VICAP_DEV_ID_0, "/sdcard/vicap_reg_dump.txt");
+if (ret == 0) {
+    printf("Register dump saved to /sdcard/vicap_reg_dump.txt\n");
+}
+```
+
+【相关主题】
+
+---
+
+#### kd_mpi_vicap_again_set
+
+【描述】
+
+设置传感器模拟增益（Again）
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_again_set(k_vicap_dev dev_num, k_sensor_gain gain)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| dev_num      | VICAP 设备号 | 输入 |
+| gain         | 增益配置结构体 | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，参考错误码定义 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 增益值必须在传感器支持范围内
+- 建议先调用 `kd_mpi_sensor_get_gain_range()` 获取范围
+- gain 结构体定义参考 [k_sensor_gain](#k_sensor_gain)
+
+【举例】
+
+```c
+k_sensor_gain gain;
+gain.gain[0] = 4.0f;  // 设置通道 0 增益为 4.0
+
+k_s32 ret = kd_mpi_vicap_again_set(VICAP_DEV_ID_0, gain);
+if (ret == 0) {
+    printf("Gain set successfully\n");
+}
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_again_get](#kd_mpi_vicap_again_get)
+- [kd_mpi_sensor_get_gain_range](#kd_mpi_sensor_get_gain_range)
+
+---
+
+#### kd_mpi_vicap_again_get
+
+【描述】
+
+获取传感器当前模拟增益值
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_again_get(k_vicap_dev dev_num, k_sensor_gain *gain)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| dev_num      | VICAP 设备号 | 输入 |
+| gain         | 输出增益配置结构体指针 | 输出 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，参考错误码定义 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- gain 指针不能为 NULL
+- 返回的增益值单位为倍数（如 4.0 表示 4 倍增益）
+
+【举例】
+
+```c
+k_sensor_gain gain;
+
+k_s32 ret = kd_mpi_vicap_again_get(VICAP_DEV_ID_0, &gain);
+if (ret == 0) {
+    printf("Current gain: %.2f\n", gain.gain[0]);
+}
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_again_set](#kd_mpi_vicap_again_set)
+
+---
+
+#### kd_mpi_vicap_intg_time_set
+
+【描述】
+
+设置传感器积分时间（曝光时间）
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_intg_time_set(k_vicap_dev dev_num, k_sensor_intg_time time)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| dev_num      | VICAP 设备号 | 输入 |
+| time         | 积分时间配置结构体（单位：秒） | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，参考错误码定义 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 积分时间必须在传感器支持范围内
+- 建议先调用 `kd_mpi_sensor_get_exposure_time_range()` 获取范围
+- time 结构体定义参考 [k_sensor_intg_time](#k_sensor_intg_time)
+
+【举例】
+
+```c
+k_sensor_intg_time time;
+time.intg_time[0] = 0.01f;  // 10ms 曝光时间
+
+k_s32 ret = kd_mpi_vicap_intg_time_set(VICAP_DEV_ID_0, time);
+if (ret == 0) {
+    printf("Exposure time set to 10ms\n");
+}
+```
+
+【相关主题】
+
+- [kd_mpi_sensor_get_exposure_time_range](#kd_mpi_sensor_get_exposure_time_range)
+
+---
+
+#### kd_mpi_vicap_set_af_enable
+
+【描述】
+
+设置自动对焦功能使能状态
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_set_af_enable(k_vicap_dev dev_num, k_bool enable)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| dev_num      | VICAP 设备号 | 输入 |
+| enable       | K_TRUE: 使能自动对焦，K_FALSE: 禁用自动对焦 | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，参考错误码定义 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 仅支持带自动对焦功能的传感器模组
+- 禁用后需要手动调用对焦接口
+
+【举例】
+
+```c
+// 使能自动对焦
+kd_mpi_vicap_set_af_enable(VICAP_DEV_ID_0, K_TRUE);
+
+// 禁用自动对焦，使用手动对焦
+kd_mpi_vicap_set_af_enable(VICAP_DEV_ID_0, K_FALSE);
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_get_af_enable](#kd_mpi_vicap_get_af_enable)
+
+---
+
+#### kd_mpi_vicap_get_af_enable
+
+【描述】
+
+获取自动对焦功能的当前使能状态
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_get_af_enable(k_vicap_dev dev_num, k_bool *enable)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| dev_num      | VICAP 设备号 | 输入 |
+| enable       | 输出使能状态指针（K_TRUE: 已使能，K_FALSE: 已禁用） | 输出 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| 非 0 | 失败，参考错误码定义 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- enable 指针不能为 NULL
+- 返回的使能状态反映当前自动对焦功能的工作状态
+
+【举例】
+
+```c
+k_bool enable;
+
+k_s32 ret = kd_mpi_vicap_get_af_enable(VICAP_DEV_ID_0, &enable);
+if (ret == 0) {
+    if (enable) {
+        printf("Auto-focus is enabled\n");
+    } else {
+        printf("Auto-focus is disabled\n");
+    }
+}
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_set_af_enable](#kd_mpi_vicap_set_af_enable)
+
+---
 
 ## 数据类型
 
@@ -2852,4 +3549,4 @@ k_s32 kd_mapi_sensor_otpdata_get(k_s32 sensor_type, k_sensor_otp_date *otp_data)
 
 ## 调试信息
 
-VICAP内存管理和和系统绑定调试信息，请参考《K230 系统控制 API参考》。
+VICAP 内存管理和系统绑定调试信息，请参考《K230 系统控制 API 参考》。
