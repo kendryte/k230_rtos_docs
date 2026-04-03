@@ -1,116 +1,155 @@
 # 如何新增一个屏幕驱动
 
-在本文档会演示如何新增一个 368(H) X 552(V) 的 `mipi` 屏幕。
+本文档介绍当前显示驱动框架下新增屏幕的推荐流程。新框架已经移除了旧版的 `DSI Debugger` 调试路径，新增屏幕时应先在 `make menuconfig` 中完成显示驱动、引脚和面板选择，再按当前 connector/panel 框架补齐代码。
 
-## 使用屏幕调试助手
+本文档仍以一个 `368(H) x 552(V)` 的 `MIPI DSI` 屏幕为例，说明从 menuconfig 到代码集成的完整过程。
 
-在 [CanMV-K230](https://github.com/kendryte/canmv_k230) 工程中的子仓库 [mpp](https://github.com/canmv-k230/mpp/) 里增加了一个屏幕调试助手，用户可将该功能使能后，通过修改存储在 `SDCard` 中的配置文件快速的调试屏幕时序以及初始化序列，不再需要频繁的修改代码编译固件。
+## 总体流程
 
-### 使能 `DSI Debugger`
+新增屏幕建议按下面顺序进行：
 
-在工程根目录执行 `make menuconfig`，使能选项 `Enable DSI Debuger`。
+1. 在 `make menuconfig` 中打开对应显示驱动，并配置引脚。
+1. 在 `Display Panel Drivers Configuration` 中选择已有面板，或为新面板添加一个新的 panel driver。
+1. 编译并运行显示 sample，使用 `list_connector` 和现有 sample 验证配置是否生效。
+1. 如果面板还不在 SDK 中，再按当前框架补充 `connector_type`、`panel_desc`、初始化序列和 CanMV 映射。
 
-![Enable DSI Debuger](https://www.kendryte.com/api/post/attachment?id=488)
+## 先在 menuconfig 中完成显示配置
 
-保存配置后，编译生成新的固件，烧录固件。
+在工程根目录执行：
 
-### 生成 `display_debugger_config.txt`
-
-在工程中有一个配置文件的模板，路径为 `src/rtsmart/mpp/userapps/src/connector/display_debugger_config.txt`。它的各项参数含义大概如下：
-
-```shell
-[config]
-pclk_hz=33000000        # pclk in hz
-fps=60                  # target fps
-lane_num=2              # mipi dsi lane number, choice in 1, 2, 4
-buff_num=1
-
-hactive=480
-hsync=8
-hbp=32
-hfp=32
-
-vactive=800
-vsync=10
-vbp=150
-vfp=140
-
-# !!! every line length should < 256
-
-# cmd_type:
-# 0x05  Command type: Single byte data (DCS Short Write, no parameters)
-# 0x15  Command type: Two byte data (DCS Short Write, 1 parameter)
-# 0x39  Command type: Multi byte data (DCS Long Write, n parameters n >= 2)
-
-# format: cmd_type, delay_ms, cmd_data_length, cmd_data0 ... cmd_dataN
-
-# 初始化序列的格式为：cmd_type, delay_ms, cmd_data_length, cmd_data0 ... cmd_dataN
-#
-# 现在支持3种Command type：
-# 0x05 只写一个字节，不带参数
-# 0x15 只写两个字节，带一个参数
-# 0x39 可写多个字节，带大于两个参数
-#
-# 以 0x39,10,3,0xE8,0x00,0x0C 为例
-# 0x39                  0x39命令，代表我们现在要写多个字节数据
-# 十进制数，代表我们执行完这个命令之后要延时10个毫秒才会执行下一条命令
-# 十进制数，代表我们这次的0x39命令会写3个字节的数据
-# 0xE8,0x00,0x0C        3个字节的数据里面，0xE8是命令，0x00,0x0C是参数，即这是一个带两个参数的命令
-#
-# 注意，0x39 和 0xE8 都是命令，但是要区分开。前者是MIPI显示接口协议中的一种命令类型，后者是屏幕初始化序列里面的一个特定的命令字节，通常在屏幕初始化过程中用来指定某些设置，具体而言，这个命令可能是用来启用或禁用某些功能（如显示模式、对比度、颜色配置等）。
-
-[init-sequence]
-0x05,0,1,0x01
-0x05,10,1,0x11
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x11
-0x15,0,2,0xD1,0x11
-0x15,0,2,0x55,0xB0
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x10
-0x39,0,3,0xC0,0x63,0x00
-0x39,0,3,0xC1,0x04,0x02
-0x39,0,3,0xC2,0x37,0x08
-0x15,0,2,0xC7,0x00
-0x15,0,2,0xCC,0x38
-0x39,0,17,0xB0,0x00,0x11,0x19,0x0C,0x10,0x06,0x07,0x0A,0x09,0x22,0x04,0x10,0x0E,0x28,0x30,0x1C
-0x39,0,17,0xB1,0x00,0x12,0x19,0x0D,0x10,0x04,0x06,0x07,0x08,0x23,0x04,0x12,0x11,0x28,0x30,0x1C
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x11
-0x15,0,2,0xB0,0x4D
-0x15,0,2,0xB1,0x60
-0x15,0,2,0xB2,0x07
-0x15,0,2,0xB3,0x80
-0x15,0,2,0xB5,0x47
-0x15,0,2,0xB7,0x8A
-0x15,0,2,0xB8,0x21
-0x15,0,2,0xC1,0x78
-0x15,0,2,0xC2,0x78
-0x15,0,2,0xD0,0x88
-0x39,0,4,0xE0,0x00,0x00,0x02
-0x39,0,12,0xE1,0x01,0xA0,0x03,0xA0,0x02,0xA0,0x04,0xA0,0x00,0x44,0x44
-0x39,0,12,0xE2,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-0x39,0,5,0xE3,0x00,0x00,0x33,0x33
-0x39,0,3,0xE4,0x44,0x44
-0x39,0,17,0xE5,0x01,0x26,0xA0,0xA0,0x03,0x28,0xA0,0xA0,0x05,0x2A,0xA0,0xA0,0x07,0x2C,0xA0,0xA0
-0x39,0,5,0xE6,0x00,0x00,0x33,0x33
-0x39,0,3,0xE7,0x44,0x44
-0x39,0,17,0xE8,0x02,0x26,0xA0,0xA0,0x04,0x28,0xA0,0xA0,0x06,0x2A,0xA0,0xA0,0x08,0x2C,0xA0,0xA0
-0x39,0,8,0xEB,0x00,0x01,0xE4,0xE4,0x44,0x00,0x40
-0x39,0,17,0xED,0xFF,0xF7,0x65,0x4F,0x0B,0xA1,0xCF,0xFF,0xFF,0xFC,0x1A,0xB0,0xF4,0x56,0x7F,0xFF
-0x15,0,2,0xEE,0x42
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x00
-0x15,0,2,0x36,0x00
-0x15,0,2,0x3A,0x55
-0x05,10,1,0x11
-0x05,0,1,0x29
+```bash
+make menuconfig
 ```
 
-接下来，我们根据自己的屏幕修改对应的屏幕时序和初始化序列，然后生成自己屏幕的 `display_debugger_config.txt` ，以本文档所调试的屏幕为例子，最后会调整出一个这样的文件。（记住将配置文件中的注释删掉）
+进入菜单：
+
+```text
+MPP Configuration -> Display Configuration
+```
+
+![display](https://www.kendryte.com/api/post/attachment?id=866)
+
+### 选择显示驱动类型
+
+根据硬件连接方式，先启用正确的显示驱动：
+
+- `Enable HDMI Display Driver`
+- `Enable LCD Display Driver`
+- `Enable SPI LCD Display Driver`
+- `Enable QSPI LCD Display Driver`
+- `Enable OSPI LCD Display Driver`
+
+如果屏幕是 `MIPI DSI LCD`，通常需要打开 `Enable LCD Display Driver`。
+
+### 配置显示相关引脚
+
+在同一个菜单中配置当前板卡使用的引脚。
+
+对于 `MIPI DSI LCD`，至少需要确认：
+
+- `DSI-LCD Reset GPIO`
+- `DSI-LCD BackLight GPIO`
+
+对于 `HDMI`，需要确认：
+
+- `DSI-HDMI Reset GPIO`
+- `DSI-HDMI I2c Bus`
+
+对于 `SPI/QSPI/OSPI LCD`，除了 reset/backlight 外，还需要确认总线和 FPIOA 相关配置，例如：
+
+- `Data/Command GPIO`
+- `Chip Select GPIO`
+- `Reset GPIO`
+- `Backlight GPIO`
+- `Clock Pin`
+- `Data0/MOSI Pin`
+- `QSPI Bus`
+
+![display](https://www.kendryte.com/api/post/attachment?id=865)
+
+### 选择面板驱动
+
+完成驱动类型和引脚配置后，继续在下面的菜单中选择面板驱动：
+
+```text
+Display Panel Drivers Configuration
+```
+
+当前 SDK 中可以直接选择的面板/桥接芯片驱动包括：
+
+- `Enable HDMI Display Panel Driver LT9611`
+- `Enable LCD Display Panel Driver HX8399`
+- `Enable LCD Display Panel Driver ST7701`
+- `Enable LCD Display Panel Driver ili9806`
+- `Enable LCD Display Panel Driver ili9881`
+- `Enable LCD Display Panel Driver nt35516`
+- `Enable LCD Display Panel Driver nt35532`
+- `Enable LCD Display Panel Driver gc9503`
+- `Enable LCD Display Panel Driver st7102`
+- `Enable LCD Display Panel Driver aml020t`
+- `Enable LCD Display Panel Driver JD9852`
+- `Enable SPI LCD Panel Driver ST7789`
+
+如果你的屏幕型号已经在这里，先直接使能对应项验证引脚和显示链路。如果这里没有对应型号，再继续下面的“在工程代码中添加屏幕”。
+
+![display](https://www.kendryte.com/api/post/attachment?id=866)
+
+保存配置后重新编译固件。
+
+## 验证当前配置是否生效
+
+建议先验证 menuconfig 配置没有问题，再开始新增代码。
+
+### 使能并编译显示相关 sample
+
+在 `RT-Smart UserSpace Examples Configuration` 中，至少使能：
+
+- `Enable MPP examples`
+- 一个或多个 VO/显示相关 sample，例如 `sample_vo_video`、`sample_vo_osd`
+
+重新编译镜像后，在板端查找 sample：
+
+### 查看当前固件支持的 connector
+
+进入板端 shell 后，可以先执行：
 
 ```shell
-[config]
+list_connector
+```
+
+这个命令可以列出当前固件已经编进镜像的 connector 类型和枚举值。它能帮助你确认：
+
+- menuconfig 里选择的 panel driver 是否已经生效
+- 新增的 panel driver 是否已经进入最终镜像
+- sample 运行时应传入哪个 `connector_type`
+
+### 运行显示 sample
+
+例如：
+
+```shell
+./mpp/sample_vo_video.elf <connector_type>
+```
+
+如果 sample 可以点亮已经使能的面板，说明当前显示链路、引脚和基础时序已经通了；这时再开始新增面板代码，定位会更清晰。
+
+## 准备新增面板前需要拿到的信息
+
+新增一个 panel driver 之前，通常需要准备两类信息：
+
+1. 屏幕时序参数
+1. 屏幕厂家提供的初始化序列
+
+这两类信息最终会进入 panel driver 源码，而不是像旧版流程那样写到 SDCard 配置文件里。
+
+### 屏幕时序
+
+以本文档示例屏幕为例，时序信息通常包括：
+
+```shell
 pclk_hz=27000000
 fps=60
 lane_num=2
-buff_num=1
 
 hactive=368
 hsync=8
@@ -121,111 +160,29 @@ vactive=552
 vsync=48
 vbp=250
 vfp=250
-
-[init-sequence]
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x13
-0x15,0,2,0xEF,0x08
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x10
-0x39,0,3,0xC0,0x44,0x00
-0x39,0,3,0xC1,0x0B,0x02
-0x39,0,3,0xC2,0x07,0x1F
-0x15,0,2,0xCC,0x10
-0x39,0,17,0xB0,0x0F,0x1E,0x25,0x0D,0x11,0x06,0x12,0x08,0x08,0x2A,0x05,0x12,0x10,0x2B,0x32,0x1F
-0x39,0,17,0xB1,0x0F,0x1E,0x25,0x0D,0x11,0x05,0x12,0x08,0x08,0x2B,0x05,0x12,0x10,0x2B,0x32,0x1F
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x11
-0x15,0,2,0xB0,0x35
-0x15,0,2,0xB1,0x45
-0x15,0,2,0xB2,0x87
-0x15,0,2,0xB3,0x80
-0x15,0,2,0xB5,0x49
-0x15,0,2,0xB7,0x85
-0x15,0,2,0xB8,0x11
-0x15,0,2,0xBB,0x03
-0x15,0,2,0xC0,0x07
-0x15,0,2,0xC1,0x78
-0x15,0,2,0xC2,0x78
-0x15,100,2,0xD0,0x88
-0x39,0,4,0xE0,0x00,0x00,0x02
-0x39,0,12,0xE1,0x03,0x30,0x07,0x30,0x02,0x30,0x06,0x30,0x00,0x44,0x44
-0x39,0,12,0xE2,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-0x39,0,5,0xE3,0x00,0x00,0x22,0x00
-0x39,0,3,0xE4,0x22,0x00
-0x39,0,17,0xE5,0x0A,0x34,0x30,0xE0,0x08,0x32,0x30,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-0x39,0,5,0xE6,0x00,0x00,0x22,0x00
-0x39,0,3,0xE7,0x22,0x00
-0x39,0,17,0xE8,0x09,0x33,0x30,0xE0,0x07,0x31,0x30,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-0x39,0,8,0xEB,0x00,0x01,0x10,0x10,0x11,0x00,0x00
-0x39,0,17,0xED,0xFF,0xFF,0xF0,0x45,0xBA,0x2F,0xFF,0xFF,0xFF,0xFF,0xF2,0xAB,0x54,0x0F,0xFF,0xFF
-0x39,0,7,0xEF,0x08,0x08,0x08,0x45,0x3F,0x54
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x13
-0x39,0,3,0xE8,0x00,0x0E
-0x15,120,2,0x11,0x00
-0x39,10,3,0xE8,0x00,0x0C
-0x39,0,3,0xE8,0x00,0x00
-0x39,0,6,0xFF,0x77,0x01,0x00,0x00,0x00
-0x15,50,2,0x29,0x00
 ```
 
-### 将配置文件放入`SDCard`
+这些值会对应到 `panel_desc` 里的 `timing` 字段，例如：
 
-开机后，将配置文件放入`SDCard`根目录
+- `pclk_hz` / `pclk_khz`
+- `hactive`
+- `hsync_len`
+- `hback_porch`
+- `hfront_porch`
+- `vactive`
+- `vsync_len`
+- `vback_porch`
+- `vfront_porch`
 
-![SDCard Path](https://www.kendryte.com/api/post/attachment?id=485)
+工程里仍然可以使用时序计算工具辅助计算：
 
-### 验证并调整配置
+[K230 MIPI DSI Connector Info Generator](https://kendryte-download.canaan-creative.com/developer/common/K230_MIPI_DSI_Connector_Info_Generator.html)
 
-#### 在 `CanMV IDE K230` 打开 `Display` 相关的Sample
-
-![Open Display Sample](https://www.kendryte.com/api/post/attachment?id=483)
-
-#### 修改Sample代码以使用 `DSI Debugger`
-
-![Mod Sample Code](https://www.kendryte.com/api/post/attachment?id=484)
-
-#### 运行Sample，查看结果
-
-![Check Sample Result](https://www.kendryte.com/api/post/attachment?id=487)
-
-因为本文档给的参数是适配对应屏幕后的，所以屏幕会正确输出图像，如果读者得不到预期结果，那么需要修改SDCard的配置文件调整参数，重复运行Sample，查看结果，最后调整到合适的参数。
-
-![Check Panel Result](https://www.kendryte.com/api/post/attachment?id=499)
-
-## 配置文件参数调整
-
-SDCard中配置文件的参数基本分为两部分，前半部分是屏幕时序相关，后半部分是屏幕厂家提供的初始化序列，接下来我们分别了解一下这两部分的具体含义。
-
-### 屏幕时序
-
-```shell
-[config]
-pclk_hz=27000000        # 这个值是根据下面的参数，最后利用计算工具算出来的
-fps=60                  # 假定我想要这个帧率，等会写进去计算工具
-lane_num=2
-buff_num=1
-# htotal = hactive + hsync + hbp + hfp
-
-hactive=368             # 这个对应分辨率的宽
-hsync=8                 # hsync,hbp,hfp，根据对应的屏幕估算，调整
-hbp=16
-hfp=16
-
-# vtotal =  vactive + vsync + vbp +vfp
-# 对于 vtotal 来说有个限制，主控只会在 2^N 行处发起中断，所以当 vtotal > 512 的时候，应该将 vtotal向上对齐到 1024，然后再给一点余量
-# 给中断处理函数，所以预估 vtotal 应该为 1100，即 vactive + vsync + vbp +vfp 需要等于 1100，在这个限制下再去调整 vsync,vbp,vfp
-
-vactive=552             # 这个对应分辨率的高
-vsync=48                # vsync,vbp,vfp，根据对应的屏幕估算，调整
-vbp=250
-vfp=250
-```
-
-我们提供了一个协助计算时序的工具 [K230 MIPI DSI Connector Info Generator](https://kendryte-download.canaan-creative.com/developer/common/K230_MIPI_DSI_Connector_Info_Generator.html)，下面演示如何利用计算时序的工具来算出上面的值
-
-![Calc Timing](https://www.kendryte.com/api/post/attachment?id=489)
+> 仅可以验证时序是否能够生成
 
 ### 初始化序列
 
-本文档示例的屏幕厂家提供了如下的初始化序列，我们根据需要转换为符合格式的 `display_debugger_config.txt` 文件即可。
+厂家往往会提供一组寄存器初始化表，例如：
 
 ```shell
 {0xFF,5,{0x77,0x01,0x00,0x00,0x13}},
@@ -234,81 +191,210 @@ vfp=250
 {0xC0,2,{0x44,0x00}},
 {0xC1,2,{0x0B,0x02}},
 {0xC2,2,{0x07,0x1F}},
-{0xCC,1,{0x10}},
-{0xB0,16,{0x0F,0x1E,0x25,0x0D,0x11,0x06,0x12,0x08,0x08,0x2A,0x05,0x12,0x10,0x2B,0x32,0x1F}},
-{0xB1,16,{0x0F,0x1E,0x25,0x0D,0x11,0x05,0x12,0x08,0x08,0x2B,0x05,0x12,0x10,0x2B,0x32,0x1F}},
-{0xFF,5,{0x77,0x01,0x00,0x00,0x11}},
-{0xB0,1,{0x35}},
-{0xB1,1,{0x45}},
-{0xB2,1,{0x87}},
-{0xB3,1,{0x80}},
-{0xB5,1,{0x49}},
-{0xB7,1,{0x85}},
-{0xB8,1,{0x11}},
-{0xBB,1,{0x03}},
-{0xC0,1,{0x07}},
-{0xC1,1,{0x78}},
-{0xC2,1,{0x78}},
-{0xD0,1,{0x88}},
-{REGFLAG_DELAY,100,{}},
-{0xE0,3,{0x00,0x00,0x02}},
-{0xE1,11,{0x03,0x30,0x07,0x30,0x02,0x30,0x06,0x30,0x00,0x44,0x44}},
-{0xE2,11,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-{0xE3,4,{0x00,0x00,0x22,0x00}},
-{0xE4,2,{0x22,0x00}},
-{0xE5,16,{0x0A,0x34,0x30,0xE0,0x08,0x32,0x30,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-{0xE6,4,{0x00,0x00,0x22,0x00}},
-{0xE7,2,{0x22,0x00}},
-{0xE8,16,{0x09,0x33,0x30,0xE0,0x07,0x31,0x30,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-{0xEB,7,{0x00,0x01,0x10,0x10,0x11,0x00,0x00}},
-{0xED,16,{0xFF,0xFF,0xF0,0x45,0xBA,0x2F,0xFF,0xFF,0xFF,0xFF,0xF2,0xAB,0x54,0x0F,0xFF,0xFF}},
-{0xEF,6,{0x08,0x08,0x08,0x45,0x3F,0x54}},
-{0xFF,5,{0x77,0x01,0x00,0x00,0x13}},
-{0xE8,2,{0x00,0x0E}},
-{0x11,0,{0x00}},
-{REGFLAG_DELAY,120,{}},
-{0xE8,2,{0x00,0x0C}},
-{REGFLAG_DELAY,10,{}},
-{0xE8,2,{0x00,0x00}},
-{0xFF,5,{0x77,0x01,0x00,0x00,0x00}},
-{0x29,0,{0x00}},
-{REGFLAG_DELAY,50,{}},
 ```
 
-我们举两个例子：
+在当前框架里，这些数据一般会被转换成 panel 源文件中的命令序列数组，例如 `mipi_st7701.c` 中的：
+
+```c
+const k_u8 init_sequence[] = {
+    0x39, 0, 6, 0xFF, 0x77, 0x01, 0x00, 0x00, 0x13,
+    0x15, 0, 2, 0xEF, 0x08,
+    0x39, 0, 3, 0xC0, 0x44, 0x00,
+};
+```
+
+命令格式仍然是：
+
+```text
+cmd_type, delay_ms, cmd_data_length, cmd_data0 ... cmd_dataN
+```
+
+当前常用的 `cmd_type` 有：
+
+- `0x05`：单字节命令，无参数
+- `0x15`：单字节命令，带一个参数
+- `0x39`：长命令，带多个参数
+
+我们仍然举两个转换例子：
 
 ```shell
-
 {0xB0,16,{0x0F,0x1E,0x25,0x0D,0x11,0x06,0x12,0x08,0x08,0x2A,0x05,0x12,0x10,0x2B,0x32,0x1F}},
-# 将多余的{}去掉
-# 0xB0 是命令，其余的都是16个字节是参数，所以我们选择 0x39 命令，长度应该是 16 + 1 = 17
-# 不需要延时，所以转化结果如下：
+
+# 去掉外层 {}
+# 0xB0 是命令，后面 16 个字节是参数，因此使用 0x39
+# 长度 = 1 个命令字节 + 16 个参数字节 = 17
+
 0x39,0,17,0xB0,0x0F,0x1E,0x25,0x0D,0x11,0x06,0x12,0x08,0x08,0x2A,0x05,0x12,0x10,0x2B,0x32,0x1F
+```
 
-
+```shell
 {0x11,0,{0x00}},
 {REGFLAG_DELAY,120,{}},
-# 将多余的{}去掉
-# 0x11 是命令，其余的1个字节是参数，所以我们选择 0x15 命令，长度应该是 1 + 1 = 2
-# 后面的REGFLAG_DELAY代表还有120毫秒的延时，所以转化结果为如下：
+
+# 这一组也可以转换到 init_sequence 数组中
+# 如果按“1 个命令 + 1 个参数”处理，可以写成：
 
 0x15,120,2,0x11,0x00
-
-# Tips: 因为每个厂家提供的初始化序列格式可能大有不同，所以这种转化的事情可以丢给ChatGPT去干就好
-# PS: 其实第二个例子转换为 0x05,120,1,0x11，也是正确的，我们会发现厂家提供的初始化序列，自己在长度和数据这方面就没统一好
-
-
 ```
 
 ## 在工程代码中添加屏幕
 
-经过前面的调试，我们已经有了适配该款屏幕的参数了，可以在工程中添加一款屏幕了。
+当前框架不是简单复制一份旧面板文件再改名字，而是围绕 `connector_type`、`panel_desc`、`panel_ops` 和 `panel_drv` 组织。
 
-在 [CanMV-K230](https://github.com/kendryte/canmv_k230) 工程中的子仓库 [mpp](https://github.com/canmv-k230/mpp/) 里，仿造其他屏幕添加类似如下代码：（初始化序列来自屏幕厂家，屏幕时序是我们调整出来的，最后把计算工具生成的代码贴过去即可）
+### 1. 先定义或确认 `connector_type`
 
-![User Timing](https://www.kendryte.com/api/post/attachment?id=490)
-![Kernal Init](https://www.kendryte.com/api/post/attachment?id=491)
+屏幕类型定义位于：
 
-在 [CanMV-K230](https://github.com/kendryte/canmv_k230) 工程中的子仓库 [canmv](https://github.com/canmv-k230/canmv) 里，仿造其他屏幕添加类似如下代码：
+- `src/rtsmart/mpp/include/comm/k_connector_comm.h`
 
-![Canmv Add Panle](https://www.kendryte.com/api/post/attachment?id=492)
+当前工程使用 `K_CONN_TYPE(chip, bus, w, h, ver)` 生成 `k_connector_type`。新增面板时，先为新型号补一个新的类型常量，命名风格参考现有定义：
+
+- `ST7701_480_800_DSI_V1`
+- `ST7701_480_854_DSI_V1`
+- `ST7701_480_640_DSI_V1`
+- `ST7701_368_544_DSI_V1`
+
+如果只是为现有芯片增加一个新分辨率变体，也应优先沿用现有芯片命名方式，而不是单独发明一套类型编码。
+
+### 2. 在 panel 源文件中补齐初始化和描述符
+
+DSI 面板的实现通常位于：
+
+- `src/rtsmart/mpp/kernel/connector/src/panels/`
+
+例如 ST7701 的实现文件：
+
+- `src/rtsmart/mpp/kernel/connector/src/panels/mipi_st7701.c`
+
+一个新 panel 通常至少需要这些内容：
+
+1. 一个 `init_sequence` 对应的初始化函数
+1. 一个 `panel_ops`
+1. 一个 `panel_desc`
+1. 一个 `panel_drv` 或一个新的 variant 挂到现有 `panel_drv` 下
+
+`panel_desc` 的关键字段包括：
+
+- `name`
+- `connector_type`
+- `bus_type`
+- `timing`
+- `gpio`
+- `bus`
+- `bus_ops`
+- `ops`
+
+以 DSI 面板为例，`gpio` 中通常会引用 menuconfig 配置出来的引脚：
+
+```c
+.gpio = {
+    .reset_pin = CONFIG_MPP_DSI_LCD_RESET_PIN,
+    .backlight_pin = CONFIG_MPP_DSI_LCD_BACKLIGHT_PIN,
+    .reset_delay_ms = 10,
+    .backlight_delay_ms = 0,
+    .reset_active_low = K_TRUE,
+    .backlight_active_low = K_FALSE,
+},
+```
+
+这也是为什么新增屏幕之前，应该先在 `Display Configuration` 中把引脚配置清楚。
+
+### 3. 把新 panel 挂到当前驱动框架中
+
+connector 核心会从 `connector_drv_list[]` 里查找可用 panel。相关逻辑位于：
+
+- `src/rtsmart/mpp/kernel/connector/src/connector_dev.c`
+
+当前查找流程是：
+
+1. 遍历 `connector_drv_list[]`
+1. 遍历每个驱动中的 `panel_variants`
+1. 通过 `connector_type` 匹配目标 panel
+
+因此新增面板时，需要确保新 panel 最终能进入某个 `panel_drv` 的 `panel_variants`，并且该驱动本身会被编译进镜像。
+
+### 4. 在 Kconfig 和 Makefile 中接入新 panel
+
+完成 panel 源码后，还需要把它接进构建系统。
+
+相关文件：
+
+- `src/rtsmart/mpp/Kconfig`
+- `src/rtsmart/mpp/kernel/connector/Makefile`
+
+Kconfig 负责把新 panel 暴露到：
+
+```text
+MPP Configuration -> Display Configuration -> Display Panel Drivers Configuration
+```
+
+Makefile 负责根据 Kconfig 选项决定是否编译对应源文件。例如当前 DSI 面板的接入方式是：
+
+```make
+src-$(CONFIG_MPP_DSI_ENABLE_LCD_ST7701) += src/panels/mipi_st7701.c
+```
+
+新增面板时，应按同样方式补一项，并在 `Kconfig` 中增加一个对应的 `config` 条目。
+
+### 5. 如需 CanMV Python 接口支持，再补充映射
+
+如果该面板不仅在 C sample 中使用，也希望在 CanMV Python 接口中可选，还需要同步修改：
+
+- `src/canmv/port/modules/modmedia.display.c`
+
+这里主要有两部分：
+
+1. `PY_PANEL_TYPE_*` 枚举
+1. `py_display_panel_map[]` 映射表
+
+只有当新的 `connector_type` 被映射到 `py_display_panel_map[]` 后，CanMV Python 层才能按面板类型和分辨率选择它。
+
+## 新增屏幕的最小检查清单
+
+提交代码前，建议至少检查下面几项：
+
+1. `make menuconfig` 中能看到新的 panel 选项。
+1. `Display Configuration` 里的 reset/backlight/bus 引脚与实际硬件一致。
+1. `Makefile` 已经根据新的 Kconfig 选项编译对应面板源文件。
+1. `connector_type` 在 `k_connector_comm.h` 中已经定义。
+1. `panel_desc` 的时序、lane 数、GPIO 和初始化序列都已填写。
+1. `connector_drv_list[]` 查找路径可以命中新 panel。
+1. 板端 `list_connector` 可以看到新 panel。
+1. `sample_vo_video` 或其他显示 sample 可以点亮屏幕。
+1. 如果需要 Python 支持，`py_display_panel_map[]` 已同步更新。
+
+## 常见问题
+
+### 1. menuconfig 中看不到某个 panel 选项
+
+优先检查：
+
+1. 是否先使能了对应显示驱动，例如 `Enable LCD Display Driver` 或 `Enable SPI LCD Display Driver`
+1. Kconfig 条目是否 `depends on` 了某个上层驱动开关
+1. 新 panel 对应的 Kconfig 配置是否已经接入
+
+### 2. 已经编译通过，但 `list_connector` 看不到新 panel
+
+优先检查：
+
+1. `Makefile` 是否已经编译对应 panel 源文件
+1. `connector_dev.c` 中的驱动列表是否能包含该 panel 对应的 `panel_drv`
+1. `panel_variants` 里是否真正挂入了新的 `panel_desc`
+
+> `list_connector` 仅在 RTOS SDK 中被编译
+
+### 3. 屏幕上电但不显示图像
+
+优先检查：
+
+1. reset/backlight GPIO 是否正确
+1. DSI lane、pixel clock、porch、sync 参数是否正确
+1. 厂家初始化序列是否完整，延时是否保留
+1. sample 使用的 `connector_type` 是否与新增 panel 一致
+1. 检查串口日志，如果依然不能解决，可以去论坛发帖请教
+
+## 参考
+
+- 当前显示驱动开关与面板列表：[`../userguide/display_list.md`](../userguide/display_list.md)
+- 显示 sample 使用说明：[`../app_develop_guide/media/display.md`](../app_develop_guide/media/display.md)
+- VO/显示 API 说明：[`../api_reference/mpp/display.md`](../api_reference/mpp/display.md)

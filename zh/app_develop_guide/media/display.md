@@ -40,7 +40,12 @@ VO（Video Output，视频输出）模块主动从内存相应位置读取视频
 
 ### 编译方法
 
-在 `K230 RTOS SDK` 根目录下使用 `make menuconfig` 配置编译选项，选择将Display示例编译进固件，然后编译固件。
+在 `K230 RTOS SDK` 根目录下先执行 `make menuconfig`，建议至少完成两类配置后再编译固件：
+
+1. 在 `MPP Configuration -> Display Configuration` 中使能对应显示驱动、配置引脚，并选择目标 panel driver。
+1. 在 `RT-Smart UserSpace Examples Configuration` 中使能 Display 相关 sample。
+
+如果你正在新增一个屏幕驱动，请先参考 [`../../advanced_development_guide/how_to_add_display.md`](../../advanced_development_guide/how_to_add_display.md) 完成 menuconfig 和 panel 接入，再回到本页运行 sample。
 
 ### 运行示例
 
@@ -50,9 +55,9 @@ VO（Video Output，视频输出）模块主动从内存相应位置读取视频
 
 ### 参数说明
 
-| 参数名 | 说明 | 参数范围 |
-|--------|------|----------|
-| connector_type | 连接器类型 | HDMI(101), LCD(20) 等 |
+| 参数名         | 说明       | 参数范围                         |
+|----------------|------------|----------------------------------|
+| connector_type | 连接器类型 | 以板端 `list_connector` 输出为准 |
 
 ### 查看结果
 
@@ -90,5 +95,5 @@ Press Ctrl+C to stop.
 ```
 
 ```{admonition} 提示
-使用list_connector命令可查看支持的连接器类型和枚举值。有关VO模块的具体接口，请参考 [显示输出 API 文档](../../api_reference/mpp/display.md)。
+使用 `list_connector` 命令可查看当前固件实际支持的连接器类型和枚举值。新增面板时，应先确认它已经在 menuconfig 中使能并被编译进镜像，再使用 sample 验证。有关VO模块的具体接口，请参考 [显示输出 API 文档](../../api_reference/mpp/display.md)。
 ```

@@ -10,6 +10,9 @@
 
 - HDMI 显示驱动：`MPP_ENABLE_DSI_HDMI`
 - LCD 显示驱动：`MPP_ENABLE_DSI_LCD`
+- SPI LCD 显示驱动：`MPP_ENABLE_SPI_LCD`
+- QSPI LCD 显示驱动：`MPP_ENABLE_QSPI_LCD`
+- OSPI LCD 显示驱动：`MPP_ENABLE_OSPI_LCD`
 - 虚拟显示驱动：`MPP_DSI_ENABLE_VIRT`
 
 ### 面板/桥接芯片驱动层（Panel Driver）
@@ -25,6 +28,7 @@
 - LCD 面板：ST7102（`MPP_DSI_ENABLE_LCD_ST7102`）
 - LCD 面板：AML020T（`MPP_DSI_ENABLE_LCD_AML020T`）
 - LCD 面板：JD9852（`MPP_DSI_ENABLE_LCD_JD9852`）
+- SPI LCD 面板：ST7789（`MPP_SPI_ENABLE_LCD_ST7789`）
 
 ## 如何在固件中启用指定显示面板
 
@@ -37,18 +41,26 @@ make menuconfig
 1. 进入：
 
 ```text
-MPP Configuration -> Dsiplay Configuration
+MPP Configuration -> Display Configuration
 ```
 
-1. 根据硬件连接启用显示驱动：
+1. 根据硬件连接启用显示驱动，并配置对应引脚：
 
 - 走 HDMI 路径：打开 `Enable HDMI Display Driver`
-- 走 LCD 路径：打开 `Enable LCD Display Driver`
+- 走 MIPI DSI LCD 路径：打开 `Enable LCD Display Driver`
+- 走 SPI/QSPI/OSPI LCD 路径：打开对应的 SPI/QSPI/OSPI 驱动开关
+
+1. 根据驱动类型补齐必要配置：
+
+- HDMI 常见需要确认 `DSI-HDMI Reset GPIO` 和 `DSI-HDMI I2c Bus`
+- MIPI DSI LCD 常见需要确认 `DSI-LCD Reset GPIO` 和 `DSI-LCD BackLight GPIO`
+- SPI/QSPI/OSPI LCD 还需要确认 `Data/Command GPIO`、`Chip Select GPIO`、`Reset GPIO`、`Backlight GPIO`、总线和 FPIOA 引脚
 
 1. 在同一菜单中选择对应面板驱动：
 
 - HDMI 常见为 `Enable HDMI Display Panel Driver LT9611`
-- LCD 选择实际面板（如 HX8399/ST7701/ILI9881 等）
+- MIPI LCD 选择实际面板（如 HX8399/ST7701/ILI9881 等）
+- SPI LCD 选择 `Enable SPI LCD Panel Driver ST7789`
 
 1. 保存配置并重新编译镜像：
 
@@ -86,9 +98,9 @@ find mpp -name "*.elf" | grep -Ei "vo|vicap|player" | head
 
 优先排查：
 
-1. 驱动路径是否匹配（HDMI/LCD）
+1. 驱动路径是否匹配（HDMI/MIPI LCD/SPI LCD）
 1. 面板型号配置是否正确
-1. Reset/Backlight GPIO、I2C 总线是否与硬件一致
+1. Reset/Backlight GPIO、I2C 总线、SPI/QSPI/OSPI 引脚是否与硬件一致
 1. 板卡供电与屏线连接是否稳定
 
 ### 2. 菜单里看不到某个面板选项
@@ -101,5 +113,5 @@ find mpp -name "*.elf" | grep -Ei "vo|vicap|player" | head
 
 ## 参考
 
-- 显示驱动新增/调试：[`advanced_development_guide/how_to_add_display.md`](../advanced_development_guide/how_to_add_display.md)
+- 显示驱动新增与接入：[`advanced_development_guide/how_to_add_display.md`](../advanced_development_guide/how_to_add_display.md)
 - 示例运行说明：[`how_to_run_samples.md`](./how_to_run_samples.md)
