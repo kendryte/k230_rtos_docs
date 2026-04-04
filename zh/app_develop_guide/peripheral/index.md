@@ -6,6 +6,7 @@
 :maxdepth: 1
 
 adc.md
+fft.md
 fpioa.md
 gpio.md
 i2c_ssd1306.md

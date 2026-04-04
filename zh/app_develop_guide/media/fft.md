@@ -1,102 +1,85 @@
-# FFT Demo
+# FFT 频谱显示 Demo
 
 ## 简介
 
-本示例展示了如何使用 K230 的 FFT API 进行快速傅里叶变换（FFT）和逆快速傅里叶变换（IFFT）的计算。通过该示例，用户可以学习如何调用相关 API 来执行 FFT 和 IFFT 操作，并验证其正确性和性能。
+当前媒体章节中的 FFT 示例已经调整为音频实时频谱显示 Demo。该示例从 AI 采集单声道音频，调用 FFT HAL 完成硬件 FFT 计算，再通过 OSD 图层把频谱柱状图绘制到显示屏上。
 
-该 demo 首先进行 FFT 计算，然后进行 IFFT 计算，以验证 FFT 功能的准确性和效率。具体来说，demo 对不同点数（如 64、128、256 等）的数据进行 FFT 和 IFFT 操作，并记录每个点的最大差异和计算时间。输出结果包括以下信息：
+与旧版仅做 FFT/IFFT 回归测试的 `sample_fft` 不同，当前示例更关注完整媒体链路联调，覆盖以下模块：
 
-1. 每个点数的 FFT 和 IFFT 操作的最大差异。
-1. 每个点的具体差异值，包括实部和虚部的差异。
-1. 每个点数的 FFT 和 IFFT 操作所用的时间（以微秒为单位）。
-1. 最终结果是否正确（通过比较差异值来判断）。
+- 音频采集（AI / I2S）
+- FFT HAL 调用
+- VB/MMZ 缓冲区使用
+- OSD 图层绘制与屏幕显示
+- 自动横屏布局与频率坐标轴显示
 
-通过这些信息，用户可以评估 FFT 和 IFFT 操作的准确性和性能。
+如果您只想验证 FFT HAL 的基础正确性，请参考外设章节中的 [FFT HAL 示例](../peripheral/fft.md)。
 
 ## 功能说明
 
-### FFT功能
-
-- **FFT计算**：对时域信号进行快速傅里叶变换
-- **IFFT计算**：对频域信号进行逆快速傅里叶变换
-- **多点数支持**：支持64、128、256、512、1024、2048、4096等多种点数
-- **精度验证**：通过IFFT恢复后比较验证精度
-- **性能测试**：测量FFT/IFFT操作的耗时
+- 实时采集音频数据并执行硬件 FFT
+- 自动使用显示面板的横屏布局，尽量获得更大的频谱横向分辨率
+- 在频谱底部绘制频率刻度和 `Hz` 轴标识
+- 支持自定义采样率、FFT 点数、旋转角度、显示尺寸与显示增益
 
 ## 代码位置
 
-Demo 源码位置：`src/rtsmart/examples/mpp/sample_fft`
+Demo 源码位置：`src/rtsmart/examples/mpp/sample_fft_display/main.c`
 
-## 使用说明
+## 编译与运行
 
-### 编译方法
+### 编译
 
-在 `K230 RTOS SDK` 根目录下使用 `make menuconfig` 配置编译选项，选择将FFT示例编译进固件，然后编译固件。
+在 SDK 根目录编译固件后，示例 ELF 会生成到 RT-Smart 示例目录中。
 
-### 运行示例
+### 运行
 
-```shell
-./sample_fft.elf <test_type>
-```
-
-### 参数说明
-
-| 参数名 | 说明 | 参数范围 |
-|--------|------|----------|
-| test_type | 测试类型 | 1=运行所有测试, 其他=运行指定测试 |
-
-### 查看结果
-
-启动开发板后，进入 `/sdcard/elf/examples` 目录，运行 `sample_fft.elf` 进行测试。
-
-运行后，您将看到类似以下的输出结果：
+启动开发板后，进入 `/sdcard/app/examples/mpp` 目录，运行：
 
 ```shell
------fft ifft point 0064 -------
-    max diff 0003 0001
-    i=0045 real  hf 0000  hif fc24 org fc21 dif 0003
-    i=0003 imag  hf ffff  hif 0001 org 0000 dif 0001
------fft ifft point 0064 use 133 us result: ok
-
------fft ifft point 0128 -------
-    max diff 0003 0002
-    i=0015 real  hf 0001  hif fca1 org fc9e dif 0003
-    i=0031 imag  hf 0001  hif fffe org 0000 dif 0002
------fft ifft point 0128 use 121 us result: ok
-
------fft ifft point 0256 -------
-    max diff 0003 0001
-    i=0030 real  hf 0000  hif fca1 org fc9e dif 0003
-    i=0007 imag  hf ffff  hif 0001 org 0000 dif 0001
------fft ifft point 0256 use 148 us result: ok
-
------fft ifft point 0512 -------
-    max diff 0003 0003
-    i=0060 real  hf 0000  hif fca1 org fc9e dif 0003
-    i=0314 imag  hf 0001  hif fffd org 0000 dif 0003
------fft ifft point 0512 use 206 us result: ok
-
------fft ifft point 1024 -------
-    max diff 0005 0002
-    i=0511 real  hf 0000  hif fc00 org fc05 dif 0005
-    i=0150 imag  hf 0000  hif fffe org 0000 dif 0002
------fft ifft point 1024 use 328 us result: ok
-
------fft ifft point 2048 -------
-    max diff 0005 0003
-    i=1022 real  hf 0000  hif fc00 org fc05 dif 0005
-    i=1021 imag  hf 0000  hif 0003 org 0000 dif 0003
------fft ifft point 2048 use 574 us result: ok
-
------fft ifft point 4096 -------
-    max diff 0005 0002
-    i=4094 real  hf 027b  hif 041f org 0424 dif 0005
-    i=0122 imag  hf 0000  hif 0002 org 0000 dif 0002
------fft ifft point 4096 use 1099 us result: ok
+./sample_fft_display.elf -c <connector_type> [选项]
 ```
 
-通过这些输出，您可以验证 FFT 和 IFFT 操作的准确性和性能。
+例如，01Studio 480x800 屏幕可使用：
+
+```shell
+./sample_fft_display.elf -c 20 -s 44100 -p 512
+```
+
+## 参数说明
+
+可通过 `./sample_fft_display.elf -h` 查看帮助。当前版本支持以下参数：
+
+| 参数名 | 说明 | 默认值 |
+| ------ | ---- | ------ |
+| `-c <type>` | 连接器类型，必填，可结合 `list_connector` 查看 | 无 |
+| `-w <width>` | OSD 宽度 | 根据旋转后的面板尺寸自动推导 |
+| `-h <height>` | OSD 高度 | 根据旋转后的面板尺寸自动推导 |
+| `-r <deg>` | 旋转角度，支持 `0/90/180/270` | 自动横屏 |
+| `-s <rate>` | 音频采样率 | `44100` |
+| `-p <points>` | FFT 点数，支持 `64~4096` 的 2 的幂 | `512` |
+| `-g <gain>` | 显示增益，单位 dB | `0` |
+
+## 运行效果
+
+启动后，程序会输出类似以下日志：
+
+```shell
+./sample_fft_display.elf -c 20 -s 44100 -p 512
+FFT Spectrum: connector=20, panel=480x800, OSD=800x480, rotate=90, rate=44100, points=512, gain=0.0 dB
+main start connector=20 panel=480x800 osd=800x480 rotate=90 rate=44100 points=512
+before drv_fft_open
+after drv_fft_open inst=0x7f9f2030
+Running... press Ctrl+C to stop
+```
+
+此时屏幕上会持续显示：
+
+- 频谱柱状图
+- 底部频率坐标轴
+- 顶部标题与实时刷新率
+
+按 `Ctrl+C` 可退出示例。
 
 ```{admonition} 提示
-FFT是数字信号处理中的基础算法，常用于音频、图像等信号分析。有关FFT模块的具体接口，请参考 [FFT API 文档](../../api_reference/mpp/fft.md)。
+当前示例使用的是 FFT HAL 接口 `drv_fft_*`，不再使用旧版 `kd_mpi_fft*` API。接口细节请参考 [FFT API 文档](../../api_reference/peripheral/fft.md)。
 ```
