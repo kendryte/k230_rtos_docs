@@ -20,5 +20,6 @@ uart.md
 netmgmt.md
 ota.md
 touch.md
+usb_hid.md
 
 ```

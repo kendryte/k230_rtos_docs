@@ -21,6 +21,7 @@ timer.md
 touch.md
 tsensor.md
 uart.md
+usb_hid.md
 usb_hid_kbd.md
 wdt.md
 ```
