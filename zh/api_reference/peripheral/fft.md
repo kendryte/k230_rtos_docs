@@ -7,8 +7,10 @@
 当前接口的特点如下：
 
 - 通过 `drv_fft_open()` 打开 `/dev/fft` 设备并获取实例句柄。
+- `drv_fft_open()` 会预先申请输入/输出 MMZ 缓冲区，默认可覆盖最大 4096 点场景。
 - 通过 `drv_fft_run()` 或 `drv_fft_fft()` / `drv_fft_ifft()` 进行 FFT 计算。
 - HAL 内部负责 MMZ 缓冲区申请、缓存同步和 ioctl 调用，应用层只需要提供输入输出数组。
+- 支持查询和调整 HAL 内部 DMA/MMZ 缓冲区大小。
 - 支持 64、128、256、512、1024、2048、4096 点。
 - 输入输出数据均为 `short`（`int16_t`）格式。
 - 支持 `RIRI`、`RRRR`、`RR_II` 三种输入格式，以及 `RIRI_OUT`、`RR_II_OUT` 两种输出格式。
@@ -22,6 +24,10 @@
 
 - [drv_fft_open](#drv_fft_open)
 - [drv_fft_close](#drv_fft_close)
+- [drv_fft_set_input_alloc_size](#drv_fft_set_input_alloc_size)
+- [drv_fft_set_output_alloc_size](#drv_fft_set_output_alloc_size)
+- [drv_fft_get_input_alloc_size](#drv_fft_get_input_alloc_size)
+- [drv_fft_get_output_alloc_size](#drv_fft_get_output_alloc_size)
 - [drv_fft_run](#drv_fft_run)
 - [drv_fft_fft](#drv_fft_fft)
 - [drv_fft_ifft](#drv_fft_ifft)
@@ -57,6 +63,7 @@ int drv_fft_open(drv_fft_inst_t **inst);
 
 - 成功后必须配对调用 `drv_fft_close()` 释放。
 - 如果 `/dev/fft` 不存在或驱动未初始化，打开会失败。
+- 当前实现会在打开阶段预申请输入/输出 MMZ 缓冲区，默认大小均为最大 FFT 场景所需容量。
 
 ### drv_fft_close
 
@@ -80,6 +87,93 @@ void drv_fft_close(drv_fft_inst_t **inst);
 
 - 传入 `NULL` 或 `*inst == NULL` 时函数直接返回。
 - 调用成功后，`*inst` 会被置为 `NULL`。
+- `drv_fft_close()` 会同时释放内部 MMZ 输入/输出缓冲区。
+
+### drv_fft_set_input_alloc_size
+
+【描述】
+
+调整 FFT HAL 内部输入 MMZ 缓冲区大小。
+
+【语法】
+
+```c
+int drv_fft_set_input_alloc_size(drv_fft_inst_t *inst, uint32_t size);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+| -------- | ---- | --------- |
+| inst | FFT 实例句柄 | 输入 |
+| size | 新的输入缓冲区字节数 | 输入 |
+
+【返回值】
+
+| 返回值 | 描述 |
+| ------ | ---- |
+| 0 | 成功 |
+| 负数 | 失败，返回负的 errno 风格错误码 |
+
+【注意】
+
+- 若当前大小已经等于 `size`，函数会直接返回成功。
+- 若调整成功，会释放旧 MMZ 缓冲区并替换为新缓冲区。
+
+### drv_fft_set_output_alloc_size
+
+【描述】
+
+调整 FFT HAL 内部输出 MMZ 缓冲区大小。
+
+【语法】
+
+```c
+int drv_fft_set_output_alloc_size(drv_fft_inst_t *inst, uint32_t size);
+```
+
+【参数】
+
+| 参数名称 | 描述 | 输入/输出 |
+| -------- | ---- | --------- |
+| inst | FFT 实例句柄 | 输入 |
+| size | 新的输出缓冲区字节数 | 输入 |
+
+【返回值】
+
+| 返回值 | 描述 |
+| ------ | ---- |
+| 0 | 成功 |
+| 负数 | 失败，返回负的 errno 风格错误码 |
+
+### drv_fft_get_input_alloc_size
+
+【描述】
+
+获取当前输入 MMZ 缓冲区大小。
+
+【语法】
+
+```c
+uint32_t drv_fft_get_input_alloc_size(const drv_fft_inst_t *inst);
+```
+
+### drv_fft_get_output_alloc_size
+
+【描述】
+
+获取当前输出 MMZ 缓冲区大小。
+
+【语法】
+
+```c
+uint32_t drv_fft_get_output_alloc_size(const drv_fft_inst_t *inst);
+```
+
+【说明】
+
+- 当 `inst == NULL` 时，上述查询接口返回 `0`。
+- 默认打开后，输入和输出缓冲区都已经预分配。
 
 ### drv_fft_run
 
@@ -118,6 +212,8 @@ int drv_fft_run(drv_fft_inst_t *inst, const drv_fft_cfg_t *cfg,
 - `cfg->point` 仅支持 `64/128/256/512/1024/2048/4096`。
 - `cfg->mode` 决定执行 FFT 还是 IFFT。
 - `timeout_ms` 写 `0` 表示不启用 FFT 超时上报；当前示例默认使用 `0`。
+- 若本次运行所需输入/输出字节数超过当前内部缓冲区大小，会返回 `-ENOMEM`。
+- `RRRR` 输入模式下，`in_imag` 可为 `NULL`。
 
 ### drv_fft_fft
 
@@ -265,6 +361,10 @@ int main(void)
     if (drv_fft_open(&inst) != 0)
         return -1;
 
+    printf("fft in alloc = %u, out alloc = %u\n",
+           drv_fft_get_input_alloc_size(inst),
+           drv_fft_get_output_alloc_size(inst));
+
     if (drv_fft_fft(inst, &cfg, in_real, in_imag, out_real, out_imag) != 0) {
         drv_fft_close(&inst);
         return -1;
@@ -281,3 +381,9 @@ int main(void)
 - 音频频谱显示示例：`src/rtsmart/examples/mpp/sample_fft_display/main.c`
 - 外设示例文档： [FFT 外设示例](../../app_develop_guide/peripheral/fft.md)
 - 媒体示例文档： [FFT 频谱显示示例](../../app_develop_guide/media/fft.md)
+
+## 缓冲区尺寸建议
+
+- 默认 `drv_fft_open()` 已经为最大 4096 点场景预分配缓冲区，通常不需要手动调整。
+- 若后续 HAL 需要在更小内存占用场景下运行固定点数 FFT，可通过 `drv_fft_set_input_alloc_size()` / `drv_fft_set_output_alloc_size()` 缩小内部缓冲区。
+- 如果手动缩小过缓冲区，再执行更大点数或更大输入布局的 FFT，`drv_fft_run()` 会返回 `-ENOMEM`。
