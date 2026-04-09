@@ -18,10 +18,12 @@
   - **CHN0**：用于 Dump（支持 YUV/RGB/RAW 多种格式）
   - **CHN1**：用于预览显示（YUV420SP）
 - **曝光控制**：支持自动和手动曝光（微秒单位）
+- **增益控制**：支持手动模拟增益
 - **白平衡**：支持自动白平衡（AWB）
 - **HDR**：支持 HDR 功能
 - **DNR3**：支持 3D 降噪（默认开启）
 - **Dewarp**：支持图像畸变校正
+- **场景模式**：支持场景配置加载
 
 ### 支持的参数
 
@@ -34,13 +36,15 @@
 | `-awb` | AWB 状态（0: 禁用，1: 启用） | 1 |
 | `-hdr` | HDR 状态（0: 禁用，1: 启用） | 0 |
 | `-dw` | Dewarp 状态（0: 禁用，1: 启用） | 0 |
+| `-dnr3` | DNR3 状态（0: 禁用，1: 启用） | 1 |
 | `-exp` | 手动曝光时间（微秒） | - |
+| `-again` | 手动模拟增益 | - |
 | `-width` | 传感器宽度 | 1920 |
 | `-height` | 传感器高度 | 1080 |
 | `-fps` | 传感器帧率 | 30 |
 | `-ofmt` | CHN0 输出格式（0:YUV, 1:RGB888, 2:RGB888P, 3:RAW） | 0 |
-| `-dnr3` | DNR3 状态（0: 禁用，1: 启用） | 1 |
-| `-again` | 手动模拟增益（必须设置 -ae 0） | - |
+| `-scene_name` | 场景名称 | - |
+| `-scene_path` | 场景配置路径 | - |
 
 ### 交互命令
 
@@ -88,6 +92,24 @@ src/rtsmart/examples/mpp/sample_vicap_sensor/
 ./sample_vicap_sensor.elf -c 20 -ofmt 0
 ```
 
+#### 启用 CHN0 Dump（RGB888 格式）
+
+```shell
+./sample_vicap_sensor.elf -c 20 -ofmt 1
+```
+
+#### 启用 CHN0 Dump（RGB888P 格式）
+
+```shell
+./sample_vicap_sensor.elf -c 20 -ofmt 2
+```
+
+#### 启用 CHN0 Dump（RAW10 格式）
+
+```shell
+./sample_vicap_sensor.elf -c 20 -ofmt 3
+```
+
 #### 手动曝光设置
 
 ```shell
@@ -95,14 +117,14 @@ src/rtsmart/examples/mpp/sample_vicap_sensor/
 ./sample_vicap_sensor.elf -c 20 -ae 0 -exp 10000
 ```
 
-#### 禁用 DNR3
-
 #### 手动增益设置
 
 ```shell
 # 设置增益为 2.0，必须关闭 AE
-./sample_vicap_sensor.elf -c 20 -ae 0 -again 1.0
+./sample_vicap_sensor.elf -c 20 -ae 0 -again 2.0
 ```
+
+#### 禁用 DNR3
 
 ```shell
 ./sample_vicap_sensor.elf -c 20 -dnr3 0
@@ -113,6 +135,12 @@ src/rtsmart/examples/mpp/sample_vicap_sensor/
 ```shell
 # 旋转 90 度
 ./sample_vicap_sensor.elf -c 20 -r 90
+```
+
+#### 加载场景配置
+
+```shell
+./sample_vicap_sensor.elf -c 20 -scene_name day -scene_path /etc/vicap/day/
 ```
 
 ### 交互操作
@@ -155,7 +183,7 @@ sample_vicap_sensor: connector=20, screen_size=1920x1080, output_size=1920x1080,
 Aspect ratio mode: sensor=1.78, screen=1.78
 CHN0 format: 0 (0=yuv, 1=rgb888, 2=rgb888p, 3=raw)
 Fullscreen mode (offset_x=0, offset_y=0)
-VICAP features: AE=1, AWB=1, HDR=0, Dewarp=0, DNR3=1, Again=1.00
+VICAP features: AE=1, AWB=1, HDR=0, Dewarp=0, DNR3=1
 Bind VICAP(dev=0, ch=1) -> VO(layer=1) OK
 Starting VICAP stream on dev0 ch0 ...
 INFO: Manual exposure set to 10000 us (0.010000 sec), range: 0.000030-0.033333 sec
@@ -177,6 +205,7 @@ vicap_dev0_chn0_1920x1080_0001.yuv420sp
 - 曝光值必须在传感器支持的范围内，程序会自动检查并提示有效范围。
 - CHN0 用于 Dump，支持多种格式；CHN1 用于预览，固定为 YUV420SP 格式。
 - 输出分辨率会自动根据屏幕比例调整，保持画面不变形。
+- 宽度和高度会自动调整为 8 的倍数（硬件要求）。
 ```
 
 ```{admonition} 注意事项
@@ -185,7 +214,9 @@ vicap_dev0_chn0_1920x1080_0001.yuv420sp
 - 曝光值单位为微秒（us），例如 10000 表示 10ms。
 - 增益值范围为传感器支持的范围，程序会自动检查并提示有效范围。
 - Dump 功能通过交互命令触发，不在命令行参数中配置。
-- 宽度会自动调整为 8 的倍数（硬件要求）。
+- 宽度和高度会自动调整为 8 的倍数（硬件要求）。
+- 可以使用命令list_connector查看支持的屏幕类型
+- 可以使用list_sensor查看支持的sensor类型
 ```
 
 ## 相关文档

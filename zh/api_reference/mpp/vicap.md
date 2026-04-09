@@ -74,6 +74,9 @@ VICAP API 按功能分为以下几类：
 - [kd_mpi_vicap_get_chn_attr](#kd_mpi_vicap_get_chn_attr) - 获取通道属性
 - [kd_mpi_vicap_init](#kd_mpi_vicap_init) - 初始化 VICAP 设备
 - [kd_mpi_vicap_deinit](#kd_mpi_vicap_deinit) - 反初始化 VICAP 设备
+- [kd_mpi_vicap_register_scene](#kd_mpi_vicap_register_scene) - 注册场景配置
+- [kd_mpi_vicap_load_scene](#kd_mpi_vicap_load_scene) - 加载指定场景配置
+- [kd_mpi_vicap_get_scene](#kd_mpi_vicap_get_scene) - 获取当前场景名称
 
 #### 流控制
 
@@ -1831,6 +1834,198 @@ kd_mpi_vicap_tpg_enable(K_FALSE);
 【相关主题】
 
 ---
+
+#### kd_mpi_vicap_register_scene
+
+【描述】
+
+注册场景配置，将场景名称与配置文件路径关联
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_register_scene(const char *scene_name, const char *path)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| scene_name | 场景名称（如"day", "night", "indoor"等） | 输入 |
+| path | 配置文件所在目录路径（必须以/结尾，如"/etc/vicap/"） | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| -1 | 失败（参数无效、场景名重复、超出最大场景数等） |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 在系统初始化后、使用场景前调用
+- 场景名称不能重复（包括不能与"default_scene"重复）
+- 路径会自动确保以 `/` 结尾
+- 最多支持 8 个场景（包括默认场景）
+- 首次调用时会自动注册默认场景"default_scene"（路径：/bin/）
+
+【举例】
+
+```c
+// 注册白天场景
+kd_mpi_vicap_register_scene("day", "/etc/vicap/day/");
+
+// 注册黑夜场景
+kd_mpi_vicap_register_scene("night", "/etc/vicap/night/");
+
+// 注册室内场景
+kd_mpi_vicap_register_scene("indoor", "/etc/vicap/indoor/");
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_load_scene](#kd_mpi_vicap_load_scene)
+- [kd_mpi_vicap_get_scene](#kd_mpi_vicap_get_scene)
+
+---
+
+#### kd_mpi_vicap_load_scene
+
+【描述】
+
+加载指定场景的配置文件
+
+【语法】
+
+```c
+k_s32 kd_mpi_vicap_load_scene(const char *scene_name)
+```
+
+【参数】
+
+| **参数名称** | **描述** | **输入/输出** |
+|--------------|----------|---------------|
+| scene_name | 场景名称（必须先通过 register_scene 注册） | 输入 |
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| 0 | 成功 |
+| -1 | 失败（scene_name 为 NULL、场景不存在、配置文件加载失败） |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- **必须在关闭摄像头后、启动摄像头前调用**
+- 场景必须先通过 `kd_mpi_vicap_register_scene` 注册（包括 `default_scene`）
+- 会调用底层 `kd_mpi_isp_set_config_path` 设置路径
+- 加载的配置文件包括：`_manual.json`、`_auto.json`、`.xml`
+
+【举例】
+
+```c
+// 切换到白天场景
+kd_mpi_vicap_deinit(dev);
+kd_mpi_vicap_load_scene("day");
+kd_mpi_vicap_set_dev_attr(dev, day_attr);
+kd_mpi_vicap_init(dev);
+
+// 切换到黑夜场景
+kd_mpi_vicap_deinit(dev);
+kd_mpi_vicap_load_scene("night");
+kd_mpi_vicap_set_dev_attr(dev, night_attr);
+kd_mpi_vicap_init(dev);
+
+// 切换到默认场景（使用/bin/下的配置文件）
+kd_mpi_vicap_deinit(dev);
+kd_mpi_vicap_load_scene("default_scene");
+kd_mpi_vicap_init(dev);
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_register_scene](#kd_mpi_vicap_register_scene)
+- [kd_mpi_vicap_get_scene](#kd_mpi_vicap_get_scene)
+- [kd_mpi_vicap_init](#kd_mpi_vicap_init)
+- [kd_mpi_vicap_deinit](#kd_mpi_vicap_deinit)
+
+---
+
+#### kd_mpi_vicap_get_scene
+
+【描述】
+
+获取当前加载的场景名称
+
+【语法】
+
+```c
+const char* kd_mpi_vicap_get_scene(void)
+```
+
+【参数】
+
+无。
+
+【返回值】
+
+| **返回值** | **描述** |
+|------------|----------|
+| const char* | 当前场景名称字符串 |
+| NULL | 未设置场景 |
+
+【芯片差异】
+
+无。
+
+【需求】
+
+- 头文件：mpi_vicap_api.h
+- 库文件：libvicap.a
+
+【注意】
+
+- 返回的字符串由内部维护，不需要释放
+- 首次调用返回 NULL，直到调用 `load_scene` 成功
+- 加载默认场景后返回 `"default_scene"`
+
+【举例】
+
+```c
+const char* current = kd_mpi_vicap_get_scene();
+if (current) {
+    printf("Current scene: %s\n", current);
+} else {
+    printf("No scene loaded\n");
+}
+
+// 加载默认场景后
+kd_mpi_vicap_load_scene("default_scene");
+printf("Current scene: %s\n", kd_mpi_vicap_get_scene());  // 输出：default_scene
+```
+
+【相关主题】
+
+- [kd_mpi_vicap_register_scene](#kd_mpi_vicap_register_scene)
+- [kd_mpi_vicap_load_scene](#kd_mpi_vicap_load_scene)
 
 #### kd_mpi_vicap_load_image
 
