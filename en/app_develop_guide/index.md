@@ -1,12 +1,13 @@
-# 应用开发指南
+# Application Development Guide
+
+This chapter is intended for business development, categorized by peripherals, multimedia, AI, third-party components, and comprehensive scenario examples, helping you quickly transition from sample to custom applications.
 
 ```{toctree}
 :maxdepth: 1
 
-drivers/index.md
+peripheral/index.md
 media/index.md
 ai/index.md
 3rd-party/index.md
-perf/index.md
 comp/index.md
 ```

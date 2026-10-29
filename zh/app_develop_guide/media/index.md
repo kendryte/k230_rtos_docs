@@ -19,6 +19,7 @@ ogg.md
 player.md
 pm.md
 rtsp.md
+webrtc.md
 sensor.md
 vicap.md
 uvc.md

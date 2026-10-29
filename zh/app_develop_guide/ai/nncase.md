@@ -355,7 +355,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 | shape_bucket_segments_count |          int          |    是    | 输入变量的范围划分为几段                                                                                               |
 | shape_bucket_fix_var_map    |    Dict[str, int]     |    否    | 固定shape维度信息中的变量为特定的值|
 
-关于前处理的配置说明，请参考 API 文档：[nncase 模型编译API手册前处理流程](../../api_reference/nncase/nncase_compile.md#前处理流程说明)。将部分前处理操作封装在模型内可以提高开发板推理时的前处理效率，支持的前处理包括：`swapRB`(RGB->BGR or BGR->RGB)、`Transpose`(NHWC->NCHW or NCHW->NHWC)、`Normalization`（减均值除方差）、`Dequantize`等。比如：onnx模型需要的输入是`RGB`的，我们使用`opencv`读取的图片是`BGR`，正常onnx模型推理的预处理我们需要先将`BGR`转成`RGB`给onnx模型使用。转kmodel的时候我们就可以设置 `swapRB` 为 `True` ，这样kmodel中自带交换`RB`通道的预处理步骤，在进行kmodel推理的预处理时，我们就可以忽略交换`RB`通道的步骤，将此步骤放到kmodel内部。
+关于前处理的配置说明，请参考 API 文档：[nncase 模型编译API手册前处理流程](../../api_reference/nncase/nncase_compile.md#preprocess)。将部分前处理操作封装在模型内可以提高开发板推理时的前处理效率，支持的前处理包括：`swapRB`(RGB->BGR or BGR->RGB)、`Transpose`(NHWC->NCHW or NCHW->NHWC)、`Normalization`（减均值除方差）、`Dequantize`等。比如：onnx模型需要的输入是`RGB`的，我们使用`opencv`读取的图片是`BGR`，正常onnx模型推理的预处理我们需要先将`BGR`转成`RGB`给onnx模型使用。转kmodel的时候我们就可以设置 `swapRB` 为 `True` ，这样kmodel中自带交换`RB`通道的预处理步骤，在进行kmodel推理的预处理时，我们就可以忽略交换`RB`通道的步骤，将此步骤放到kmodel内部。
 
 #### PTQTensorOptions
 

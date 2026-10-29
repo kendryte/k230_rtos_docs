@@ -9,10 +9,10 @@
 
 总体图像调优流程如下图所示：
 
-![flow](https://kendryte-download.canaan-creative.com/developer/pictures/01.png)
+![flow](https://download.kendryte.com/developer/pictures/01.png)
 
 K230 ISP pipeline如下图所示：
-![flow](https://kendryte-download.canaan-creative.com/developer/pictures/K230_isp-pipe-line.jpg)
+![flow](https://download.kendryte.com/developer/pictures/K230_isp-pipe-line.jpg)
 
 请注意：
 
@@ -27,13 +27,13 @@ K230 ISP pipeline如下图所示：
 
 模块的标定顺序如下：
 
-![flow](https://kendryte-download.canaan-creative.com/developer/pictures/02.png)
+![flow](https://download.kendryte.com/developer/pictures/02.png)
 
 在使用标定工具(K230ISPCalibrationTool.exe)前，需要用户预先安装MATLAB Runtime(R2023a)。下载地址：<https://ssd.mathworks.com/supportfiles/downloads/R2023a/Release/0/deployment_files/installer/complete/win64/MATLAB_Runtime_R2023a_win64.zip>
 
 标定工具的主界面如下图所示。
 
-![image-20230821114715137](https://kendryte-download.canaan-creative.com/developer/pictures/03.png)
+![image-20230821114715137](https://download.kendryte.com/developer/pictures/03.png)
 
 点击相应的模块按钮即可直接跳转至各模块的标定界面开始标定。
 
@@ -57,7 +57,7 @@ K230 ISP pipeline如下图所示：
 
 当点击了主界面的“Black level correction”后，工具将弹出如图所示对话框。
 
-![image-20230821145452924](https://kendryte-download.canaan-creative.com/developer/pictures/04.png)
+![image-20230821145452924](https://download.kendryte.com/developer/pictures/04.png)
 
 操作步骤：
 
@@ -74,7 +74,7 @@ K230 ISP pipeline如下图所示：
 
 标定完成后，Black Level vs Integration Time的图表如下图所示。
 
-![image-20230821152200148](https://kendryte-download.canaan-creative.com/developer/pictures/05.png)
+![image-20230821152200148](https://download.kendryte.com/developer/pictures/05.png)
 
 ### Lens shading Correction
 
@@ -100,7 +100,7 @@ LSC标定目的就是为了消除由镜头光学折射不均匀导致的画面�
 
 当点击了主界面的“Lens Shade correction”后，工具将弹出如图所示对话框。
 
-![image-20230821163641202](https://kendryte-download.canaan-creative.com/developer/pictures/06.png)
+![image-20230821163641202](https://download.kendryte.com/developer/pictures/06.png)
 
 具体操作步骤：
 
@@ -137,7 +137,7 @@ CCM 标定的原理是用sensor采集的24 色卡色块的实际颜色信息与�
 
 当点击了主界面的“Color Correction”后，工具将弹出如图所示对话框。
 
-![image-20230822111931692](https://kendryte-download.canaan-creative.com/developer/pictures/07.png)
+![image-20230822111931692](https://download.kendryte.com/developer/pictures/07.png)
 
 具体操作步骤如下：
 
@@ -165,39 +165,39 @@ AWB 标定，即根据sensor在数个标准光源下的白点特征(R/G, B/G)，
 
 当点击了主界面的“Auto White Balance”后，工具将弹出如图所示对话框。
 
-![image-20230822142135073](https://kendryte-download.canaan-creative.com/developer/pictures/08.png)
+![image-20230822142135073](https://download.kendryte.com/developer/pictures/08.png)
 
 具体操作步骤如下：
 
 1. 点击“file”按钮，导入sensor光谱灵敏度文件，如下图所示；
 
-   ![image-20230822152530065](https://kendryte-download.canaan-creative.com/developer/pictures/09.png)
+   ![image-20230822152530065](https://download.kendryte.com/developer/pictures/09.png)
 
    注：若用户手上没有自己使用的sensor光谱灵敏度文件，用工具包里默认的OV2775_sensitivity.txt(该文件位于calibration tool的Canaan.Calibration.Samples\Data\目录下)即可。因为现在AWB标定已经不依赖于sensor光谱灵敏度文件，但为了不影响后面操作，所以导入任意一个sensor光谱灵敏度文件就可以。
 
 1. 点击“illuination”按钮，导入光源文件CIE_Illuminants.cxf(该文件位于calibration tool的Canaan.Calibration.Samples\Data\目录下)，并选择需要标定的光源（至少3个），如图所示。点击“确定”按钮，各光源的光谱发布将在如图所示的左边展示，并通过下拉键把各光源分为室内光源和室外光源。
 
-   ![image-20230822152740591](https://kendryte-download.canaan-creative.com/developer/pictures/10.png)
+   ![image-20230822152740591](https://download.kendryte.com/developer/pictures/10.png)
 
-   ![image-20230822154937933](https://kendryte-download.canaan-creative.com/developer/pictures/11.png)
+   ![image-20230822154937933](https://download.kendryte.com/developer/pictures/11.png)
 
 1. 点击“AWB V2+ Calibration”按钮（在旧版本的calibration tool中，请点击“Start Calibration”按钮），根据如图红框中的所示，选择CC标定生成的各光源的参数文件；
 
-   ![image-20230822155713505](https://kendryte-download.canaan-creative.com/developer/pictures/12.png)
+   ![image-20230822155713505](https://download.kendryte.com/developer/pictures/12.png)
 
 1. 勾选“White Points Evalute”框，选择一张图片用于白点预估；
 
 1. 点击“Gain Region Modifier”按钮，选择在LSC标定中保存的各光源的png图片，如图所示，点击“OK”进入下一步；
 
-   ![image-20230822162343131](https://kendryte-download.canaan-creative.com/developer/pictures/13.png)
+   ![image-20230822162343131](https://download.kendryte.com/developer/pictures/13.png)
 
 1. 定义增益多边形的起点范围大小，如图所示，点击“确定”按钮，进入下一步；
 
-   ![image-20230822162723170](https://kendryte-download.canaan-creative.com/developer/pictures/14.png)
+   ![image-20230822162723170](https://download.kendryte.com/developer/pictures/14.png)
 
 1. 通过红框区域的按钮手动调整橙色框（近白区）和黑色框（落在黑色框里的全部识别为白点）的范围，调整黑色框的范围包含选的所有光源白点，如图所示。保存数据，如果测试不通过，再来重新调整多边形的范围。
 
-   ![image-20230822164058879](https://kendryte-download.canaan-creative.com/developer/pictures/15.png)
+   ![image-20230822164058879](https://download.kendryte.com/developer/pictures/15.png)
 
 #### AWB参数K_Factor的标定
 
@@ -224,7 +224,7 @@ Noise Profile 标定涉及到对sensor在不同条件下产生的噪声特性进
 
 当点击了主界面的“Noise Calibration”后，工具将弹出如图所示对话框。
 
-![image-20230822170824745](https://kendryte-download.canaan-creative.com/developer/pictures/16.png)
+![image-20230822170824745](https://download.kendryte.com/developer/pictures/16.png)
 
 具体操作步骤如下：
 
@@ -254,7 +254,7 @@ Noise Profile 标定涉及到对sensor在不同条件下产生的噪声特性进
 
 当点击了主界面的“Chromatic Aberration Correction”后，工具将弹出如图所示对话框。
 
-![image-20230822192525126](https://kendryte-download.canaan-creative.com/developer/pictures/17.png)
+![image-20230822192525126](https://download.kendryte.com/developer/pictures/17.png)
 
 具体操作步骤如下：
 
@@ -597,7 +597,7 @@ Demosaic模块实现的功能主要是通过插值算法将输入的bayer格式�
 
    对于12bit raw，值0对应的插值Threshold为dir_thr_min，值4095对于的插值Threshold为dir_thr_max，处于中间的值对应的Threshold为dir_thr_min和dir_thr_max所决定线段上的对应值点。
 
-   ![image-20230828143338539](https://kendryte-download.canaan-creative.com/developer/pictures/18.png)
+   ![image-20230828143338539](https://download.kendryte.com/developer/pictures/18.png)
 
    demosaic_thr的设置：梯度差异>阈值，方向插值；梯度差异<阈值，平均值插值。较小的值意味着在高频区域出现更多的伪彩。
 
@@ -607,7 +607,7 @@ Demosaic模块实现的功能主要是通过插值算法将输入的bayer格式�
 
    锐化曲线参数的设置：曲线越陡峭，锐化强度越大。
 
-   ![image-20230828145740677](https://kendryte-download.canaan-creative.com/developer/pictures/19.png)
+   ![image-20230828145740677](https://download.kendryte.com/developer/pictures/19.png)
 
    sharpen_line的设置：当图像的噪声比较大的时候，想让边缘平滑连续一些，就可以打开sharpen_line。sharpen_line的基本效果就是在垂直或水平方向上平滑线条或纹理。纵轴sharpen_line_r1、sharpen_line_r2越大，锐化结果就越接近定向（水平或垂直）增强。此外，更多的点被错误连接，这可能导致高频细节中的错误。
 
@@ -617,11 +617,11 @@ Demosaic模块实现的功能主要是通过插值算法将输入的bayer格式�
 
    摩尔纹转换曲线：
 
-   ![image-20230904094148683](https://kendryte-download.canaan-creative.com/developer/pictures/20.png)
+   ![image-20230904094148683](https://download.kendryte.com/developer/pictures/20.png)
 
    摩尔纹校准曲线：
 
-   ![image-20230904094333522](https://kendryte-download.canaan-creative.com/developer/pictures/21.png)
+   ![image-20230904094333522](https://download.kendryte.com/developer/pictures/21.png)
 
 ### ManualWB
 

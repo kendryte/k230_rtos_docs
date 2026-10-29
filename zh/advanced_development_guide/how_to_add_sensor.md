@@ -1,6 +1,7 @@
-# 如何适配Sensor
+# 如何增加 Sensor
 
-> 说明：本文是 Sensor 适配的完整实战文档（配置、驱动、应用层、调试）。
+> 说明：本文是新增 Sensor 驱动接入的完整实战文档（配置、驱动、应用层、调试）。
+> 若只需使能 SDK 已有型号，请先看用户指南：[如何配置 Sensor](../userguide/how_to_configure_sensor.md)。
 > 建议流程：先完成本文（驱动接入），再继续 [`how_to_calibrate_isp.md`](./how_to_calibrate_isp.md) 和 [`how_to_tune_isp.md`](./how_to_tune_isp.md)。
 
 ## 概述
@@ -68,7 +69,7 @@ src-$(CONFIG_MPP_ENABLE_SENSOR_IMX219) += src/imx219/imx219.c
 
 #### Sensor 模式定义
 
-在`~/src/rtsmart/mpp/include/comm/k_sensor_comm.h`中，新增 IMX219 支持的分辨率、帧率、CSI 接口组合模式，共 3 种分辨率 ×3 个 CSI 接口 = 9 个宏定义。
+在`~/src/rtsmart/mpp/include/comm/k_sensor_comm.h`中，新增 IMX219 支持的分辨率、帧率、CSI 接口组合模式。各 CSI 口的 type **须分别**用 `CONFIG_MPP_ENABLE_CSI_DEV_0/1/2` 包住（与现有传感器一致；未 `Enable CSI1` 时对应枚举不会编入）。
 
 ```cpp
 typedef enum {
@@ -77,23 +78,23 @@ typedef enum {
 
 #if defined (CONFIG_MPP_ENABLE_SENSOR_IMX219)
 
+#if defined (CONFIG_MPP_ENABLE_CSI_DEV_0)
    IMX219_MIPI_CSI0_2LANE_3280x2464_21FPS_12BIT_LINEAR,
-
    IMX219_MIPI_CSI0_2LANE_1920x1080_30FPS_12BIT_LINEAR,
-
    IMX219_MIPI_CSI0_2LANE_1080x1920_30FPS_12BIT_LINEAR,
+#endif
 
+#if defined (CONFIG_MPP_ENABLE_CSI_DEV_1)
    IMX219_MIPI_CSI1_2LANE_3280x2464_21FPS_12BIT_LINEAR,
-
    IMX219_MIPI_CSI1_2LANE_1920x1080_30FPS_12BIT_LINEAR,
-
    IMX219_MIPI_CSI1_2LANE_1080x1920_30FPS_12BIT_LINEAR,
+#endif
 
+#if defined (CONFIG_MPP_ENABLE_CSI_DEV_2)
    IMX219_MIPI_CSI2_2LANE_3280x2464_21FPS_12BIT_LINEAR,
-
    IMX219_MIPI_CSI2_2LANE_1920x1080_30FPS_12BIT_LINEAR,
-
    IMX219_MIPI_CSI2_2LANE_1080x1920_30FPS_12BIT_LINEAR,
+#endif
 
 #endif
 
@@ -131,23 +132,23 @@ static const struct sensor_type_name sth_table[] = {
 
 #if defined (CONFIG_MPP_ENABLE_SENSOR_IMX219)
 
+#if defined (CONFIG_MPP_ENABLE_CSI_DEV_0)
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI0_2LANE_3280x2464_21FPS_12BIT_LINEAR),
-
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI0_2LANE_1920x1080_30FPS_12BIT_LINEAR),
-
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI0_2LANE_1080x1920_30FPS_12BIT_LINEAR),
+#endif // CONFIG_MPP_ENABLE_CSI_DEV_0
 
+#if defined (CONFIG_MPP_ENABLE_CSI_DEV_1)
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI1_2LANE_3280x2464_21FPS_12BIT_LINEAR),
-
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI1_2LANE_1920x1080_30FPS_12BIT_LINEAR),
-
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI1_2LANE_1080x1920_30FPS_12BIT_LINEAR),
+#endif // CONFIG_MPP_ENABLE_CSI_DEV_1
 
+#if defined (CONFIG_MPP_ENABLE_CSI_DEV_2)
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI2_2LANE_3280x2464_21FPS_12BIT_LINEAR),
-
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI2_2LANE_1920x1080_30FPS_12BIT_LINEAR),
-
    SENSOR_TYPE_NAME(IMX219_MIPI_CSI2_2LANE_1080x1920_30FPS_12BIT_LINEAR),
+#endif // CONFIG_MPP_ENABLE_CSI_DEV_2
 
 #endif
 
@@ -157,6 +158,8 @@ static const struct sensor_type_name sth_table[] = {
 
 };
 ```
+
+> **CSI 隔离**：`k_sensor_comm.h` 枚举、`sth_table`（`list_sensor`）、`mpi_sensor.c` / `mpi_sensor_type_to_mirror.c` 中按 CSI 划分的 type，均需用 `CONFIG_MPP_ENABLE_CSI_DEV_0/1/2` 包住。未启用某路 CSI 时对应 `*_CSIx_*` 不会编入固件。`CSI0 LANE NUM=4LANE` 不再软件隐藏 CSI1，但运行时不能同时初始化 CSI0 4LANE 与 CSI1。详见 [如何配置 Sensor](../userguide/how_to_configure_sensor.md)。
 
 ##### 探针函数声明
 
@@ -1234,14 +1237,10 @@ imx219-1920x1080.xml  imx219-1920x1080_auto.json  imx219_1920x1080_manual.json
 
 #### 编译拷贝配置
 
-在`~/src/rtsmart/Makefile`中添加配置，确保编译时自动拷贝 IMX219 的应用层文件到镜像目录。
+在`~/src/rtsmart/mpp/userapps/src/sensor/Makefile`中添加配置，确保编译时自动拷贝 IMX219 的应用层文件到镜像目录。
 
 ```shell
-ifeq ($(CONFIG_MPP_ENABLE_SENSOR_IMX219),y)
-
-   @rsync -a --delete $(SDK_RTSMART_SRC_DIR)/rtsmart/userapps/root/bin/imx219-* ${SDK_BUILD_IMAGES_DIR}/bin/
-
-endif
+ISP_SENSOR_CONFIG_PATTERNS += $(if $(filter y,$(CONFIG_MPP_ENABLE_SENSOR_IMX335)),imx219-*)
 ```
 
 ### 编译运行

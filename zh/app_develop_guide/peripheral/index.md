@@ -11,6 +11,7 @@ fpioa.md
 gpio.md
 i2c_ssd1306.md
 netmgmt.md
+wlan_offload.md
 ota.md
 pwm.md
 rotary_encoder.md

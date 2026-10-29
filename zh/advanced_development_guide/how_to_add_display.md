@@ -176,7 +176,7 @@ vfp=250
 
 工程里仍然可以使用时序计算工具辅助计算：
 
-[K230 MIPI DSI Connector Info Generator](https://kendryte-download.canaan-creative.com/developer/common/K230_MIPI_DSI_Connector_Info_Generator.html)
+[K230 MIPI DSI Connector Info Generator](https://download.kendryte.com/developer/common/K230_MIPI_DSI_Connector_Info_Generator.html)
 
 > 仅可以验证时序是否能够生成
 
@@ -395,6 +395,6 @@ src-$(CONFIG_MPP_DSI_ENABLE_LCD_ST7701) += src/panels/mipi_st7701.c
 
 ## 参考
 
-- 当前显示驱动开关与面板列表：[`../userguide/display_list.md`](../userguide/display_list.md)
+- 当前显示驱动开关与面板列表：[`../hardware_compatibility/display_list.md`](../hardware_compatibility/display_list.md)
 - 显示 sample 使用说明：[`../app_develop_guide/media/display.md`](../app_develop_guide/media/display.md)
 - VO/显示 API 说明：[`../api_reference/mpp/display.md`](../api_reference/mpp/display.md)

@@ -96,7 +96,7 @@
 
 该pipeline确保了摄像头捕获的视频数据能够同时用于本地显示、人脸识别和网络推流，满足多种应用需求。
 
-![alt text](https://kendryte-download.canaan-creative.com/developer/pictures/pipeline_1.png)
+![alt text](https://download.kendryte.com/developer/pictures/pipeline_1.png)
 
 ## 操作演示
 
@@ -115,4 +115,4 @@ cd /sdcard/app/examples/integrated_poc/smart_ipc
 
 同时查看串口输出，会有提示“Play this stream using the URL `rtsp://<IP>:8554/test`”。在PC端使用VLC播放器打开该地址，即可通过网络接收实时画面。
 
-![alt text](https://kendryte-download.canaan-creative.com/developer/pictures/smart_ipc.png)
+![alt text](https://download.kendryte.com/developer/pictures/smart_ipc.png)

@@ -51,6 +51,8 @@
 
 播放过程中，按下 `Ctrl+C` 可以停止播放，视频将显示在指定的输出设备上，音频将通过系统音频输出设备播放。
 
+第二个参数为 VO 连接器类型，可在板端运行 `list_connector` 查看当前固件支持的所有连接器类型。
+
 ```{admonition} 提示
 有关 mp4 模块的具体接口，请参考[API文档](../../api_reference/middleware/multimedia_middleware.md)
 ```

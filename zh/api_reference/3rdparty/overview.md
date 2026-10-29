@@ -24,14 +24,19 @@ K230 RT-Smart SDK 集成了一组常用第三方库，主要用于字体渲染�
 
 | 组件 | SDK 目录 | 使能配置 | 可选样例 / 测试 | 官方资料 |
 | :-- | :-- | :-- | :-- | :-- |
+| NimBLE | `libs/3rd-party/nimble` | `RTSMART_3RD_PARTY_ENABLE_NIMBLE` | `examples/3rd-party/nimble/ble_peripheral` | [Bluetooth HCI 与 NimBLE 使用指南](../../advanced_development_guide/how_to_use_bluetooth.md) |
 | FreeType | `libs/3rd-party/freetype` | `RTSMART_3RD_PARTY_ENABLE_FREETYPE` | `examples/3rd-party/freetype/freetype_basic` | [FreeType Docs](https://freetype.org/freetype2/docs/) |
-| LVGL | `libs/3rd-party/lvgl` | `RTSMART_3RD_PARTY_ENABLE_LVGL` | `examples/3rd-party/lvgl/lvgl_basic`, `lvgl_sensor` | [LVGL Docs](https://docs.lvgl.io/) |
+| cJSON | `libs/3rd-party/cjson` | `RTSMART_3RD_PARTY_ENABLE_CJSON` | `examples/3rd-party/cjson/cjson_basic` | [cJSON GitHub](https://github.com/DaveGamble/cJSON) |
+| LVGL | `libs/3rd-party/lvgl` | `RTSMART_3RD_PARTY_ENABLE_LVGL` | `lvgl_basic`、`lvgl_sensor`、`lvgl_hid`、`lvgl_image_convert_test` | [LVGL Docs](https://docs.lvgl.io/) |
+| VG-Lite HAL | `libs/rtsmart_hal/components/vg_lite` | `RTSMART_HAL_ENABLE_VG_LITE` | `examples/peripheral/vglite_tiger` | SDK 内置 `vg_lite.h` |
 | Mbed TLS | `libs/3rd-party/mbedtls` | `RTSMART_3RD_PARTY_ENABLE_MBEDTLS` | `RTSMART_3RD_PARTY_ENABLE_MBEDTLS_TESTS` | [Mbed TLS Docs](https://mbed-tls.readthedocs.io/) |
+| libpeer (WebRTC) | `libs/3rd-party/libpeer` | `RTSMART_3RD_PARTY_ENABLE_LIBPEER` | `examples/mpp/sample_webrtc`（局域网摄像头） | [WebRTC](https://webrtc.org/) |
+| libwebsockets | `libs/3rd-party/libwebsockets` | `RTSMART_3RD_PARTY_ENABLE_LIBWEBSOCKETS` | `examples/3rd-party/libwebsockets/ws_server`, `ws_client`, `ws_poll_test` | [libwebsockets Docs](https://libwebsockets.org/) |
 | MQTTClient | `libs/3rd-party/mqttclient` | `RTSMART_3RD_PARTY_ENABLE_MQTTCLIENT` | `RTSMART_LIBS_MQTTCLIENT_ENABLE_TESTS` | [Paho Embedded C](https://github.com/eclipse-paho/paho.mqtt.embedded-c) |
 | miniHTTP | `libs/3rd-party/minihttp` | `RTSMART_3RD_PARTY_ENABLE_MINIHTTP` | `examples/3rd-party/minihttp/minihttp_basic`, `minihttp_advanced` | 请参考项目源码仓库与头文件说明 |
 | Tuya IoT Core SDK | `libs/3rd-party/tuya-iot-core-sdk` | `RTSMART_3RD_PARTY_ENABLE_TUYALINKSDK` | `examples/3rd-party/tuya/tuya_basic` | [Tuya Developer Docs](https://developer.tuya.com/en/docs/iot-device-dev/TuyaOS-iot_abi?id=Kcoglhn5r7ajr) |
 | OpenCV 样例 | SDK OpenCV 集成目录 | 样例配置 `RTSMART_3RD_PARTY_ENABLE_OPENCV_SAMPLES` | `examples/3rd-party/opencv` | [OpenCV Docs](https://www.bing.com/search?q=opencv+docs) |
-| OpenBLAS 样例 | SDK OpenBLAS 集成目录 | 样例配置 `RTSMART_3RD_PARTY_ENABLE_OPENBLAS_SAMPLES` | `examples/3rd-party/openblas` | [OpenBLAS Docs](https://www.openblas.net/) |
+| OpenBLAS 样例 | SDK OpenBLAS 集成目录 | 样例配置 `RTSMART_3RD_PARTY_ENABLE_OPENBLAS_SAMPLES` | `examples/3rd-party/openblas` | [OpenBLAS Docs](http://www.openmathlib.org/OpenBLAS//) |
 
 ## 使用建议
 

@@ -16,7 +16,7 @@ VICAP模块是对整个图像采集处理单元的抽象描述。
 
 VICAP硬件由Sensor，VI，ISP，Dewarp四大模块组成（如下图1-1所示）。最多支持3路sensor同时接入，ISP内部通过的MCM模块实现多路sensor的时分复用管理，多路sensor输出数据通过MCM的Memory Interface的Write接口写入DDR，再通过Read接口读入并装载到ISP Pipeline进行处理。
 
-![图示 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/745a46d8e083d93521d0c5233bdaccdd.png)、
+![图示 描述已自动生成](https://download.kendryte.com/developer/pictures/745a46d8e083d93521d0c5233bdaccdd.png)、
 
 图1-1 VICAP硬件架构图
 
@@ -29,7 +29,7 @@ VICAP软件架构如图1-2所示，从上到下依次是：应用接口层，媒
 
 硬件层：VICAP各个具体硬件模块的集合，包括sensor。
 
-![图形用户界面, 文本, 应用程序 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/250b6c36cbd4447bd8c734548fc3b890.png)
+![图形用户界面, 文本, 应用程序 描述已自动生成](https://download.kendryte.com/developer/pictures/250b6c36cbd4447bd8c734548fc3b890.png)
 
 #### Sensor
 
@@ -37,7 +37,7 @@ Sensor模块是VICAP捕获图像的数据源之一，负责配置图像感光单
 
 K230平台支持多种接口类型的sensor，我们以当前最常用的MIPI CSI接口Sensor为例进行说明。Sensor与主控平台的硬件连接示意图如下：
 
-![图示 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/e20100e34c268ad615e69966cb28e5a6.png)
+![图示 描述已自动生成](https://download.kendryte.com/developer/pictures/e20100e34c268ad615e69966cb28e5a6.png)
 
 图1-3
 
@@ -45,7 +45,7 @@ K230平台支持多种接口类型的sensor，我们以当前最常用的MIPI CS
 
 Sensor模块系统架构如下图1-4所示：
 
-![图形用户界面, 应用程序, 电子邮件 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/camera_sensor_arch.png)
+![图形用户界面, 应用程序, 电子邮件 描述已自动生成](https://download.kendryte.com/developer/pictures/camera_sensor_arch.png)
 
 图1-4 sensor系统架构图
 
@@ -116,7 +116,9 @@ VICAP API 按功能分为以下几类：
 
 【语法】
 
-k_s32 kd_mpi_vicap_get_sensor_info(k_vicap_sensor_type sensor_type, k_vicap_sensor_info \*sensor_info)
+```c
+k_s32 kd_mpi_vicap_get_sensor_info(k_vicap_sensor_type sensor_type, k_vicap_sensor_info *sensor_info)
+```
 
 【参数】
 
@@ -159,7 +161,9 @@ k_s32 kd_mpi_vicap_get_sensor_info(k_vicap_sensor_type sensor_type, k_vicap_sens
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_set_dev_attr(k_vicap_dev dev_num, k_vicap_dev_attr dev_attr)
+```
 
 【参数】
 
@@ -202,7 +206,9 @@ k_s32 kd_mpi_vicap_set_dev_attr(k_vicap_dev dev_num, k_vicap_dev_attr dev_attr)
 
 【语法】
 
-k_s32 kd_mpi_vicap_get_dev_attr(k_vicap_dev dev_num, k_vicap_dev_attr \*dev_attr)
+```c
+k_s32 kd_mpi_vicap_get_dev_attr(k_vicap_dev dev_num, k_vicap_dev_attr *dev_attr)
+```
 
 【参数】
 
@@ -245,7 +251,9 @@ k_s32 kd_mpi_vicap_get_dev_attr(k_vicap_dev dev_num, k_vicap_dev_attr \*dev_attr
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_set_chn_attr(k_vicap_dev dev_num, k_vicap_chn chn_num, k_vicap_chn_attr chn_attr)
+```
 
 【参数】
 
@@ -289,7 +297,9 @@ k_s32 kd_mpi_vicap_set_chn_attr(k_vicap_dev dev_num, k_vicap_chn chn_num, k_vica
 
 【语法】
 
-k_s32 kd_mpi_vicap_get_chn_attr(k_vicap_dev dev_num, k_vicap_chn chn_num, k_vicap_chn_attr \*chn_attr)
+```c
+k_s32 kd_mpi_vicap_get_chn_attr(k_vicap_dev dev_num, k_vicap_chn chn_num, k_vicap_chn_attr *chn_attr)
+```
 
 【参数】
 
@@ -333,7 +343,9 @@ VICAP设备初始化
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_init(k_vicap_dev dev_num)
+```
 
 【参数】
 
@@ -375,7 +387,9 @@ VICAP设备去初始化
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_deinit(k_vicap_dev dev_num)
+```
 
 【参数】
 
@@ -417,7 +431,9 @@ k_s32 kd_mpi_vicap_deinit(k_vicap_dev dev_num)
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_start_stream(k_vicap_dev dev_num)
+```
 
 【参数】
 
@@ -459,7 +475,9 @@ k_s32 kd_mpi_vicap_start_stream(k_vicap_dev dev_num)
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_stop_stream(k_vicap_dev dev_num)
+```
 
 【参数】
 
@@ -501,9 +519,10 @@ k_s32 kd_mpi_vicap_stop_stream(k_vicap_dev dev_num)
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_dump_frame(k_vicap_dev dev_num, k_vicap_chn chn_num, k_vicap_dump_format foramt,
-
-k_video_frame_info \*vf_info, k_u32 milli_sec)
+    k_video_frame_info *vf_info, k_u32 milli_sec)
+```
 
 【参数】
 
@@ -549,7 +568,9 @@ k_video_frame_info \*vf_info, k_u32 milli_sec)
 
 【语法】
 
-k_s32 kd_mpi_vicap_dump_release(k_vicap_dev dev_num, k_vicap_chn chn_num, const k_video_frame_info \*vf_info)
+```c
+k_s32 kd_mpi_vicap_dump_release(k_vicap_dev dev_num, k_vicap_chn chn_num, const k_video_frame_info *vf_info)
+```
 
 【参数】
 
@@ -593,7 +614,9 @@ k_s32 kd_mpi_vicap_dump_release(k_vicap_dev dev_num, k_vicap_chn chn_num, const 
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_set_vi_drop_frame(k_vicap_csi_num csi, k_vicap_drop_frame *frame, k_bool enable)
+```
 
 【参数】
 
@@ -630,7 +653,9 @@ k_s32 kd_mpi_vicap_set_vi_drop_frame(k_vicap_csi_num csi, k_vicap_drop_frame *fr
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_set_mclk(k_vicap_mclk_id id, k_vicap_mclk_sel sel, k_u8 mclk_div, k_u8 mclk_en)
+```
 
 【参数】
 
@@ -694,7 +719,9 @@ void kd_mpi_vicap_set_dump_reserved(k_vicap_dev dev_num, k_vicap_chn chn_num, k_
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_set_slave_enable(k_vicap_slave_id id, k_vicap_slave_enable *enable)
+```
 
 【参数】
 
@@ -722,7 +749,9 @@ k_s32 kd_mpi_vicap_set_slave_enable(k_vicap_slave_id id, k_vicap_slave_enable *e
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_set_slave_attr(k_vicap_slave_id id, k_vicap_slave_info *info)
+```
 
 【参数】
 
@@ -750,7 +779,9 @@ k_s32 kd_mpi_vicap_set_slave_attr(k_vicap_slave_id id, k_vicap_slave_info *info)
 
 【语法】
 
+```c
 k_s32 kd_mpi_vicap_3d_mode_crtl(k_bool enable)
+```
 
 【参数】
 
@@ -808,7 +839,9 @@ k_s32 kd_mpi_vicap_3d_mode_crtl(k_bool enable)
 
 【语法】
 
-k_s32 kd_mpi_sensor_open(const char \*sensor_name)
+```c
+k_s32 kd_mpi_sensor_open(const char *sensor_name)
+```
 
 【参数】
 
@@ -850,7 +883,9 @@ k_s32 kd_mpi_sensor_open(const char \*sensor_name)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_close (k_s32 fd)
+```
 
 【参数】
 
@@ -892,7 +927,9 @@ k_s32 kd_mpi_sensor_close (k_s32 fd)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_power_set(k_s32 fd, k_bool on)
+```
 
 【参数】
 
@@ -935,7 +972,9 @@ k_s32 kd_mpi_sensor_power_set(k_s32 fd, k_bool on)
 
 【语法】
 
-k_s32 kd_mpi_sensor_id_get(k_s32 fd, k_u32 \*sensor_id)
+```c
+k_s32 kd_mpi_sensor_id_get(k_s32 fd, k_u32 *sensor_id)
+```
 
 【参数】
 
@@ -978,7 +1017,9 @@ Sensor初始化
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_init(k_s32 fd, k_sensor_mode mode)
+```
 
 【参数】
 
@@ -1021,7 +1062,9 @@ k_s32 kd_mpi_sensor_init(k_s32 fd, k_sensor_mode mode)
 
 【语法】
 
-k_s32 kd_mpi_sensor_reg_read(k_s32 fd, k_u32 reg_addr, k_u32 \*reg_val)
+```c
+k_s32 kd_mpi_sensor_reg_read(k_s32 fd, k_u32 reg_addr, k_u32 *reg_val)
+```
 
 【参数】
 
@@ -1065,7 +1108,9 @@ k_s32 kd_mpi_sensor_reg_read(k_s32 fd, k_u32 reg_addr, k_u32 \*reg_val)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_reg_write(k_s32 fd, k_u32 reg_addr, k_u32 reg_val)
+```
 
 【参数】
 
@@ -1109,7 +1154,9 @@ k_s32 kd_mpi_sensor_reg_write(k_s32 fd, k_u32 reg_addr, k_u32 reg_val)
 
 【语法】
 
-k_s32 kd_mpi_sensor_mode_get(k_s32 fd, k_sensor_mode \*mode)
+```c
+k_s32 kd_mpi_sensor_mode_get(k_s32 fd, k_sensor_mode *mode)
+```
 
 【参数】
 
@@ -1152,7 +1199,9 @@ k_s32 kd_mpi_sensor_mode_get(k_s32 fd, k_sensor_mode \*mode)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_mode_get(k_s32 fd, k_sensor_mode mode)
+```
 
 【参数】
 
@@ -1195,7 +1244,9 @@ k_s32 kd_mpi_sensor_mode_get(k_s32 fd, k_sensor_mode mode)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_stream_enable(k_s32 fd, k_s32 enable)
+```
 
 【参数】
 
@@ -1238,7 +1289,9 @@ k_s32 kd_mpi_sensor_stream_enable(k_s32 fd, k_s32 enable)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_again_set(k_s32 fd, k_sensor_gain gain)
+```
 
 【参数】
 
@@ -1281,7 +1334,9 @@ k_s32 kd_mpi_sensor_again_set(k_s32 fd, k_sensor_gain gain)
 
 【语法】
 
-k_s32 kd_mpi_sensor_again_set(k_s32 fd, k_sensor_gain \*gain)
+```c
+k_s32 kd_mpi_sensor_again_set(k_s32 fd, k_sensor_gain *gain)
+```
 
 【参数】
 
@@ -1324,7 +1379,9 @@ k_s32 kd_mpi_sensor_again_set(k_s32 fd, k_sensor_gain \*gain)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_dgain_set(k_s32 fd, k_sensor_gain gain)
+```
 
 【参数】
 
@@ -1367,7 +1424,9 @@ k_s32 kd_mpi_sensor_dgain_set(k_s32 fd, k_sensor_gain gain)
 
 【语法】
 
-k_s32 kd_mpi_sensor_dgain_get(k_s32 fd, k_sensor_gain \*gain)
+```c
+k_s32 kd_mpi_sensor_dgain_get(k_s32 fd, k_sensor_gain *gain)
+```
 
 【参数】
 
@@ -1410,7 +1469,9 @@ k_s32 kd_mpi_sensor_dgain_get(k_s32 fd, k_sensor_gain \*gain)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_intg_time_set(k_s32 fd, k_sensor_intg_time time)
+```
 
 【参数】
 
@@ -1453,7 +1514,9 @@ k_s32 kd_mpi_sensor_intg_time_set(k_s32 fd, k_sensor_intg_time time)
 
 【语法】
 
-k_s32 kd_mpi_sensor_intg_time_get(k_s32 fd, k_sensor_intg_time \*time)
+```c
+k_s32 kd_mpi_sensor_intg_time_get(k_s32 fd, k_sensor_intg_time *time)
+```
 
 【参数】
 
@@ -1496,7 +1559,9 @@ k_s32 kd_mpi_sensor_intg_time_get(k_s32 fd, k_sensor_intg_time \*time)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_otpdata_get(k_s32 fd, void *ota_data)
+```
 
 【参数】
 
@@ -1539,7 +1604,9 @@ k_s32 kd_mpi_sensor_otpdata_get(k_s32 fd, void *ota_data)
 
 【语法】
 
+```c
 k_s32 kd_mpi_sensor_otpdata_set(k_s32 fd, void *ota_data)
+```
 
 【参数】
 
@@ -2460,100 +2527,113 @@ if (ret == 0) {
 
 #### k_vicap_sensor_type
 
-【说明】当前系统支持的sensor类型定义
+【说明】当前系统支持的 Sensor 类型定义。实际可用成员由对应的
+`CONFIG_MPP_ENABLE_SENSOR_*` 编译选项决定，因此应使用成员名，不应依赖枚举数值。
 
 【定义】
 
 ```c
 typedef enum {
-OV_OV9732_MIPI_1280X720_30FPS_10BIT_LINEAR = 0,
-OV_OV9286_MIPI_1280X720_30FPS_10BIT_LINEAR_IR = 1,
-OV_OV9286_MIPI_1280X720_30FPS_10BIT_LINEAR_SPECKLE = 2,
-OV_OV9286_MIPI_1280X720_60FPS_10BIT_LINEAR_IR = 3,
-OV_OV9286_MIPI_1280X720_60FPS_10BIT_LINEAR_SPECKLE = 4,
-OV_OV9286_MIPI_1280X720_30FPS_10BIT_LINEAR_IR_SPECKLE = 5,
-OV_OV9286_MIPI_1280X720_60FPS_10BIT_LINEAR_IR_SPECKLE  = 6,
-IMX335_MIPI_2LANE_RAW12_1920X1080_30FPS_LINEAR = 7,
-IMX335_MIPI_2LANE_RAW12_2592X1944_30FPS_LINEAR = 8,
-IMX335_MIPI_4LANE_RAW12_2592X1944_30FPS_LINEAR = 9,
-IMX335_MIPI_2LANE_RAW12_1920X1080_30FPS_MCLK_7425_LINEAR = 10,
-IMX335_MIPI_2LANE_RAW12_2592X1944_30FPS_MCLK_7425_LINEAR = 11,
-IMX335_MIPI_4LANE_RAW12_2592X1944_30FPS_MCLK_7425_LINEAR = 12,
-IMX335_MIPI_4LANE_RAW10_2XDOL = 13,
-IMX335_MIPI_4LANE_RAW10_3XDOL = 14,
-SC_SC035HGS_MIPI_1LANE_RAW10_640X480_120FPS_LINEAR = 15,
-SC_SC035HGS_MIPI_1LANE_RAW10_640X480_60FPS_LINEAR = 16,
-SC_SC035HGS_MIPI_1LANE_RAW10_640X480_30FPS_LINEAR = 17,
-OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_SPECKLE = 18,
-OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_IR = 19,
-OV_OV9732_MIPI_1280X720_30FPS_10BIT_MCLK_16M_LINEAR = 20,
-OV_OV5647_MIPI_1920X1080_30FPS_10BIT_LINEAR = 21,
-OV_OV5647_MIPI_2592x1944_10FPS_10BIT_LINEAR = 22,
-OV_OV5647_MIPI_640x480_60FPS_10BIT_LINEAR = 23,
-OV_OV5647_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR = 24,
-SC_SC201CS_MIPI_1LANE_RAW10_1600X1200_30FPS_LINEAR = 25,
-SC_SC201CS_SLAVE_MODE_MIPI_1LANE_RAW10_1600X1200_30FPS_LINEAR = 26,
-OV_OV5647_MIPI_CSI1_1920X1080_30FPS_10BIT_LINEAR = 27,
-OV_OV5647_MIPI_CSI2_1920X1080_30FPS_10BIT_LINEAR = 28,
-XS9922B_MIPI_CSI0_1280X720_30FPS_YUV422_DOL3 = 29,
-XS9950_MIPI_CSI0_1280X720_30FPS_YUV422 = 30,
-XS9950_MIPI_CSI1_1280X720_30FPS_YUV422 = 31,
-XS9950_MIPI_CSI2_1280X720_30FPS_YUV422 = 32,
-XS9950_MIPI_CSI0_1920X1080_30FPS_YUV422 = 33,
-OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_SPECKLE_V2 = 34,
-OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_IR_V2 = 35,
-OV_OV9732_MIPI_1280X720_30FPS_10BIT_MCLK_16M_LINEAR_V2 = 36,
-OV_OV5647_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR_V2 = 37,
-OV_OV5647_MIPI_CSI1_1920X1080_30FPS_10BIT_LINEAR_V2 = 38,
-OV_OV5647_MIPI_CSI2_1920X1080_30FPS_10BIT_LINEAR_V2 = 39,
-GC2053_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR = 40,
-SENSOR_TYPE_MAX,
+    IMX335_MIPI_CSI0_2LANE_1920X1080_30FPS_12BIT_LINEAR,
+    IMX335_MIPI_CSI0_2LANE_2592X1944_30FPS_12BIT_LINEAR,
+    IMX335_MIPI_CSI0_4LANE_2592X1944_30FPS_12BIT_LINEAR,
+    IMX335_MIPI_CSI1_2LANE_1920X1080_30FPS_12BIT_LINEAR,
+    IMX335_MIPI_CSI1_2LANE_2592X1944_30FPS_12BIT_LINEAR,
+    IMX335_MIPI_CSI2_2LANE_1920X1080_30FPS_12BIT_LINEAR,
+    IMX335_MIPI_CSI2_2LANE_2592X1944_30FPS_12BIT_LINEAR,
+
+    OV5647_MIPI_CSI0_2592x1944_15FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI0_1280X960_45FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI0_1280X720_60FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI0_640x480_90FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI1_2592x1944_15FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI1_1920X1080_30FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI1_1280X960_45FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI1_1280X720_60FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI1_640x480_90FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI2_2592x1944_15FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI2_1920X1080_30FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI2_1280X960_45FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI2_1280X720_60FPS_10BIT_LINEAR,
+    OV5647_MIPI_CSI2_640x480_90FPS_10BIT_LINEAR,
+
+    GC2093_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI0_1920X1080_60FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI0_1280X960_90FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI0_1280X720_90FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI1_1920X1080_30FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI1_1920X1080_60FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI1_1280X960_90FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI1_1280X720_90FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI2_1920X1080_30FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI2_1920X1080_60FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI2_1280X960_90FPS_10BIT_LINEAR,
+    GC2093_MIPI_CSI2_1280X720_90FPS_10BIT_LINEAR,
+
+    SC132GS_MIPI_CSI0_1080X1280_120FPS_10BIT_LINEAR,
+    SC132GS_MIPI_CSI0_640X480_240FPS_10BIT_LINEAR,
+    SC132GS_MIPI_CSI1_1080X1280_120FPS_10BIT_LINEAR,
+    SC132GS_MIPI_CSI1_640X480_240FPS_10BIT_LINEAR,
+    SC132GS_MIPI_CSI2_1080X1280_120FPS_10BIT_LINEAR,
+    SC132GS_MIPI_CSI2_640X480_240FPS_10BIT_LINEAR,
+
+    XS9950_MIPI_CSI0_1280X720_25FPS_YUV422,
+    XS9950_MIPI_CSI1_1280X720_25FPS_YUV422,
+    XS9950_MIPI_CSI2_1280X720_25FPS_YUV422,
+
+    IMX675_MIPI_CSI0_2LANE_RAW10_2592X1944_30FPS_LINEAR,
+    IMX675_MIPI_CSI1_2LANE_RAW10_2592X1944_30FPS_LINEAR,
+    IMX675_MIPI_CSI2_2LANE_RAW10_2592X1944_30FPS_LINEAR,
+
+    BF3238_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR,
+    BF3238_MIPI_CSI0_1280X960_30FPS_10BIT_LINEAR,
+    BF3238_MIPI_CSI1_1920X1080_30FPS_10BIT_LINEAR,
+    BF3238_MIPI_CSI1_1280X960_30FPS_10BIT_LINEAR,
+    BF3238_MIPI_CSI2_1920X1080_30FPS_10BIT_LINEAR,
+    BF3238_MIPI_CSI2_1280X960_30FPS_10BIT_LINEAR,
+
+    OV13850_MIPI_CSI0_3840x2160_7FPS_10BIT_LINEAR,
+    OV13850_MIPI_CSI1_3840x2160_7FPS_10BIT_LINEAR,
+    OV13850_MIPI_CSI2_3840x2160_7FPS_10BIT_LINEAR,
+
+    SENSOR_TYPE_MAX,
 } k_vicap_sensor_type;
+
+/* 为旧应用保留的兼容名称。 */
+#define OV5647_MIPI_CSI0_2592x1944_10FPS_10BIT_LINEAR OV5647_MIPI_CSI0_2592x1944_15FPS_10BIT_LINEAR
+#define OV5647_MIPI_CSI1_2592x1944_10FPS_10BIT_LINEAR OV5647_MIPI_CSI1_2592x1944_15FPS_10BIT_LINEAR
+#define OV5647_MIPI_CSI2_2592x1944_10FPS_10BIT_LINEAR OV5647_MIPI_CSI2_2592x1944_15FPS_10BIT_LINEAR
+#define SC132GS_MIPI_CSI0_1080X1200_30FPS_10BIT_LINEAR SC132GS_MIPI_CSI0_1080X1280_120FPS_10BIT_LINEAR
+#define SC132GS_MIPI_CSI0_640X480_30FPS_10BIT_LINEAR SC132GS_MIPI_CSI0_640X480_240FPS_10BIT_LINEAR
+#define SC132GS_MIPI_CSI1_1080X1200_30FPS_10BIT_LINEAR SC132GS_MIPI_CSI1_1080X1280_120FPS_10BIT_LINEAR
+#define SC132GS_MIPI_CSI1_640X480_30FPS_10BIT_LINEAR SC132GS_MIPI_CSI1_640X480_240FPS_10BIT_LINEAR
+#define SC132GS_MIPI_CSI2_1080X1200_30FPS_10BIT_LINEAR SC132GS_MIPI_CSI2_1080X1280_120FPS_10BIT_LINEAR
+#define SC132GS_MIPI_CSI2_640X480_30FPS_10BIT_LINEAR SC132GS_MIPI_CSI2_640X480_240FPS_10BIT_LINEAR
+#define XS9950_MIPI_CSI0_1280X720_30FPS_YUV422 XS9950_MIPI_CSI0_1280X720_25FPS_YUV422
+#define XS9950_MIPI_CSI1_1280X720_30FPS_YUV422 XS9950_MIPI_CSI1_1280X720_25FPS_YUV422
+#define XS9950_MIPI_CSI2_1280X720_30FPS_YUV422 XS9950_MIPI_CSI2_1280X720_25FPS_YUV422
 ```
 
 【成员】
-| **成员名称**                                       | **描述**                                |
-|----------------------------------------------------|-----------------------------------------|
-| OV_OV9732_MIPI_1280X720_30FPS_10BIT_LINEAR        | OV9732 1lan 10bit 720P30帧线性输出配置 外接晶振16M 接csi0    |
-| OV_OV9286_MIPI_1280X720_30FPS_10BIT_LINEAR_IR     | OV9286 2lan 10bit 720P30帧线性输出配置ir图像 外接晶振25M 接csi1     |
-| OV_OV9286_MIPI_1280X720_30FPS_10BIT_LINEAR_SPECKLE | OV9286 2lan 10bit 720P30帧线性输出配置speckle图像 外接晶振25M 接csi1 |
-| OV_OV9286_MIPI_1280X720_60FPS_10BIT_LINEAR_IR     | OV9286 2lan 10bit 720P60帧线性输出配置ir图像 外接晶振25M 接csi1    |
-| OV_OV9286_MIPI_1280X720_60FPS_10BIT_LINEAR_SPECKLE  | OV9286 2lan 10bit 720P60帧线性输出配置speckle图像 外接晶振25M 接csi1  |
-| IMX335_MIPI_2LANE_RAW12_1920X1080_30FPS_LINEAR      |  imx335 12bit 2lan 1080P30帧线性输出 外接晶振24M 接csi0 |
-| IMX335_MIPI_2LANE_RAW12_2592X1944_30FPS_LINEAR |  imx335 12bit 2lan 全尺寸30帧线性输出 外接晶振24M 接csi0|
-| IMX335_MIPI_4LANE_RAW12_2592X1944_30FPS_LINEAR      |  imx335 12bit 4lan 全尺寸30帧线性输出 外接晶振24M 接csi0|
-| IMX335_MIPI_2LANE_RAW12_1920X1080_30FPS_MCLK_7425_LINEAR |  imx335 12bit 2lan 1080P30帧线性输出 芯片输出74.25M 时钟 接csi0 |
-| IMX335_MIPI_2LANE_RAW12_2592X1944_30FPS_MCLK_7425_LINEAR  |  imx335 12bit 2lan 全尺寸30帧线性输出 芯片输出74.25M 时钟 接csi0 |
-| IMX335_MIPI_4LANE_RAW12_2592X1944_30FPS_MCLK_7425_LINEAR |  imx335 12bit 4lan 全尺寸30帧线性输出 芯片输出74.25M 时钟 接csi0|
-| IMX335_MIPI_4LANE_RAW10_2XDOL      |  imx335 10bit 4lan 全尺寸15帧2dol输出 外接晶振24M 接csi0|
-| IMX335_MIPI_4LANE_RAW10_3XDOL |  imx335 10bit 4lan 全尺寸15帧3dol输出 外接晶振24M 接csi0|
-| SC_SC035HGS_MIPI_1LANE_RAW10_640X480_120FPS_LINEAR      |   sc035 10bit 1lan 640x480 120帧线性输出 外接晶振24M 接csi2 |
-| SC_SC035HGS_MIPI_1LANE_RAW10_640X480_60FPS_LINEAR |  sc035 10bit 1lan 640x480 60帧线性输出 外接晶振24M 接csi2|
-| SC_SC035HGS_MIPI_1LANE_RAW10_640X480_30FPS_LINEAR      |  sc035 10bit 1lan 640x480 30帧线性输出 外接晶振24M 接csi2|
-| OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_SPECKLE | OV9286 2lan 10bit 720P30帧线性输出配置speckle图像 芯片输出25M 时钟 接csi1|
-| OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_IR      |OV9286 2lan 10bit 720P30帧线性输出配置ir图像 芯片输出25M 时钟 接csi1|
-| OV_OV9732_MIPI_1280X720_30FPS_10BIT_MCLK_16M_LINEAR | OV9732 1lan 10bit 720P30帧线性输出配置 芯片输出16M时钟 接csi0|
-| OV_OV5647_MIPI_1920X1080_30FPS_10BIT_LINEAR      | OV5647 2lan 10bit 1080P30帧线性输出配置 外接晶振25M 接csi2|
-| OV_OV5647_MIPI_2592x1944_10FPS_10BIT_LINEAR |OV5647 2lan 10bit 全尺寸 10帧线性输出配置 外接晶振25M 接csi2|
-| OV_OV5647_MIPI_640x480_60FPS_10BIT_LINEAR      | OV5647 2lan 10bit 640x480 60帧线性输出配置 外接晶振25M 接csi2|
-| OV_OV5647_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR | OV5647 2lan 10bit 1080P30帧线性输出配置 芯片输出25M时钟 接csi0|
-| SC_SC201CS_MIPI_1LANE_RAW10_1600X1200_30FPS_LINEAR      | sc201 1lan 10bit 1600x1200 30帧线性输出  晶振27M 接csi1|
-| SC_SC201CS_SLAVE_MODE_MIPI_1LANE_RAW10_1600X1200_30FPS_LINEAR |  sc201 1lan 10bit slave模式 1600x1200 30帧线性输出 晶振27M 接csi1|
-| OV_OV5647_MIPI_CSI1_1920X1080_30FPS_10BIT_LINEAR  | OV5647 2lan 10bit 1080P30帧线性输出配置 外接晶振25M 外接csi1|
-| OV_OV5647_MIPI_CSI2_1920X1080_30FPS_10BIT_LINEAR | OV5647 2lan 10bit 1080P30帧线性输出配置 外接晶振25M 外接csi2|
-| XS9950_MIPI_CSI0_1280X720_30FPS_YUV422      | XS9950 2lan yuv422 720P25帧线性输出 模拟摄像头 接csi0|
-| XS9950_MIPI_CSI1_1280X720_30FPS_YUV422 | XS9950 2lan yuv422 720P25帧线性输出 模拟摄像头 接csi1|
-| OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_SPECKLE_V2      | OV9286 2lan 10bit 720P30帧线性输出配置speckle图像 芯片输出25M 时钟 接csi1|
-| OV_OV9286_MIPI_1280X720_30FPS_10BIT_MCLK_25M_LINEAR_IR_V2 | OV9286 2lan 10bit 720P30帧线性输出配置ir图像 芯片输出25M 时钟 接csi1|
-| OV_OV9732_MIPI_1280X720_30FPS_10BIT_MCLK_16M_LINEAR_V2   | OV9732 1lan 10bit 720P30帧线性输出配置 芯片输出16M时钟 接csi2|
-| OV_OV5647_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR_V2    | OV5647 2lan 10bit 1080P30帧线性输出配置 外接晶振25M 外接csi0 |
-| OV_OV5647_MIPI_CSI1_1920X1080_30FPS_10BIT_LINEAR_V2        | OV5647 2lan 10bit 1080P30帧线性输出配置 外接晶振25M 外接csi1  |
-| OV_OV5647_MIPI_CSI2_1920X1080_30FPS_10BIT_LINEAR_V2        | OV5647 2lan 10bit 1080P30帧线性输出配置 芯片输出25M时钟 接csi2|
-| GC2053_MIPI_CSI0_1920X1080_30FPS_10BIT_LINEAR        |  GC2053 2lan 10bit 1080P30帧线性输出配置 芯片输出16M时钟   接csi0  |
+
+`CSI<n>` 中的 `<n>` 表示 0、1 或 2，每个已启用的 CSI 接口都有对应的成员。
+
+| 型号 | 规范 Sensor Type 模式 |
+|------|--------------------------|
+| IMX335 | `IMX335_MIPI_CSI<n>_2LANE_1920X1080_30FPS_12BIT_LINEAR`、`IMX335_MIPI_CSI<n>_2LANE_2592X1944_30FPS_12BIT_LINEAR`；可选 4 lane 全尺寸模式 |
+| OV5647 | `OV5647_MIPI_CSI<n>_2592x1944_15FPS_10BIT_LINEAR`、1920x1080@30、1280x960@45、1280x720@60、640x480@90 |
+| GC2093 | `GC2093_MIPI_CSI<n>_1920X1080_30FPS_10BIT_LINEAR`、1920x1080@60、1280x960@90、1280x720@90 |
+| SC132GS | `SC132GS_MIPI_CSI<n>_1080X1280_120FPS_10BIT_LINEAR`、`SC132GS_MIPI_CSI<n>_640X480_240FPS_10BIT_LINEAR` |
+| XS9950 | `XS9950_MIPI_CSI<n>_1280X720_25FPS_YUV422` |
+| IMX675 | `IMX675_MIPI_CSI<n>_2LANE_RAW10_2592X1944_30FPS_LINEAR` |
+| BF3238 | `BF3238_MIPI_CSI<n>_1920X1080_30FPS_10BIT_LINEAR`、`BF3238_MIPI_CSI<n>_1280X960_30FPS_10BIT_LINEAR` |
+| OV13850 | `OV13850_MIPI_CSI<n>_3840x2160_7FPS_10BIT_LINEAR` |
 
 【注意事项】
 
-1. 该列表需要有sensor驱动开发人员维护，应用开发者通过此处定义的sensor type来打开指定类型的sensor设备
+1. 兼容名称仅用于编译旧应用，新代码应使用上述规范 Sensor Type。
+2. 该列表由 Sensor 驱动开发人员维护，应用开发者通过此处定义的 Sensor Type 打开指定类型的 Sensor 设备。
 
 #### k_vicap_dev
 
@@ -3319,7 +3399,9 @@ k_u8 otp_date[20];
 
 【语法】
 
-k_s32 kd_mapi_vicap_get_sensor_fd(k_vicap_sensor_attr \*sensor_attr)
+```c
+k_s32 kd_mapi_vicap_get_sensor_fd(k_vicap_sensor_attr *sensor_attr)
+```
 
 【参数】
 
@@ -3351,7 +3433,9 @@ k_s32 kd_mapi_vicap_get_sensor_fd(k_vicap_sensor_attr \*sensor_attr)
 
 【语法】
 
-k_s32 kd_mapi_vicap_get_sensor_info(k_vicap_sensor_info \*sensor_info)
+```c
+k_s32 kd_mapi_vicap_get_sensor_info(k_vicap_sensor_info *sensor_info)
+```
 
 【返回值】
 
@@ -3377,7 +3461,9 @@ k_s32 kd_mapi_vicap_get_sensor_info(k_vicap_sensor_info \*sensor_info)
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_set_dev_attr(k_vicap_dev_set_info dev_info)
+```
 
 【返回值】
 
@@ -3403,7 +3489,9 @@ k_s32 kd_mapi_vicap_set_dev_attr(k_vicap_dev_set_info dev_info)
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_set_chn_attr(k_vicap_chn_set_info chn_info)
+```
 
 【返回值】
 
@@ -3429,7 +3517,9 @@ k_s32 kd_mapi_vicap_set_chn_attr(k_vicap_chn_set_info chn_info)
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_start(k_vicap_dev vicap_dev)
+```
 
 【返回值】
 
@@ -3455,7 +3545,9 @@ k_s32 kd_mapi_vicap_start(k_vicap_dev vicap_dev)
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_stop(k_vicap_dev vicap_dev)
+```
 
 【返回值】
 
@@ -3481,7 +3573,9 @@ k_s32 kd_mapi_vicap_stop(k_vicap_dev vicap_dev)
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_dump_frame(k_vicap_dev dev_num, k_vicap_chn chn_num, k_vicap_dump_format foramt, k_video_frame_info *vf_info, k_u32 milli_sec)
+```
 
 【参数】
 
@@ -3517,7 +3611,9 @@ k_s32 kd_mapi_vicap_dump_frame(k_vicap_dev dev_num, k_vicap_chn chn_num, k_vicap
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_release_frame(k_vicap_dev dev_num, k_vicap_chn chn_num, const k_video_frame_info *vf_info)
+```
 
 【参数】
 
@@ -3551,7 +3647,9 @@ k_s32 kd_mapi_vicap_release_frame(k_vicap_dev dev_num, k_vicap_chn chn_num, cons
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_set_vi_drop_frame(k_vicap_csi_num csi, k_vicap_drop_frame *frame, k_bool enable)
+```
 
 【参数】
 
@@ -3588,7 +3686,9 @@ k_s32 kd_mapi_vicap_set_vi_drop_frame(k_vicap_csi_num csi, k_vicap_drop_frame *f
 
 【语法】
 
+```c
 k_s32 kd_mapi_vicap_set_mclk(k_vicap_mclk_id id, k_vicap_mclk_sel sel, k_u8 mclk_div, k_u8 mclk_en)
+```
 
 【参数】
 
@@ -3623,7 +3723,9 @@ k_s32 kd_mapi_vicap_set_mclk(k_vicap_mclk_id id, k_vicap_mclk_sel sel, k_u8 mclk
 
 【语法】
 
-k_s32 kd_mapi_vicap_tuning(char\* string, k_u32 size, char\*\* response, k_u32\* response_len)
+```c
+k_s32 kd_mapi_vicap_tuning(char* string, k_u32 size, char** response, k_u32* response_len)
+```
 
 【返回值】
 
@@ -3649,7 +3751,9 @@ k_s32 kd_mapi_vicap_tuning(char\* string, k_u32 size, char\*\* response, k_u32\*
 
 【语法】
 
-k_s32 kd_mapi_isp_ae_get_roi(k_vicap_dev dev_num, k_isp_ae_roi \*ae_roi)
+```c
+k_s32 kd_mapi_isp_ae_get_roi(k_vicap_dev dev_num, k_isp_ae_roi *ae_roi)
+```
 
 【返回值】
 
@@ -3675,7 +3779,9 @@ k_s32 kd_mapi_isp_ae_get_roi(k_vicap_dev dev_num, k_isp_ae_roi \*ae_roi)
 
 【语法】
 
+```c
 k_s32 kd_mapi_isp_ae_set_roi(k_vicap_dev dev_num, k_isp_ae_roi ae_roi)
+```
 
 【返回值】
 
@@ -3701,7 +3807,9 @@ k_s32 kd_mapi_isp_ae_set_roi(k_vicap_dev dev_num, k_isp_ae_roi ae_roi)
 
 【语法】
 
+```c
 k_s32 kd_mapi_sensor_otpdata_get(k_s32 sensor_type, k_sensor_otp_date *otp_data)
+```
 
 【返回值】
 
@@ -3744,4 +3852,4 @@ k_s32 kd_mapi_sensor_otpdata_get(k_s32 sensor_type, k_sensor_otp_date *otp_data)
 
 ## 调试信息
 
-VICAP 内存管理和系统绑定调试信息，请参考《K230 系统控制 API 参考》。
+VICAP内存管理和和系统绑定调试信息，请参考《K230 系统控制 API参考》。

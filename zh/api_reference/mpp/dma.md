@@ -62,7 +62,9 @@ GSDMA：DMA 全称 Direct Memory Access，即直接存储器访问，将数据�
 
 【语法】
 
-k_s32 kd_mpi_dma_set_dev_attr(k_dma_dev_attr_t \*attr);
+```c
+k_s32 kd_mpi_dma_set_dev_attr(k_dma_dev_attr_t *attr);
+```
 
 【参数】
 
@@ -106,7 +108,9 @@ k_s32 kd_mpi_dma_set_dev_attr(k_dma_dev_attr_t \*attr);
 
 【语法】
 
-k_s32 kd_mpi_dma_get_dev_attr(k_dma_dev_attr_t \*attr);
+```c
+k_s32 kd_mpi_dma_get_dev_attr(k_dma_dev_attr_t *attr);
+```
 
 【参数】
 
@@ -150,7 +154,9 @@ k_s32 kd_mpi_dma_get_dev_attr(k_dma_dev_attr_t \*attr);
 
 【语法】
 
+```c
 k_s32 kd_mpi_dma_start_dev();
+```
 
 【参数】
 
@@ -194,7 +200,9 @@ k_s32 kd_mpi_dma_start_dev();
 
 【语法】
 
+```c
 kd_mpi_dma_stop_dev();
+```
 
 【参数】
 
@@ -238,7 +246,9 @@ kd_mpi_dma_stop_dev();
 
 【语法】
 
-k_s32 kd_mpi_dma_set_chn_attr(k_u8 chn_num, k_dma_chn_attr_u \*attr);
+```c
+k_s32 kd_mpi_dma_set_chn_attr(k_u8 chn_num, k_dma_chn_attr_u *attr);
+```
 
 【参数】
 
@@ -283,7 +293,9 @@ k_s32 kd_mpi_dma_set_chn_attr(k_u8 chn_num, k_dma_chn_attr_u \*attr);
 
 【语法】
 
-k_s32 kd_mpi_dma_get_chn_attr(k_u8 chn_num, k_dma_chn_attr_u \*attr);
+```c
+k_s32 kd_mpi_dma_get_chn_attr(k_u8 chn_num, k_dma_chn_attr_u *attr);
+```
 
 【参数】
 
@@ -328,7 +340,9 @@ k_s32 kd_mpi_dma_get_chn_attr(k_u8 chn_num, k_dma_chn_attr_u \*attr);
 
 【语法】
 
+```c
 k_s32 kd_mpi_dma_start_chn(k_u8 chn_num);
+```
 
 【参数】
 
@@ -372,7 +386,9 @@ k_s32 kd_mpi_dma_start_chn(k_u8 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_dma_stop_chn(k_u8 chn_num);
+```
 
 【参数】
 
@@ -416,7 +432,9 @@ k_s32 kd_mpi_dma_stop_chn(k_u8 chn_num);
 
 【语法】
 
-k_s32 kd_mpi_dma_send_frame(k_u8 chn_num, k_video_frame_info \*df_info, k_s32 millisec);
+```c
+k_s32 kd_mpi_dma_send_frame(k_u8 chn_num, k_video_frame_info *df_info, k_s32 millisec);
+```
 
 【参数】
 
@@ -462,7 +480,9 @@ k_s32 kd_mpi_dma_send_frame(k_u8 chn_num, k_video_frame_info \*df_info, k_s32 mi
 
 【语法】
 
-k_s32 kd_mpi_dma_get_frame(k_u8 chn_num, k_video_frame_info \*df_info, k_s32 millisec);
+```c
+k_s32 kd_mpi_dma_get_frame(k_u8 chn_num, k_video_frame_info *df_info, k_s32 millisec);
+```
 
 【参数】
 
@@ -508,7 +528,9 @@ k_s32 kd_mpi_dma_get_frame(k_u8 chn_num, k_video_frame_info \*df_info, k_s32 mil
 
 【语法】
 
-k_s32 kd_mpi_dma_release_frame(k_u8 chn_num, k_video_frame_info \*df_info);
+```c
+k_s32 kd_mpi_dma_release_frame(k_u8 chn_num, k_video_frame_info *df_info);
+```
 
 【参数】
 

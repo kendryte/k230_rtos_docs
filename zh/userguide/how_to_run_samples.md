@@ -109,12 +109,14 @@ cd /sdcard/app/examples
 1. 在 `make menuconfig` 中导航至：
 
    ```text
-   RT-Smart Configuration > Startup command
+   RT-Smart Configuration > Rtsmart auto execute command string
    ```
 
-1. `Startup command` 是运行时命令字符串，建议输入示例程序的绝对路径（如 `/sdcard/app/examples/integrated_poc/smart_ipc.elf`）。
+1. 普通文件系统自启动时，关闭 `Fast Boot Configuration`，并填写示例程序的板端绝对路径和参数。
 
-1. 若配置的是 `Fast Boot Configuration > Fast boot file path`，则可使用绝对路径，或使用 `tools/mkenv.mk` 导出的 `${SDK_*}` 变量（如 `${SDK_BUILD_IMAGES_DIR}`）。**同时也需要将自启命令修改掉，替换掉 elf 路径修改为 `/bin/preload`。**
+1. Fast Boot 自启动时，在 `Fast Boot Configuration > Fast boot file path` 中填写主机侧 ELF 路径，并把自动运行命令设置为 `@preload`，参数跟在其后。`@preload` 是内部触发标记，不是 `/bin/preload` 文件，也不能作为普通 `msh` 命令运行。
+
+完整配置、Secure Boot 限制和故障排查见[如何使用 Fast Boot 与配置 RT-Smart 自动运行](./how_to_use_fast_boot.md)。
 
 ### 验证自启动
 
@@ -128,7 +130,7 @@ cd /sdcard/app/examples
    - 重新执行 `make` 并确保编译无报错。
 
 1. **串口无输出**  
-   - 确认串口线连接正常。
+   - 确认串口线连接正常；使用外置 USB 转串口模块时，先核对 [串口电平与转接模块安全](../app_develop_guide/peripheral/uart.md)。
    - 检查波特率与终端配置是否匹配。
 
 通过上述步骤，您可以快速掌握 K230 RTOS SDK 示例程序的完整操作流程。

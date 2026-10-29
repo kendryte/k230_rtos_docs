@@ -19,3 +19,7 @@ _templates/layout.html
 _templates/versionsFlex.html
 _templates/*
 _static/*
+logs/*
+*.env
+*.key
+*.pem

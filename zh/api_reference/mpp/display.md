@@ -1,5 +1,7 @@
 # K230视频输出API参考
 
+<a id="summary"></a>
+
 ## 概述
 
 VO（Video Output，视频输出）模块主动从内存相应位置读取视频和图形数据，并通过相应的显示设备输出视频和图形。芯片支持的显示/回写设备、视频层和图形层情况。
@@ -35,7 +37,7 @@ OSD 层支持
 
 在evblp3 上的硬件引脚如下：
 
-![图片包含 图示 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/d7197713d3821fdd3e5c0f2b10dfd5b1.png)
+![图片包含 图示 描述已自动生成](https://download.kendryte.com/developer/pictures/d7197713d3821fdd3e5c0f2b10dfd5b1.png)
 
 - 屏幕触摸iic用的iic4 （scl：gpio7，sda gpio8）
 - 屏幕触摸 rst：gpio29， int：gpio30
@@ -44,7 +46,7 @@ OSD 层支持
 
 #### 实物图
 
-![图片包含 游戏机, 电子, 电路 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/69dbfc0ef3144c90f5978f1019482030.png)
+![图片包含 游戏机, 电子, 电路 描述已自动生成](https://download.kendryte.com/developer/pictures/69dbfc0ef3144c90f5978f1019482030.png)
 
 - 图中1为mipi接口，采用的是软排线
 - 图中2为mipi信号测试点、包含四路data线和一路clk线
@@ -68,25 +70,25 @@ phy的频率需要配置三个参数、计算PLL、配置voc、配置freq，根�
 
 For：
 
-![文本, 信件 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/e99b3eec46b58875ae936ea4ab23d86b.png)
+![文本, 信件 描述已自动生成](https://download.kendryte.com/developer/pictures/e99b3eec46b58875ae936ea4ab23d86b.png)
 
 然而在这个需要遵循下边的限制：
 
-![图片包含 文本 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/cfd696fc1b6157fbf0220a4f1545a963.png)
+![图片包含 文本 描述已自动生成](https://download.kendryte.com/developer/pictures/cfd696fc1b6157fbf0220a4f1545a963.png)
 
 For：
 
-![文本, 信件 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/e0df5cfd79b26cd1c688cb8f82000188.png)
+![文本, 信件 描述已自动生成](https://download.kendryte.com/developer/pictures/e0df5cfd79b26cd1c688cb8f82000188.png)
 
 For：
 
-![文本, 信件 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/fb853b016887c1d58cc45f4507d9276c.png)
+![文本, 信件 描述已自动生成](https://download.kendryte.com/developer/pictures/fb853b016887c1d58cc45f4507d9276c.png)
 
-![文本 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/9cd0c8d3bd975f1f19a5eec9b846d00b.png)
+![文本 描述已自动生成](https://download.kendryte.com/developer/pictures/9cd0c8d3bd975f1f19a5eec9b846d00b.png)
 
 For：
 
-![文本 中度可信度描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/659e3d039a5c3c623b3ffd6fb24ee777.png)
+![文本 中度可信度描述已自动生成](https://download.kendryte.com/developer/pictures/659e3d039a5c3c623b3ffd6fb24ee777.png)
 
 上边的每一个for 对应着一个pll的等级、不同的等级对应着不同的计算公式和限制，计算示例如下：
 
@@ -98,7 +100,7 @@ mipi 的速率为 445.5M：所以pll的速率就是222.75M，应该选择第二�
 
 222.75n + 198.75 = 12m ，通过excel 计算如下：
 
-![表格 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/8ff8dac9c9f9b815001733e37e44e4cc.png)
+![表格 描述已自动生成](https://download.kendryte.com/developer/pictures/8ff8dac9c9f9b815001733e37e44e4cc.png)
 
 得出来的m = 295 ，n = 15。
 
@@ -108,9 +110,9 @@ mipi 的速率为 445.5M：所以pll的速率就是222.75M，应该选择第二�
 
 配置phy 的voc 可以根据表格查询即可：
 
-![表格 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/174b1b96f4a280ab5350f4ed5452d43f.png)
+![表格 描述已自动生成](https://download.kendryte.com/developer/pictures/174b1b96f4a280ab5350f4ed5452d43f.png)
 
-![表格 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/8e1970bbd7ffb862547feaf8a59cab48.png)
+![表格 描述已自动生成](https://download.kendryte.com/developer/pictures/8e1970bbd7ffb862547feaf8a59cab48.png)
 
 Example：
 
@@ -120,11 +122,11 @@ mipi 的速率为 445.5M：所以pll的速率就是222.75M，voc = 010111 = 0x17
 
 配置phy 的freq 可以根据表格查询即可：
 
-![表格 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/95941399975cca1c16253927129d8e19.png)
+![表格 描述已自动生成](https://download.kendryte.com/developer/pictures/95941399975cca1c16253927129d8e19.png)
 
-![表格 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/22628c5b4acf510370e51188734fe172.png)
+![表格 描述已自动生成](https://download.kendryte.com/developer/pictures/22628c5b4acf510370e51188734fe172.png)
 
-![表格 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/4a233637850b4e84b5208317666c4314.png)
+![表格 描述已自动生成](https://download.kendryte.com/developer/pictures/4a233637850b4e84b5208317666c4314.png)
 
 Example：
 
@@ -140,9 +142,9 @@ DSI在软件中主要配置屏幕显示用的timing和发送命令的功能。
 
 每个厂家的屏幕都会有一组时序用来做屏幕的控制，主要包含了帧的控制时序和一行的控制时序，如下图所示：
 
-![图示 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/01cabbb3d5c1dc60d0baa95a0f87104f.png)
+![图示 描述已自动生成](https://download.kendryte.com/developer/pictures/01cabbb3d5c1dc60d0baa95a0f87104f.png)
 
-![图示, 示意图 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/507a7bd277508dc177ebb0c4cfb49b9e.png)
+![图示, 示意图 描述已自动生成](https://download.kendryte.com/developer/pictures/507a7bd277508dc177ebb0c4cfb49b9e.png)
 
 DSI中也会用到这些参数、配置的时序和屏幕一致即可。
 
@@ -159,7 +161,7 @@ DSI中也会用到这些参数、配置的时序和屏幕一致即可。
 
 DSI 自测模式会按照自己配置的dsi timing 产生color bar 的数据发送出去，这样不依赖vo从ddr读取数据，测试模式显示如下图：
 
-![背景图案 中度可信度描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/25246d8f3ff85d6e9b1de1b03369fbb3.png)
+![背景图案 中度可信度描述已自动生成](https://download.kendryte.com/developer/pictures/25246d8f3ff85d6e9b1de1b03369fbb3.png)
 
 DSI 和vo之间采用的是24位接口，所以配置出来的color bar 是上图的效果，使用方法只需要配置完成dsi之后使能color bar即可，api如下
 
@@ -175,7 +177,7 @@ VO的时序配置和dsi 的时序配置采用的一样的配置参数，具体�
 
 ##### V1.2.3.2 O的layer层配置
 
-VO layer 层目前支持3个layer层、4个osd层。Layer层只能显示yuv的图像格式（layer0 和 layer1 支持的功能在[概述](#概述)中的图表）。
+VO layer 层目前支持3个layer层、4个osd层。Layer层只能显示yuv的图像格式（layer0 和 layer1 支持的功能在[概述](#summary)中的图表）。
 
 ##### VO 的回写功能配置
 
@@ -214,7 +216,9 @@ VO 还支持回写功能、这个可以验证VO配置的是否正确，VO配置�
 
 【语法】
 
-k_s32 kd_mpi_set_mipi_phy_attr(k_vo_mipi_phy_attr \*attr)
+```c
+k_s32 kd_mpi_set_mipi_phy_attr(k_vo_mipi_phy_attr *attr)
+```
 
 【参数】
 
@@ -268,7 +272,9 @@ k_s32 kd_mpi_set_mipi_phy_attr(k_vo_mipi_phy_attr \*attr)
 
 【语法】
 
-k_s32 kd_mpi_dsi_set_attr(k_display_mode \*attr)
+```c
+k_s32 kd_mpi_dsi_set_attr(k_display_mode *attr)
+```
 
 | 参数名称 | 描述         | 输入/输出 |
 |----------|--------------|-----------|
@@ -310,7 +316,9 @@ k_s32 kd_mpi_dsi_set_attr(k_display_mode \*attr)
 
 【语法】
 
+```c
 k_s32 kd_mpi_dsi_enable(k_u32 enable)
+```
 
 【参数】
 
@@ -354,7 +362,9 @@ Dsi 发送命令
 
 【语法】
 
-k_s32 kd_mpi_dsi_send_cmd(k_u8 \*data, k_s32 cmd_len)
+```c
+k_s32 kd_mpi_dsi_send_cmd(k_u8 *data, k_s32 cmd_len)
+```
 
 【参数】
 
@@ -399,7 +409,9 @@ Dsi 读取命令
 
 【语法】
 
-k_s32 kd_mpi_dsi_read_pkg(k_u8 addr, k_u16 cmd_len, k_u32 \*rv_data)
+```c
+k_s32 kd_mpi_dsi_read_pkg(k_u8 addr, k_u16 cmd_len, k_u32 *rv_data)
+```
 
 【参数】
 
@@ -445,7 +457,9 @@ k_s32 kd_mpi_dsi_read_pkg(k_u8 addr, k_u16 cmd_len, k_u32 \*rv_data)
 
 【语法】
 
+```c
 k_s32 kd_mpi_dsi_set_test_pattern(void)
+```
 
 【参数】、
 
@@ -508,7 +522,9 @@ Vo 初始化默认参数
 
 【语法】
 
+```c
 k_s32 kd_mpi_vo_init(void);
+```
 
 【参数】
 
@@ -550,7 +566,9 @@ Dsi 发送命令
 
 【语法】
 
-k_s32 kd_mpi_vo_set_dev_param(k_vo_pub_attr \*attr)
+```c
+k_s32 kd_mpi_vo_set_dev_param(k_vo_pub_attr *attr)
+```
 
 【参数】
 
@@ -594,7 +612,9 @@ k_s32 kd_mpi_vo_set_dev_param(k_vo_pub_attr \*attr)
 
 【语法】
 
+```c
 k_s32 kd_mpi_vo_enable_video_layer([k_vo_layer](#k_vo_layer) layer)
+```
 
 【参数】
 
@@ -638,7 +658,9 @@ k_s32 kd_mpi_vo_enable_video_layer([k_vo_layer](#k_vo_layer) layer)
 
 【语法】
 
+```c
 k_s32 kd_mpi_vo_disable_video_layer([k_vo_layer](#k_vo_layer) layer)
+```
 
 【参数】
 
@@ -724,7 +746,9 @@ k_u8 kd_mpi_vo_enable(void);
 
 【语法】
 
-k_s32 kd_mpi_vo_chn_insert_frame(k_u32 chn_num, [k_video_frame_info](#k_video_frame_info) \*vf_info)
+```c
+k_s32 kd_mpi_vo_chn_insert_frame(k_u32 chn_num, [k_video_frame_info](#k_video_frame_info) *vf_info)
+```
 
 【参数】
 

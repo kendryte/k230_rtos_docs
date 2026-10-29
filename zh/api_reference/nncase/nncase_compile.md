@@ -34,6 +34,8 @@ CompileOptions类, 用于配置nncase编译选项，各属性说明如下：
 | shape_bucket_segments_count |          int          |    是    | 输入变量的范围划分为几段                                                                                               |
 | shape_bucket_fix_var_map    |    Dict[str, int]     |    否    | 固定shape维度信息中的变量为特定的值                                                                                    |
 
+<a id="preprocess"></a>
+
 #### 前处理流程说明
 
 目前暂不支持自定义前处理顺序，可以根据以下流程示意图，选择所需要的前处理参数进行配置。

@@ -1,6 +1,6 @@
 # AI开发文档
 
-## KPU硬件基本原理介绍
+## KPU硬件基本原理
 
 在边缘计算场景中（如物联网设备、智能摄像头、工业检测终端、可穿戴设备等），设备通常部署在远离云端数据中心的现场，面临着**实时性要求高、网络带宽受限、数据隐私敏感以及功耗约束严格**的挑战。在这些场景下运行复杂的AI模型（如图像识别、目标检测、语音唤醒），如果仅依赖传统的通用CPU进行计算，往往会遇到**计算量过大、处理速度慢、功耗过高**的问题，难以满足实时响应和能效比的要求。
 
@@ -253,7 +253,7 @@ RT-Smart SDK 的应用示例位于 `src/rtsmart/examples/ai` 目录下，这里�
 ### 数据标注
 
 ```{note}
-👉 拿到采集好的图片之后，就可以开始给它们打标签啦！根据这个任务的要求，你可以用一些常见的标注工具，比如 LabelImg、Labelme 或 X-AnyLabeling，给图片里的数字加上对应的类别、画出目标框。你可以亲自采集图像、自己动手标注，整个过程也挺有趣的。当然啦，如果你不想从头做，我们也贴心准备了一份现成的“0/1/2/3四类打印数字识别”数据集，直接点这里就能下载：[0/1/2/3四类打印数字识别数据集](https://kendryte-download.canaan-creative.com/developer/k230/yolo_dataset/number_det.zip)。省时又省力，直接上手训练也没问题！
+👉 拿到采集好的图片之后，就可以开始给它们打标签啦！根据这个任务的要求，你可以用一些常见的标注工具，比如 LabelImg、Labelme 或 X-AnyLabeling，给图片里的数字加上对应的类别、画出目标框。你可以亲自采集图像、自己动手标注，整个过程也挺有趣的。当然啦，如果你不想从头做，我们也贴心准备了一份现成的“0/1/2/3四类打印数字识别”数据集，直接点这里就能下载：[0/1/2/3四类打印数字识别数据集](https://download.kendryte.com/developer/k230/yolo_dataset/number_det.zip)。省时又省力，直接上手训练也没问题！
 ```
 
 数据标注是训练模型的关键步骤之一，它涉及到对原始数据进行标注，以便模型能够学习到数据的特征和模式。在进行数据标注时，需要考虑以下几个方面：
@@ -268,7 +268,7 @@ RT-Smart SDK 的应用示例位于 `src/rtsmart/examples/ai` 目录下，这里�
 ### 模型训练
 
 ```{note}
-👉 模型训练的方法有很多，其中 YOLO 系列是现在特别常用的选择，比如 YOLOv5、YOLOv8 或 YOLO11。我们推荐你用 YOLO 来进行训练，因为它效果好、速度快、社区也很活跃。更棒的是，我们提供的数据集已经整理好了，可以直接用来训练 YOLO 模型！你只需要跳转到这个示例：[YOLO检测示例](#yolov8跌倒检测)，按照里面的流程来做，把示例中的数据集部分换成我们准备的“0/1/2/3 四类打印数字识别数据集”就行啦。本节的目标是先把模型训练好，并导出为 ONNX 格式，后面还有更多有趣的内容等着你继续解锁！
+👉 模型训练的方法有很多，其中 YOLO 系列是现在特别常用的选择，比如 YOLOv5、YOLOv8 或 YOLO11。我们推荐你用 YOLO 来进行训练，因为它效果好、速度快、社区也很活跃。更棒的是，我们提供的数据集已经整理好了，可以直接用来训练 YOLO 模型！你只需要跳转到这个示例：[YOLO检测示例](#yolov8-fall-detection)，按照里面的流程来做，把示例中的数据集部分换成我们准备的“0/1/2/3 四类打印数字识别数据集”就行啦。本节的目标是先把模型训练好，并导出为 ONNX 格式，后面还有更多有趣的内容等着你继续解锁！
 ```
 
 模型训练是整个AI流程中最重要的一步，它涉及到模型的构建、训练和优化。在进行模型训练时，需要考虑以下几个方面：
@@ -401,7 +401,7 @@ docker run -it --rm -v `pwd`:/mnt -w /mnt ghcr.io/kendryte/k230_sdk /bin/bash
 
 **导入原始模型**：当前主流训练框架（如TensorFlow/PyTorch）生成的ONNX/TFLite模型包含通用运算符，但KPU作为专用加速器需要特定算子格式。此步骤通过模型解析和算子转换，将原始模型转化为编译器可优化的中间表示，为后续硬件相关优化奠定基础。
 
-**量化处理**：这是提升边缘侧推理性能的关键环节。我们训练得到的FP32模型虽精度高但存在计算延迟大、内存占用高等问题。通过量化到INT8/INT16：显著减少模型体积，提升计算速度（利用硬件定点加速指令），降低功耗（减少内存带宽需求）。需注意的是，量化会引入精度损失，因此需要通过校准数据集帮助模型确定在量化过程中每一层权重和激活值应该被映射到的范围，以便保留更多的信息，减少量化误差。量化过程需要配置量化参数和校准数据，量化参数见[编译参数说明](#编译参数说明)。
+**量化处理**：这是提升边缘侧推理性能的关键环节。我们训练得到的FP32模型虽精度高但存在计算延迟大、内存占用高等问题。通过量化到INT8/INT16：显著减少模型体积，提升计算速度（利用硬件定点加速指令），降低功耗（减少内存带宽需求）。需注意的是，量化会引入精度损失，因此需要通过校准数据集帮助模型确定在量化过程中每一层权重和激活值应该被映射到的范围，以便保留更多的信息，减少量化误差。量化过程需要配置量化参数和校准数据，量化参数见[编译参数说明](#compilation-parameter-description)。
 
 **编译生成kmodel**：在前述优化基础上，最终生成的kmodel是经过深度优化的可直接部署到K230设备执行高效推理。
 
@@ -604,6 +604,8 @@ python to_kmodel.py --target k230 --model best.onnx --dataset_path test --input_
 
 通过上面的代码，我们已经成功拿到了用于识别四类数字的 Kmodel 模型。那么你可能会好奇：在把模型转换成 Kmodel 的过程中，里面用到的那些参数到底是啥意思？如果以后我想换个模型来转，是不是也要改参数呢？别着急，接下来的章节我们就会带你搞懂这些转换参数的具体含义，还会教你在转换其他模型时该怎么正确配置，一步步带你上手，不迷路！
 
+<a id="compilation-parameter-description"></a>
+
 #### 编译参数说明
 
 使用 `nncase compiler` 将 `tflite/onnx` 模型转换成 `kmodel` ，模型转换代码的关键在于根据自身需求进行选项配置，主要是 `CompileOptions` 、 `PTQTensorOptions` 和 `ImportOptions`。
@@ -636,7 +638,7 @@ python to_kmodel.py --target k230 --model best.onnx --dataset_path test --input_
 | shape_bucket_segments_count |          int          |    是    | 输入变量的范围划分为几段                                                                                               |
 | shape_bucket_fix_var_map    |    Dict[str, int]     |    否    | 固定shape维度信息中的变量为特定的值|
 
-关于前处理的配置说明，请参考 API 文档：[nncase 模型编译API手册前处理流程](./api_reference/nncase/nncase_compile.md#前处理流程说明)。将部分前处理操作封装在模型内可以提高开发板推理时的前处理效率，支持的前处理包括：`swapRB`(RGB->BGR or BGR->RGB)、`Transpose`(NHWC->NCHW or NCHW->NHWC)、`Normalization`（减均值除方差）、`Dequantize`等。比如：onnx模型需要的输入是`RGB`的，我们使用`opencv`读取的图片是`BGR`，正常onnx模型推理的预处理我们需要先将`BGR`转成`RGB`给onnx模型使用。转kmodel的时候我们就可以设置 `swapRB` 为 `True` ，这样kmodel中自带交换`RB`通道的预处理步骤，在进行kmodel推理的预处理时，我们就可以忽略交换`RB`通道的步骤，将此步骤放到kmodel内部。
+关于前处理的配置说明，请参考 API 文档：[nncase 模型编译API手册前处理流程](./api_reference/nncase/nncase_compile.md#preprocess)。将部分前处理操作封装在模型内可以提高开发板推理时的前处理效率，支持的前处理包括：`swapRB`(RGB->BGR or BGR->RGB)、`Transpose`(NHWC->NCHW or NCHW->NHWC)、`Normalization`（减均值除方差）、`Dequantize`等。比如：onnx模型需要的输入是`RGB`的，我们使用`opencv`读取的图片是`BGR`，正常onnx模型推理的预处理我们需要先将`BGR`转成`RGB`给onnx模型使用。转kmodel的时候我们就可以设置 `swapRB` 为 `True` ，这样kmodel中自带交换`RB`通道的预处理步骤，在进行kmodel推理的预处理时，我们就可以忽略交换`RB`通道的步骤，将此步骤放到kmodel内部。
 
 - **导入选项 ImportOptions**
 
@@ -1172,13 +1174,13 @@ if (ret) {
 //sensor类型自动探测，获取sensor类型
 k_vicap_sensor_type sensor_type;
 
-k_vicap_probe_config probe_cfg;
+k_vicap_probe_config probe_cfg = {0};
 k_vicap_sensor_info sensor_info;
 probe_cfg.csi_num = CONFIG_MPP_SENSOR_DEFAULT_CSI;
 probe_cfg.width = ISP_WIDTH;
 probe_cfg.height = ISP_HEIGHT;
 probe_cfg.fps = 30;
-if(0x00 != kd_mpi_sensor_adapt_get(&probe_cfg, &sensor_info)) {
+if(0x00 != kd_mpi_sensor_adapt_get_ex(&probe_cfg, &sensor_info, VICAP_MIPI_LANE_PREF_ANY)) {
     printf("vicap, can't probe sensor on %d, output %dx%d@%d\n", probe_cfg.csi_num, probe_cfg.width, probe_cfg.height, probe_cfg.fps);
     return -1;
 }
@@ -1434,13 +1436,13 @@ k_vicap_dev vicap_dev=VICAP_DEV_ID_0;
 k_vicap_chn vicap_chn_to_vo=VICAP_CHN_ID_0;
 k_vicap_chn vicap_chn_to_ai=VICAP_CHN_ID_1;
 
-k_vicap_probe_config probe_cfg;
+k_vicap_probe_config probe_cfg = {0};
 k_vicap_sensor_info sensor_info;
 probe_cfg.csi_num = CONFIG_MPP_SENSOR_DEFAULT_CSI + 1;
 probe_cfg.width = ISP_WIDTH;
 probe_cfg.height = ISP_HEIGHT;
 probe_cfg.fps = 30;
-if(0x00 != kd_mpi_sensor_adapt_get(&probe_cfg, &sensor_info)) {
+if(0x00 != kd_mpi_sensor_adapt_get_ex(&probe_cfg, &sensor_info, VICAP_MIPI_LANE_PREF_ANY)) {
     printf("vicap, can't probe sensor on %d, output %dx%d@%d\n", probe_cfg.csi_num, probe_cfg.width, probe_cfg.height, probe_cfg.fps);
     return -1;
 }
@@ -2585,7 +2587,7 @@ pip install -r requirements.txt
 
 ```shell
 cd yolov5
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_dataset/cat_dog.zip
+wget https://download.kendryte.com/developer/k230/yolo_dataset/cat_dog.zip
 unzip cat_dog.zip
 ```
 
@@ -2609,23 +2611,23 @@ python classify/train.py --model yolov5n-cls.pt --data cat_dog --epochs 100 --ba
 # linux平台：nncase和nncase-kpu可以在线安装，nncase-2.x 需要安装 dotnet-7
 sudo apt-get install -y dotnet-sdk-7.0
 pip install --upgrade pip
-pip install nncase==2.9.0
-pip install nncase-kpu==2.9.0
+pip install nncase==2.11.0
+pip install nncase-kpu==2.11.0
 
 # windows平台：请自行安装dotnet-7并添加环境变量,支持使用pip在线安装nncase，但是nncase-kpu库需要离线安装，在https://github.com/kendryte/nncase/releases下载nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 # 进入对应的python环境，在nncase_kpu-2.*-py2.py3-none-win_amd64.whl下载目录下使用pip安装
 pip install nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 
 # 除nncase和nncase-kpu外，脚本还用到的其他库包括：
-pip install onnx
-pip install onnxruntime
-pip install onnxsim
+pip install onnx==1.15.0
+pip install onnxruntime==1.19.0
+pip install onnxsim==0.4.36
 ```
 
 下载脚本工具，将模型转换脚本工具 `test_yolov5.zip` 解压到 `yolov5` 目录下；
 
 ```shell
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_files/test_yolov5.zip
+wget https://download.kendryte.com/developer/k230/yolo_files/test_yolov5.zip
 unzip test_yolov5.zip
 ```
 
@@ -2649,7 +2651,7 @@ cd ../../
 | dataset      | 校准图片集  | 模型转换时使用的图片数据，在量化阶段使用，可以从训练数据中取一部分                    | str   |
 | input_width  | 输入宽度 | 模型输入的宽度                                             | int   |
 | input_height | 输入高度 | 模型输入的高度                                             | int   |
-| ptq_option   | 量化方式 | data和weights的量化方式，0为[uint8,uint8], 1为[uint8,int16], 2为[int16,uint8] | 0/1/2 |
+| ptq_option   | 量化方式 | 量化策略为`Kld`和`NoClip`,组合data和weights的量化精度,0为`NoClip`+[uint8,uint8], 1为`NoClip`+[uint8,int16], 2为`NoClip`+[int16,uint8]，3为`Kld`+[uint8,uint8], 4为`Kld`+[uint8,int16], 5为`Kld`+[int16,uint8] | 0/1/2/3/4/5 |
 
 #### 在k230上使用RT-Smart部署模型
 
@@ -2669,8 +2671,8 @@ cd ../../
 
 `YOLO` 模块是基于`YOLO系列模型`开发的部署代码，实现了此类模型的部署过程，其支持的情况如下：
 
-- 集成了 `YOLOv5、YOLOv8、YOLO11` 的三种模型；
-- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8和YOLO11`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)四种任务；
+- 集成了 `YOLOv5、YOLOv8、YOLO11、YOLO26` 的四种模型；
+- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8、YOLO11、YOLO26`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)、关键点检测五种任务；
 - 支持两种推理模式，包括图片(image)和视频流(video)；
 - 支持三种显示模式，包括`LT9611 (hdmi,1920×1080)`,`ST7701 (lcd屏幕,800×480)`,`HX8377 (lcd屏幕,1920×1080)`；
 
@@ -2681,16 +2683,18 @@ cd ../../
 | `-ai_frame_width`      | 640            | 设置 AI 帧的宽度，默认值为 640，您可以自己选择使用的值。                                      |
 | `-ai_frame_height`     | 360            | 设置 AI 帧的高度，默认值为 360，您可以自己选择使用的值。                                      |
 | `-display_mode`        | 0              | 设置显示模式，默认值为 0：<br> - 模式 0: LT9611 <br> - 模式 1: ST7701 <br> - 模式 2: HX8377 |
-| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11。          |
-| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment。       |
+| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11/yolo26。          |
+| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment/obb/pose。       |
 | `-task_mode`           | video          | 设置任务模式，默认值为 video，可选值：image/video |
 | `-image_path`          | test.jpg       | 设置图像路径，默认值为 test.jpg。                                      |
 | `-kmodel_path`         | yolov8n.kmodel | 设置 kmodel 路径，默认值为 yolov8n.kmodel。                            |
 | `-labels_txt_filepath` | coco_labels.txt| 设置标签文本文件路径，默认值为 coco_labels.txt，每个标签独占一行。                        |
 | `-conf_thres`          | 0.35           | 设置置信度阈值，默认值为 0.35。                                        |
 | `-nms_thres`           | 0.65           | 设置非极大值抑制阈值，默认值为 0.65。                                  |
-| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5。                                           |
-| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。                                |
+| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5，分割任务特定参数。                          |
+| `-kp_num`              | 17             | 设置关键点个数，默认值为17（人体骨骼关键点场景）。                       |
+| `-kp_dim`              | 3               | 设置模型关键点维度，仅支持2/3，默认值为 3（人体骨骼关关键点场景）。       |
+| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。             |
 
 ##### 部署模型实现图片推理
 
@@ -2714,6 +2718,8 @@ cd ../../
 
 ![cat_dog_cls_res](https://www.kendryte.com/api/post/attachment?id=646)
 
+<a id="yolov8-fall-detection"></a>
+
 ### YOLOv8跌倒检测
 
 基于YOLOv8模型实现跌倒检测模型在K230上的部署。
@@ -2735,7 +2741,7 @@ pip install ultralytics
 
 ```shell
 cd yolov8
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_dataset/fall_det.zip
+wget https://download.kendryte.com/developer/k230/yolo_dataset/fall_det.zip
 unzip fall_det.zip
 ```
 
@@ -2759,23 +2765,23 @@ yolo detect train data=fall_det.yaml model=yolov8n.pt epochs=300 imgsz=320
 # linux平台：nncase和nncase-kpu可以在线安装，nncase-2.x 需要安装 dotnet-7
 sudo apt-get install -y dotnet-sdk-7.0
 pip install --upgrade pip
-pip install nncase==2.9.0
-pip install nncase-kpu==2.9.0
+pip install nncase==2.11.0
+pip install nncase-kpu==2.11.0
 
 # windows平台：请自行安装dotnet-7并添加环境变量,支持使用pip在线安装nncase，但是nncase-kpu库需要离线安装，在https://github.com/kendryte/nncase/releases下载nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 # 进入对应的python环境，在nncase_kpu-2.*-py2.py3-none-win_amd64.whl下载目录下使用pip安装
 pip install nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 
 # 除nncase和nncase-kpu外，脚本还用到的其他库包括：
-pip install onnx
-pip install onnxruntime
-pip install onnxsim
+pip install onnx==1.15.0
+pip install onnxruntime==1.19.0
+pip install onnxsim==0.4.36
 ```
 
 下载脚本工具，将模型转换脚本工具 `test_yolov8.zip` 解压到 `yolov8` 目录下；
 
 ```shell
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_files/test_yolov8.zip
+wget https://download.kendryte.com/developer/k230/yolo_files/test_yolov8.zip
 unzip test_yolov8.zip
 ```
 
@@ -2799,7 +2805,7 @@ cd ../../
 | dataset      | 校准图片集  | 模型转换时使用的图片数据，在量化阶段使用，可以从训练集中取一部分图片替换                   | str   |
 | input_width  | 输入宽度 | 模型输入的宽度                                             | int   |
 | input_height | 输入高度 | 模型输入的高度                                             | int   |
-| ptq_option   | 量化方式 | data和weights的量化方式，0为[uint8,uint8], 1为[uint8,int16], 2为[int16,uint8] | 0/1/2 |
+| ptq_option   | 量化方式 | 量化策略为`Kld`和`NoClip`,组合data和weights的量化精度,0为`NoClip`+[uint8,uint8], 1为`NoClip`+[uint8,int16], 2为`NoClip`+[int16,uint8]，3为`Kld`+[uint8,uint8], 4为`Kld`+[uint8,int16], 5为`Kld`+[int16,uint8] | 0/1/2/3/4/5 |
 
 #### 在k230上使用RT-Smart部署模型
 
@@ -2819,8 +2825,8 @@ cd ../../
 
 `YOLO` 模块是基于`YOLO系列模型`开发的部署代码，实现了此类模型的部署过程，其支持的情况如下：
 
-- 集成了 `YOLOv5、YOLOv8、YOLO11` 的三种模型；
-- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8和YOLO11`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)四种任务；
+- 集成了 `YOLOv5、YOLOv8、YOLO11、YOLO26` 的四种模型；
+- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8、YOLO11、YOLO26`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)、关键点检测五种任务；
 - 支持两种推理模式，包括图片(image)和视频流(video)；
 - 支持三种显示模式，包括`LT9611 (hdmi,1920×1080)`,`ST7701 (lcd屏幕,800×480)`,`HX8377 (lcd屏幕,1920×1080)`；
 
@@ -2831,16 +2837,18 @@ cd ../../
 | `-ai_frame_width`      | 640            | 设置 AI 帧的宽度，默认值为 640，您可以自己选择使用的值。                                      |
 | `-ai_frame_height`     | 360            | 设置 AI 帧的高度，默认值为 360，您可以自己选择使用的值。                                      |
 | `-display_mode`        | 0              | 设置显示模式，默认值为 0：<br> - 模式 0: LT9611 <br> - 模式 1: ST7701 <br> - 模式 2: HX8377 |
-| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11。          |
-| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment。       |
+| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11/yolo26。          |
+| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment/obb/pose。       |
 | `-task_mode`           | video          | 设置任务模式，默认值为 video，可选值：image/video |
 | `-image_path`          | test.jpg       | 设置图像路径，默认值为 test.jpg。                                      |
 | `-kmodel_path`         | yolov8n.kmodel | 设置 kmodel 路径，默认值为 yolov8n.kmodel。                            |
 | `-labels_txt_filepath` | coco_labels.txt| 设置标签文本文件路径，默认值为 coco_labels.txt，每个标签独占一行。                        |
 | `-conf_thres`          | 0.35           | 设置置信度阈值，默认值为 0.35。                                        |
 | `-nms_thres`           | 0.65           | 设置非极大值抑制阈值，默认值为 0.65。                                  |
-| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5。                                           |
-| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。                                |
+| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5，分割任务特定参数。                          |
+| `-kp_num`              | 17             | 设置关键点个数，默认值为17（人体骨骼关键点场景）。                       |
+| `-kp_dim`              | 3               | 设置模型关键点维度，仅支持2/3，默认值为 3（人体骨骼关关键点场景）。       |
+| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。             |
 
 ##### 部署模型实现图片推理
 
@@ -2883,7 +2891,7 @@ pip install ultralytics
 
 ```shell
 cd yolo11
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_dataset/fruit_seg.zip
+wget https://download.kendryte.com/developer/k230/yolo_dataset/fruit_seg.zip
 unzip fruit_seg.zip
 ```
 
@@ -2907,23 +2915,23 @@ yolo segment train data=fruits_seg.yaml model=yolo11n-seg.pt epochs=100 imgsz=32
 # linux平台：nncase和nncase-kpu可以在线安装，nncase-2.x 需要安装 dotnet-7
 sudo apt-get install -y dotnet-sdk-7.0
 pip install --upgrade pip
-pip install nncase==2.9.0
-pip install nncase-kpu==2.9.0
+pip install nncase==2.11.0
+pip install nncase-kpu==2.11.0
 
 # windows平台：请自行安装dotnet-7并添加环境变量,支持使用pip在线安装nncase，但是nncase-kpu库需要离线安装，在https://github.com/kendryte/nncase/releases下载nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 # 进入对应的python环境，在nncase_kpu-2.*-py2.py3-none-win_amd64.whl下载目录下使用pip安装
 pip install nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 
 # 除nncase和nncase-kpu外，脚本还用到的其他库包括：
-pip install onnx
-pip install onnxruntime
-pip install onnxsim
+pip install onnx==1.15.0
+pip install onnxruntime==1.19.0
+pip install onnxsim==0.4.36
 ```
 
 下载脚本工具，将模型转换脚本工具 `test_yolo11.zip` 解压到 `yolo11` 目录下；
 
 ```shell
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_files/test_yolo11.zip
+wget https://download.kendryte.com/developer/k230/yolo_files/test_yolo11.zip
 unzip test_yolo11.zip
 ```
 
@@ -2947,7 +2955,7 @@ cd ../../
 | dataset      | 校准图片集  | 模型转换时使用的图片数据，在量化阶段使用，可以从训练集中取一部分替换                    | str   |
 | input_width  | 输入宽度 | 模型输入的宽度                                             | int   |
 | input_height | 输入高度 | 模型输入的高度                                             | int   |
-| ptq_option   | 量化方式 | data和weights的量化方式，0为[uint8,uint8], 1为[uint8,int16], 2为[int16,uint8] | 0/1/2 |
+| ptq_option   | 量化方式 | 量化策略为`Kld`和`NoClip`,组合data和weights的量化精度,0为`NoClip`+[uint8,uint8], 1为`NoClip`+[uint8,int16], 2为`NoClip`+[int16,uint8]，3为`Kld`+[uint8,uint8], 4为`Kld`+[uint8,int16], 5为`Kld`+[int16,uint8] | 0/1/2/3/4/5 |
 
 #### 在k230上使用RT-Smart部署模型
 
@@ -2967,8 +2975,8 @@ cd ../../
 
 `YOLO` 模块是基于`YOLO系列模型`开发的部署代码，实现了此类模型的部署过程，其支持的情况如下：
 
-- 集成了 `YOLOv5、YOLOv8、YOLO11` 的三种模型；
-- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8和YOLO11`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)四种任务；
+- 集成了 `YOLOv5、YOLOv8、YOLO11、YOLO26` 的四种模型；
+- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8、YOLO11、YOLO26`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)、关键点检测五种任务；
 - 支持两种推理模式，包括图片(image)和视频流(video)；
 - 支持三种显示模式，包括`LT9611 (hdmi,1920×1080)`,`ST7701 (lcd屏幕,800×480)`,`HX8377 (lcd屏幕,1920×1080)`；
 
@@ -2979,16 +2987,18 @@ cd ../../
 | `-ai_frame_width`      | 640            | 设置 AI 帧的宽度，默认值为 640，您可以自己选择使用的值。                                      |
 | `-ai_frame_height`     | 360            | 设置 AI 帧的高度，默认值为 360，您可以自己选择使用的值。                                      |
 | `-display_mode`        | 0              | 设置显示模式，默认值为 0：<br> - 模式 0: LT9611 <br> - 模式 1: ST7701 <br> - 模式 2: HX8377 |
-| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11。          |
-| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment。       |
+| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11/yolo26。          |
+| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment/obb/pose。       |
 | `-task_mode`           | video          | 设置任务模式，默认值为 video，可选值：image/video |
 | `-image_path`          | test.jpg       | 设置图像路径，默认值为 test.jpg。                                      |
 | `-kmodel_path`         | yolov8n.kmodel | 设置 kmodel 路径，默认值为 yolov8n.kmodel。                            |
 | `-labels_txt_filepath` | coco_labels.txt| 设置标签文本文件路径，默认值为 coco_labels.txt，每个标签独占一行。                        |
 | `-conf_thres`          | 0.35           | 设置置信度阈值，默认值为 0.35。                                        |
 | `-nms_thres`           | 0.65           | 设置非极大值抑制阈值，默认值为 0.65。                                  |
-| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5。                                           |
-| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。                                |
+| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5，分割任务特定参数。                          |
+| `-kp_num`              | 17             | 设置关键点个数，默认值为17（人体骨骼关键点场景）。                       |
+| `-kp_dim`              | 3               | 设置模型关键点维度，仅支持2/3，默认值为 3（人体骨骼关关键点场景）。       |
+| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。             |
 
 ##### 部署模型实现图片推理
 
@@ -3031,7 +3041,7 @@ pip install ultralytics
 
 ```shell
 cd yolo11
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_dataset/pen_obb.zip
+wget https://download.kendryte.com/developer/k230/yolo_dataset/pen_obb.zip
 unzip pen_obb.zip
 ```
 
@@ -3055,23 +3065,23 @@ yolo obb train data=pen_obb.yaml model=yolo11n-obb.pt epochs=100 imgsz=320
 # linux平台：nncase和nncase-kpu可以在线安装，nncase-2.x 需要安装 dotnet-7
 sudo apt-get install -y dotnet-sdk-7.0
 pip install --upgrade pip
-pip install nncase==2.9.0
-pip install nncase-kpu==2.9.0
+pip install nncase==2.11.0
+pip install nncase-kpu==2.11.0
 
 # windows平台：请自行安装dotnet-7并添加环境变量,支持使用pip在线安装nncase，但是nncase-kpu库需要离线安装，在https://github.com/kendryte/nncase/releases下载nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 # 进入对应的python环境，在nncase_kpu-2.*-py2.py3-none-win_amd64.whl下载目录下使用pip安装
 pip install nncase_kpu-2.*-py2.py3-none-win_amd64.whl
 
 # 除nncase和nncase-kpu外，脚本还用到的其他库包括：
-pip install onnx
-pip install onnxruntime
-pip install onnxsim
+pip install onnx==1.15.0
+pip install onnxruntime==1.19.0
+pip install onnxsim==0.4.36
 ```
 
 下载脚本工具，将模型转换脚本工具 `test_yolo11.zip` 解压到 `yolo11` 目录下；
 
 ```shell
-wget https://kendryte-download.canaan-creative.com/developer/k230/yolo_files/test_yolo11.zip
+wget https://download.kendryte.com/developer/k230/yolo_files/test_yolo11.zip
 unzip test_yolo11.zip
 ```
 
@@ -3095,7 +3105,7 @@ cd ../../
 | dataset      | 校准图片集  | 模型转换时使用的图片数据，在量化阶段使用，可以从训练集中取一部分替换                    | str   |
 | input_width  | 输入宽度 | 模型输入的宽度                                             | int   |
 | input_height | 输入高度 | 模型输入的高度                                             | int   |
-| ptq_option   | 量化方式 | data和weights的量化方式，0为[uint8,uint8], 1为[uint8,int16], 2为[int16,uint8] | 0/1/2 |
+| ptq_option   | 量化方式 | 量化策略为`Kld`和`NoClip`,组合data和weights的量化精度,0为`NoClip`+[uint8,uint8], 1为`NoClip`+[uint8,int16], 2为`NoClip`+[int16,uint8]，3为`Kld`+[uint8,uint8], 4为`Kld`+[uint8,int16], 5为`Kld`+[int16,uint8] | 0/1/2/3/4/5 |
 
 #### 在k230上使用RT-Smart部署模型
 
@@ -3115,8 +3125,8 @@ cd ../../
 
 `YOLO` 模块是基于`YOLO系列模型`开发的部署代码，实现了此类模型的部署过程，其支持的情况如下：
 
-- 集成了 `YOLOv5、YOLOv8、YOLO11` 的三种模型；
-- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8和YOLO11`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)四种任务；
+- 集成了 `YOLOv5、YOLOv8、YOLO11、YOLO26` 的四种模型；
+- 支持四类任务，其中`YOLOv5`支持分类(classify)、检测(detect)、分割(segment)三种，`YOLOv8、YOLO11、YOLO26`支持分类(classify)、检测(detect)、分割(segment)、旋转目标检测(obb)、关键点检测五种任务；
 - 支持两种推理模式，包括图片(image)和视频流(video)；
 - 支持三种显示模式，包括`LT9611 (hdmi,1920×1080)`,`ST7701 (lcd屏幕,800×480)`,`HX8377 (lcd屏幕,1920×1080)`；
 
@@ -3127,16 +3137,18 @@ cd ../../
 | `-ai_frame_width`      | 640            | 设置 AI 帧的宽度，默认值为 640，您可以自己选择使用的值。                                      |
 | `-ai_frame_height`     | 360            | 设置 AI 帧的高度，默认值为 360，您可以自己选择使用的值。                                      |
 | `-display_mode`        | 0              | 设置显示模式，默认值为 0：<br> - 模式 0: LT9611 <br> - 模式 1: ST7701 <br> - 模式 2: HX8377 |
-| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11。          |
-| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment/obb。       |
+| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11/yolo26。          |
+| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment/obb/pose。       |
 | `-task_mode`           | video          | 设置任务模式，默认值为 video，可选值：image/video |
 | `-image_path`          | test.jpg       | 设置图像路径，默认值为 test.jpg。                                      |
 | `-kmodel_path`         | yolov8n.kmodel | 设置 kmodel 路径，默认值为 yolov8n.kmodel。                            |
 | `-labels_txt_filepath` | coco_labels.txt| 设置标签文本文件路径，默认值为 coco_labels.txt，每个标签独占一行。                        |
 | `-conf_thres`          | 0.35           | 设置置信度阈值，默认值为 0.35。                                        |
 | `-nms_thres`           | 0.65           | 设置非极大值抑制阈值，默认值为 0.65。                                  |
-| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5。                                           |
-| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。                                |
+| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5，分割任务特定参数。                          |
+| `-kp_num`              | 17             | 设置关键点个数，默认值为17（人体骨骼关键点场景）。                       |
+| `-kp_dim`              | 3               | 设置模型关键点维度，仅支持2/3，默认值为 3（人体骨骼关关键点场景）。       |
+| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。             |
 
 ##### 部署模型实现图片推理
 
@@ -3642,11 +3654,11 @@ Windows: 请参考微软官方网站。
 
 ### YOLO库中支持哪些任务？
 
-📝 YOLOv5支持分类、检测、分割三类任务，YOLOv8和YOLO11支持分类、检测、分割和旋转目标检测四类任务。
+📝 YOLOv5支持分类、检测、分割三类任务，YOLOv8和YOLO11支持分类、检测、分割和旋转目标检测四类任务。请根据需要选择合适的任务类型。
 
 ### 如何获取支持？
 
-📝 在开发过程中遇到问题，您可以前往嘉楠开发者社区问答论坛发帖提问。论坛地址：[Canaan问答论坛](https://www.kendryte.com/answer/)。
+📝 在开发过程中遇到问题，您可以前往嘉楠开发者社区问答论坛发帖提问。论坛地址：[勘智问答社区](https://www.kendryte.com/answer/)。
 
 ## 附录
 

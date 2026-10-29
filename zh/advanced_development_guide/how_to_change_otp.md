@@ -47,6 +47,10 @@ K230/K230D内部集成了一次性可编程器件OTP（One Time Programmable）�
 
 ![1740392907598](https://www.kendryte.com/api/post/attachment?id=567)
 
+```{warning}
+如果 UART0 通过外置 USB 转串口模块连接，请先阅读 [串口电平与转接模块安全](../app_develop_guide/peripheral/uart.md)。必须确认 UART0 使用 1.8 V 还是 3.3 V 电平，禁止使用 5 V 信号及文中图片所示的劣质 CH340G 模块。
+```
+
 给芯片接通电源，连接好 UART0 接口，打开 BurningTool 软件，选择先前生成的 bin 文件：
 
 ![1740396173639](https://www.kendryte.com/api/post/attachment?id=568)
@@ -56,3 +60,41 @@ K230/K230D内部集成了一次性可编程器件OTP（One Time Programmable）�
 ![1740469056238](https://www.kendryte.com/api/post/attachment?id=569)
 
 烧录完成后，点击 “确认” 即可。
+
+## Secure Boot 场景下的 OTP 文件
+
+上面介绍的是通过 OTP 配置工具手工生成 OTP 配置 bin 的流程。
+
+如果你是在 Secure Boot 场景下通过 SDK 自动生成 OTP 文件，则输出物来自 `tools/gen_otp_config.py`，格式不是单一的原始 bin，而是带 offset 信息的 `kdimg`。
+
+当前 Secure Boot 会生成以下文件：
+
+* `otp_config.json`：记录槽位策略、写入值和烧录文件信息。
+* `otp_data.kdimg`：只包含 OTP 数据区，目标 offset 为 `0`。
+* `otp_key_lock.kdimg`：只包含 OTP 锁位区，目标 offset 为 `1024`。
+* `otp_full.kdimg`：同时包含 OTP 数据区和 OTP 锁位区。
+
+当前 Secure Boot 使用的 OTP 槽位如下：
+
+| 阶段 | 模式 | 对称密钥槽位 | 公钥哈希槽位 |
+| --- | --- | --- | --- |
+| `spl` | SM4 + SM2 | `OTPKEY_4` | `OTPKEY_7` |
+| `spl` | AES + RSA | `OTPKEY_2` | `OTPKEY_6` |
+| `firmware` | SM4 + SM2 | `OTPKEY_5` | `OTPKEY_9` |
+| `firmware` | AES + RSA | `OTPKEY_3` | `OTPKEY_8` |
+
+锁策略为：
+
+* 对称密钥槽位锁为 `NA`
+* 公钥哈希槽位锁为 `RO`
+* 每个槽位按完整 32 字节整槽加锁
+
+这些文件在 BurningTool 中的烧录位置由 kdimg 内部分区项的 offset 控制，不需要再手工拆分或拼接成一整个原始 2KB 文件。
+
+建议按以下方式使用：
+
+1. 如果要分步烧录，分别导入 `otp_data.kdimg` 和 `otp_key_lock.kdimg`。
+1. 如果要一次性烧录完整 OTP，直接导入 `otp_full.kdimg`。
+1. 烧录前先打开 `otp_config.json`，确认槽位、offset 和写入值都符合预期。
+
+Secure Boot 的完整配置、构建和验证流程，请结合 `how_to_use_secureboot.md` 一起阅读。

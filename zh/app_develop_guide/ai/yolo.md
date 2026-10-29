@@ -6,13 +6,13 @@ YOLO部署代码的开发逻辑均使用单摄双通道实现，开发逻辑参�
 
 ## 概述
 
-K230 平台对 YOLO 系列模型进行了统一封装，支持 **YOLOv5、YOLOv8 以及 YOLO11**三种模型，覆盖 **图像分类（classify）、目标检测（detect）、实例分割（segment）和旋转目标检测（obb，仅yolov8/yolo11）** 四类主流视觉任务。
+K230 平台对 YOLO 系列模型进行了统一封装，支持 **YOLOv5、YOLOv8、YOLO11以及YOLO26**四种模型，覆盖 **图像分类（classify）、目标检测（detect）、实例分割（segment）、旋转目标检测（obb，仅yolov8/yolo11/yolo26）、关键点检测（pose，仅yolov8/yolo11/yolo26）** 五类主流视觉任务。
 
 用户可通过参数灵活切换不同模型类型，并根据实际应用场景选择输入模式（video / image）。同时支持自定义摄像头采集分辨率，便于在实际部署过程中对模型性能、速度与精度进行综合调优。
 
 ## 模型转换
 
-模型训练及 kmodel 转换流程请参考官方文档 **[YOLO大作战](https://www.kendryte.com/k230_canmv/zh/main/zh/example/ai/YOLO%E5%A4%A7%E4%BD%9C%E6%88%98.html#)**。按照该链接中的步骤完成模型转换后，生成的 YOLO kmodel 文件均可直接适配并用于本文档所述的功能与示例。
+模型训练及 kmodel 转换流程请参考官方文档 **[YOLO大作战](https://www.kendryte.com/k230_canmv/zh/main/zh/example/ai/yolo_battle.html)**。按照该链接中的步骤完成模型转换后，生成的 YOLO kmodel 文件均可直接适配并用于本文档所述的功能与示例。
 
 ## YOLO支持
 
@@ -40,6 +40,8 @@ YOLO 代码位于 `src/rtsmart/examples/ai/yolo` 目录下，代码对AI推理�
 │    ├── yolov5.h
 │    ├── yolov8.cc
 │    ├── yolov8.h
+│    ├── yolo26.cc
+│    ├── yolo26.h
 │    └── CMakeLists.txt
 ├── utils
 ├── Makefile
@@ -66,6 +68,8 @@ YOLO 代码位于 `src/rtsmart/examples/ai/yolo` 目录下，代码对AI推理�
 |yolov5.cc|提供yolov5模型的接口实现|
 |yolov8.h|提供yolov8模型的初始化、前处理、推理、后处理、结果绘制接口|
 |yolov8.cc|提供yolov8模型的接口实现|
+|yolo26.h|提供yolo26模型的初始化、前处理、推理、后处理、结果绘制接口|
+|yolo26.cc|提供yolo26模型的接口实现|
 |main.cc|主函数实现，基于face_detection.h提供的接口实现具体的AI应用场景|
 
 其中，`utils` 目录下是上板部署使用的示例模型和图片，`build_app.sh` 是编译脚本。
@@ -131,16 +135,18 @@ make -j
 | `-ai_frame_width`      | 640            | 设置 AI 帧的宽度，默认值为 640，您可以自己选择使用的值。                                      |
 | `-ai_frame_height`     | 360            | 设置 AI 帧的高度，默认值为 360，您可以自己选择使用的值。                                      |
 | `-display_mode`        | 0              | 设置显示模式，默认值为 0：<br> - 模式 0: LT9611 <br> - 模式 1: ST7701 <br> - 模式 2: HX8377 |
-| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11。          |
-| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment。       |
+| `-model_type`          | yolov8         | 设置模型类型，默认值为 yolov8，可选值：yolov5/yolov8/yolo11/yolo26。          |
+| `-task_type`           | detect         | 设置任务类型，默认值为 detect，可选值：classify/detect/segment/obb/pose。       |
 | `-task_mode`           | video          | 设置任务模式，默认值为 video，可选值：image/video |
 | `-image_path`          | test.jpg       | 设置图像路径，默认值为 test.jpg。                                      |
 | `-kmodel_path`         | yolov8n.kmodel | 设置 kmodel 路径，默认值为 yolov8n.kmodel。                            |
 | `-labels_txt_filepath` | coco_labels.txt| 设置标签文本文件路径，默认值为 coco_labels.txt，每个标签独占一行。                        |
 | `-conf_thres`          | 0.35           | 设置置信度阈值，默认值为 0.35。                                        |
 | `-nms_thres`           | 0.65           | 设置非极大值抑制阈值，默认值为 0.65。                                  |
-| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5。                                           |
-| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。                                |
+| `-mask_thres`          | 0.5            | 设置掩码阈值，默认值为 0.5，分割任务特定参数。                          |
+| `-kp_num`              | 17             | 设置关键点个数，默认值为17（人体骨骼关键点场景）。                       |
+| `-kp_dim`              | 3               | 设置模型关键点维度，仅支持2/3，默认值为 3（人体骨骼关关键点场景）。       |
+| `-debug_mode`          | 0              | 设置调试模式，默认值为 0，可选值：0/1，0为不调试，1为调试打印。             |
 
 ### 运行示例
 
@@ -168,8 +174,8 @@ make -j
 
 ## 注意事项
 
-- 目前支持的模型为 `yolov5`、`yolov8` 和 `yolo11`。
-- 目前支持的任务类型为 `classify`、`detect`、`segment`和`obb`。
+- 目前支持的模型为 `yolov5`、`yolov8`、`yolo11`和`yolo26`。
+- 目前支持的任务类型为 `classify`、`detect`、`segment`、`obb`和`pose`。
 - 目前支持的任务模式为 `video` 和 `image`。
 - 目前支持的显示模式为 `LT9611`、`ST7701` 和 `HX8377`。
 - 在进行调优的过程中，您可以先修改阈值进行调优，然后修改模型量化方式和输入分辨率进行调优。

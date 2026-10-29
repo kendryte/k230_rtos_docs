@@ -4,6 +4,10 @@
 
 本示例通过 UART3 发送 SBUS 帧，并在按键触发时动态修改通道值。
 
+```{warning}
+SBUS 使用物理 UART 引脚。接线前必须确认开发板 I/O 域和接收机信号使用相同的 1.8 V 或 3.3 V 电平，禁止输入 5 V 信号。完整要求见 [串口电平与转接模块安全](./uart.md)。
+```
+
 源码位置：`src/rtsmart/examples/peripheral/sbus/test_sbus.c`
 
 ## 示例行为

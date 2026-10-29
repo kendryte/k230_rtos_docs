@@ -4,13 +4,19 @@
 SPHINXOPTS          ?=
 SPHINXBUILD         ?= sphinx-build
 SPHINXMULTIVERSION  ?= sphinx-multiversion
-WEB_DOCS_BUILDER_URL ?= https://ai.b-bug.org/~zhengshanshan/web-docs-builder
+# Set this to a reachable template/static asset server when building the site.
+WEB_DOCS_BUILDER_URL ?=
 
 ### Directory Structure
 BUILDDIR            = _build
 CONFDIR             = .
 SOURCEDIR_EN        = en
 SOURCEDIR_ZH        = zh
+
+
+### Internal Variables
+MKDIR_P = mkdir -p
+WGET = wget
 
 ### Template and Static Files
 WEB_FILES = \
@@ -73,11 +79,9 @@ TEMPLATE_EN = \
     _templates/navEn.html \
     _templates/contentEn.html \
 
-### Internal Variables
-MKDIR_P = mkdir -p
-WGET = wget -q
 
-.PHONY: help html html-all html-en html-zh mhtml mhtml-en mhtml-zh clean clean-templates
+
+
 
 # Default target - show help message
 help:
@@ -103,10 +107,14 @@ html-zh:
 # Multi-version HTML targets
 mhtml: $(WEB_FILES) mhtml-en mhtml-zh
 
-mhtml-en: $(TEMPLATE_EN)
+# Fix git safe.directory issue in Docker container
+git-config:
+	@git config --global --add safe.directory "*"
+
+mhtml-en: git-config $(TEMPLATE_EN)
 	@SPHINX_LANGUAGE=en $(SPHINXMULTIVERSION) "$(SOURCEDIR_EN)" "$(BUILDDIR)/en" $(SPHINXOPTS) -c "$(CONFDIR)"
 
-mhtml-zh: $(TEMPLATE_ZH)
+mhtml-zh: git-config $(TEMPLATE_ZH)
 	@SPHINX_LANGUAGE=zh_CN $(SPHINXMULTIVERSION) "$(SOURCEDIR_ZH)" "$(BUILDDIR)/zh" $(SPHINXOPTS) -c "$(CONFDIR)"
 
 # File download infrastructure
@@ -114,7 +122,10 @@ _static _templates:
 	@$(MKDIR_P) $@
 
 $(WEB_FILES): | _static _templates
-	@$(WGET) $(WEB_DOCS_BUILDER_URL)/$@ -O $@
+	@if [ ! -f "$@" ]; then \
+		test -n "$(WEB_DOCS_BUILDER_URL)" || { echo "Set WEB_DOCS_BUILDER_URL to your template server"; exit 1; }; \
+		$(WGET) $(WEB_DOCS_BUILDER_URL)/$@ -O $@; \
+	fi
 
 # Cleanup targets
 clean:
@@ -125,3 +136,4 @@ clean-templates:
 
 .DELETE_ON_ERROR:
 .SILENT: _static _templates clean clean-templates
+.PHONY: help html html-all html-en html-zh mhtml mhtml-en mhtml-zh clean clean-templates git-config

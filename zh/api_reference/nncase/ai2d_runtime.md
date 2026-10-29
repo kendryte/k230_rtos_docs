@@ -402,7 +402,9 @@ result<void> invoke(runtime_tensor &input, runtime_tensor &output);
 
 【返回值 】
 
-result\<void\>。
+```c
+result<void>。
+```
 
 【示例】
 

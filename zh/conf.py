@@ -38,7 +38,7 @@ source_suffix = {
 }
 html_title = 'CanMV K230 RTOS Only'
 templates_path = [proj_root + '/_templates']
-exclude_patterns = ['.github/*', '.gitlab/*', '**/--*']
+exclude_patterns = ['**/.*', '**/--*']
 
 language = 'zh_CN'
 
@@ -66,7 +66,7 @@ locale_dirs = ['locale']
 
 html_theme_options = {
     'collapse_navigation': True,
-    "repository_url": "https://github.com/kendryte/k230_rtos_sdk_docs",
+    "repository_url": "https://github.com/kendryte/k230_rtos_docs",
     'navigation_depth': 7,
     "use_repository_button": True,
     "primary_sidebar_end": ["versionsFlex.html"],

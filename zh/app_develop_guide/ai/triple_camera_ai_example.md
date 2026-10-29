@@ -356,6 +356,8 @@ public:
 
 三摄任务需要使用多线程实现，每个线程负责一个应用任务。这里需要特别说明KPU是独占的，同一时刻只允许一个模型进行推理，所以需要添加线程锁实现资源管理。
 
+本示例固定按 **2LANE** 探测 CSI0、CSI1 和 CSI2 上的传感器，不提供 `-L` lane 参数。三路摄像头同时使用时，请确保传感器在 2LANE 模式下有对应的配置。
+
 `main.cc`中的子线程代码文档[单模型应用开发指南](./single_model_example.md)和[双模型应用开发指南](./double_model_example.md)中的实现区别不大。因为使用了多线程`PipeLine`的初始化放在主线程实现，并作为参数传递给子线程用于获取AI模型的推理数据帧和插入OSD帧。主线程代码如下所示：
 
 ```cpp
@@ -372,9 +374,12 @@ int main(int argc, char *argv[])
 
     int debug_mode = atoi(argv[5]);
 
-    // 1. 创建视频管线
+    // 1. 创建视频管线（三路传感器均按 2LANE 探测）
     PipeLine pl(debug_mode);
-    pl.Create();
+    if (pl.Create() != 0) {
+        cout << "PipeLine Create failed, exit" << endl;
+        return -1;
+    }
 
     // 2. 摄像头模式
     std::thread t0(face_det_video_proc, std::ref(pl),argv, 0, 4);

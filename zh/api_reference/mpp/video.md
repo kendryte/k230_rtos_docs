@@ -11,7 +11,7 @@
 
 #### 视频编码模块
 
-![encode flow](https://kendryte-download.canaan-creative.com/developer/pictures/9f7f41ea96a97ae9bf514535f6af1622.jpeg)
+![encode flow](https://download.kendryte.com/developer/pictures/9f7f41ea96a97ae9bf514535f6af1622.jpeg)
 
 典型的视频编码流程包含多个关键步骤，如输入图像的接收、图像内容的遮挡与覆盖处理、图像的编码以及最终码流的输出等。
 
@@ -39,7 +39,7 @@
 
 编码通道作为一个基本容器，用于保存编码通道的多种用户设置，并管理编码通道的多种内部资源。它主要完成图像叠加和编码的功能。其中，2D 模块负责实现图像叠加运算，编码器模块则负责实现图像编码。这两个模块既可以单独使用，也可以协同工作。
 
-![encode channel](https://kendryte-download.canaan-creative.com/developer/pictures/d8ea12750bef3150afebf98c8a4563fd.jpeg)
+![encode channel](https://download.kendryte.com/developer/pictures/d8ea12750bef3150afebf98c8a4563fd.jpeg)
 
 ##### 码率控制
 
@@ -59,13 +59,15 @@
 
 2D运算模块可以实现对图像数据的OSD叠加，OSD模式可以实现8个region图像叠加，各region不重叠。支持的OSD格式有：ARGB4444/ARGB1555/ARGB8888。
 
+<a id="venc-2d-conversion-coefficients"></a>
+
 ###### 2D转换系数的计算
 
 在OSD叠加运算时，如果输入video的格式为YUV，则OSD层需要做RGB to YUV的转换。在内核态有一组默认的转换系数，用户若需要自定义一组 12bit 的转换系数，可通过 RGB to YUV 的转换公式来获取。
 
 已知 RGB to YUV 的转换公式如下：
 
-![osd formula](https://kendryte-download.canaan-creative.com/developer/pictures/osd_formula.png)
+![osd formula](https://download.kendryte.com/developer/pictures/osd_formula.png)
 
 具体计算方法为：3\*3矩阵中的系数乘以256后四舍五入取整，即可得到对应的转换系数，3\*1矩阵中的值即为对应的转换系数。
 
@@ -100,7 +102,7 @@ V = 0.4392\*R - 0.3990\*G - 0.0402\*B + 128
 
 ##### 编码典型应用举例
 
-![venc sample flow](https://kendryte-download.canaan-creative.com/developer/pictures/e57bfe4e5657980663f22e7cdef1f182.jpeg)
+![venc sample flow](https://download.kendryte.com/developer/pictures/e57bfe4e5657980663f22e7cdef1f182.jpeg)
 
 #### 视频解码模块
 
@@ -118,7 +120,7 @@ VDEC支持流式发送：
 
 ##### 解码典型应用举例
 
-![vdec sample flow](https://kendryte-download.canaan-creative.com/developer/pictures/e49f8a05613f3b2524e3dc075009146e.jpeg)
+![vdec sample flow](https://download.kendryte.com/developer/pictures/e49f8a05613f3b2524e3dc075009146e.jpeg)
 
 ## API参考
 
@@ -179,7 +181,9 @@ VDEC支持流式发送：
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_request_chn(k_u32* chn_num);
+```
 
 【参数】
 
@@ -192,7 +196,7 @@ k_s32 kd_mpi_venc_request_chn(k_u32* chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -219,7 +223,9 @@ k_s32 kd_mpi_venc_request_chn(k_u32* chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_release_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -232,7 +238,7 @@ k_s32 kd_mpi_venc_release_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -264,10 +270,9 @@ k_s32 kd_mpi_venc_release_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_attach_vb_pool(k_u32 chn_num, k_u32 pool_id)
-{
-    return kd_mpi_venc_attach_vb_pool_ex(chn_num, pool_id, 0);
-}
+```
 
 【参数】
 
@@ -281,7 +286,7 @@ k_s32 kd_mpi_venc_attach_vb_pool(k_u32 chn_num, k_u32 pool_id)
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -308,7 +313,9 @@ k_s32 kd_mpi_venc_attach_vb_pool(k_u32 chn_num, k_u32 pool_id)
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_detach_vb_pool(k_u32 chn_num);
+```
 
 【参数】
 
@@ -321,7 +328,7 @@ k_s32 kd_mpi_venc_detach_vb_pool(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -348,7 +355,9 @@ k_s32 kd_mpi_venc_detach_vb_pool(k_u32 chn_num);
 
 【语法】
 
-k_s32 kd_mpi_venc_create_chn(k_u32 chn_num, const [k_venc_chn_attr](#k_venc_chn_attr) \*attr);
+```c
+k_s32 kd_mpi_venc_create_chn(k_u32 chn_num, const [k_venc_chn_attr](#k_venc_chn_attr) *attr);
+```
 
 【参数】
 
@@ -362,7 +371,7 @@ k_s32 kd_mpi_venc_create_chn(k_u32 chn_num, const [k_venc_chn_attr](#k_venc_chn_
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -389,7 +398,9 @@ k_s32 kd_mpi_venc_create_chn(k_u32 chn_num, const [k_venc_chn_attr](#k_venc_chn_
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_destroy_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -402,7 +413,7 @@ k_s32 kd_mpi_venc_destroy_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -433,7 +444,9 @@ k_s32 kd_mpi_venc_destroy_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_start_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -446,7 +459,7 @@ k_s32 kd_mpi_venc_start_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -480,7 +493,9 @@ k_s32 kd_mpi_venc_start_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_stop_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -493,7 +508,7 @@ k_s32 kd_mpi_venc_stop_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -527,7 +542,9 @@ k_s32 kd_mpi_venc_stop_chn(k_u32 chn_num);
 
 【语法】
 
-k_s32 kd_mpi_venc_query_status(k_u32 chn_num, [k_venc_chn_status](#k_venc_chn_attr) \*status);
+```c
+k_s32 kd_mpi_venc_query_status(k_u32 chn_num, [k_venc_chn_status](#k_venc_chn_attr) *status);
+```
 
 【参数】
 
@@ -541,7 +558,7 @@ k_s32 kd_mpi_venc_query_status(k_u32 chn_num, [k_venc_chn_status](#k_venc_chn_at
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -572,7 +589,9 @@ k_s32 kd_mpi_venc_query_status(k_u32 chn_num, [k_venc_chn_status](#k_venc_chn_at
 
 【语法】
 
-k_s32 kd_mpi_venc_get_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) \*stream, k_s32 milli_sec);
+```c
+k_s32 kd_mpi_venc_get_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) *stream, k_s32 milli_sec);
+```
 
 【参数】
 
@@ -587,7 +606,7 @@ k_s32 kd_mpi_venc_get_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) \*st
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -621,7 +640,9 @@ k_s32 kd_mpi_venc_get_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) \*st
 
 【语法】
 
-k_s32 kd_mpi_venc_release_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) \*stream);
+```c
+k_s32 kd_mpi_venc_release_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) *stream);
+```
 
 【参数】
 
@@ -635,7 +656,7 @@ k_s32 kd_mpi_venc_release_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) 
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -668,7 +689,9 @@ k_s32 kd_mpi_venc_release_stream(k_u32 chn_num, [k_venc_stream](#k_venc_stream) 
 
 【语法】
 
-k_s32 kd_mpi_venc_send_frame(k_u32 chn_num, k_video_frame_info \*frame, k_s32 milli_sec);
+```c
+k_s32 kd_mpi_venc_send_frame(k_u32 chn_num, k_video_frame_info *frame, k_s32 milli_sec);
+```
 
 【参数】
 
@@ -683,7 +706,7 @@ k_s32 kd_mpi_venc_send_frame(k_u32 chn_num, k_video_frame_info \*frame, k_s32 mi
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -717,7 +740,9 @@ k_s32 kd_mpi_venc_send_frame(k_u32 chn_num, k_video_frame_info \*frame, k_s32 mi
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_rotation(k_u32 chn_num, const [k_rotation](#k_rotation) rotation);
+```
 
 【参数】
 
@@ -731,7 +756,7 @@ k_s32 kd_mpi_venc_set_rotation(k_u32 chn_num, const [k_rotation](#k_rotation) ro
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -762,7 +787,9 @@ k_s32 kd_mpi_venc_set_rotation(k_u32 chn_num, const [k_rotation](#k_rotation) ro
 
 【语法】
 
-k_s32 kd_mpi_venc_get_rotation(k_u32 chn_num, [k_rotation](#k_rotation) \*rotation);
+```c
+k_s32 kd_mpi_venc_get_rotation(k_u32 chn_num, [k_rotation](#k_rotation) *rotation);
+```
 
 【参数】
 
@@ -776,7 +803,7 @@ k_s32 kd_mpi_venc_get_rotation(k_u32 chn_num, [k_rotation](#k_rotation) \*rotati
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -807,7 +834,9 @@ k_s32 kd_mpi_venc_get_rotation(k_u32 chn_num, [k_rotation](#k_rotation) \*rotati
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_mirror(k_u32 chn_num, const [k_venc_mirror](#k_venc_mirror) mirror);
+```
 
 【参数】
 
@@ -821,7 +850,7 @@ k_s32 kd_mpi_venc_set_mirror(k_u32 chn_num, const [k_venc_mirror](#k_venc_mirror
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -848,7 +877,9 @@ k_s32 kd_mpi_venc_set_mirror(k_u32 chn_num, const [k_venc_mirror](#k_venc_mirror
 设置编码图像镜像方式。
 【语法】
 
-| k_s32 kd_mpi_venc_get_mirror(k_u32 chn_num, [k_venc_mirror](#k_venc_mirror) mirror);|
+```c
+k_s32 kd_mpi_venc_get_mirror(k_u32 chn_num, [k_venc_mirror](#k_venc_mirror) mirror);
+```
 
 【参数】
 
@@ -862,7 +893,7 @@ k_s32 kd_mpi_venc_set_mirror(k_u32 chn_num, const [k_venc_mirror](#k_venc_mirror
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -890,7 +921,9 @@ k_s32 kd_mpi_venc_set_mirror(k_u32 chn_num, const [k_venc_mirror](#k_venc_mirror
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_enable_idr(k_u32 chn_num, k_bool idr_enable);
+```
 
 【参数】
 
@@ -904,7 +937,7 @@ k_s32 kd_mpi_venc_enable_idr(k_u32 chn_num, k_bool idr_enable);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -935,7 +968,9 @@ k_s32 kd_mpi_venc_enable_idr(k_u32 chn_num, k_bool idr_enable);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_2d_mode(k_u32 chn_num, [k_venc_2d_calc_mode](#k_venc_2d_calc_mode) mode);
+```
 
 【参数】
 
@@ -949,7 +984,7 @@ k_s32 kd_mpi_venc_set_2d_mode(k_u32 chn_num, [k_venc_2d_calc_mode](#k_venc_2d_ca
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -980,7 +1015,9 @@ k_s32 kd_mpi_venc_set_2d_mode(k_u32 chn_num, [k_venc_2d_calc_mode](#k_venc_2d_ca
 
 【语法】
 
-k_s32 kd_mpi_venc_get_2d_mode(k_u32 chn_num, [k_venc_2d_calc_mode](#k_venc_2d_calc_mode) \*mode);
+```c
+k_s32 kd_mpi_venc_get_2d_mode(k_u32 chn_num, [k_venc_2d_calc_mode](#k_venc_2d_calc_mode) *mode);
+```
 
 【参数】
 
@@ -994,7 +1031,7 @@ k_s32 kd_mpi_venc_get_2d_mode(k_u32 chn_num, [k_venc_2d_calc_mode](#k_venc_2d_ca
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1025,7 +1062,9 @@ k_s32 kd_mpi_venc_get_2d_mode(k_u32 chn_num, [k_venc_2d_calc_mode](#k_venc_2d_ca
 
 【语法】
 
-k_s32 kd_mpi_venc_set_2d_osd_param(k_u32 chn_num, k_u8 index, const [k_venc_2d_osd_attr](#k_venc_2d_osd_attr) \*attr);
+```c
+k_s32 kd_mpi_venc_set_2d_osd_param(k_u32 chn_num, k_u8 index, const [k_venc_2d_osd_attr](#k_venc_2d_osd_attr) *attr);
+```
 
 【参数】
 
@@ -1040,7 +1079,7 @@ k_s32 kd_mpi_venc_set_2d_osd_param(k_u32 chn_num, k_u8 index, const [k_venc_2d_o
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1071,7 +1110,9 @@ k_s32 kd_mpi_venc_set_2d_osd_param(k_u32 chn_num, k_u8 index, const [k_venc_2d_o
 
 【语法】
 
-k_s32 kd_mpi_venc_get_2d_osd_param(k_u32 chn_num, k_u8 index, [k_venc_2d_osd_attr](#k_venc_2d_osd_attr) \*attr);
+```c
+k_s32 kd_mpi_venc_get_2d_osd_param(k_u32 chn_num, k_u8 index, [k_venc_2d_osd_attr](#k_venc_2d_osd_attr) *attr);
+```
 
 【参数】
 
@@ -1086,7 +1127,7 @@ k_s32 kd_mpi_venc_get_2d_osd_param(k_u32 chn_num, k_u8 index, [k_venc_2d_osd_att
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1117,7 +1158,9 @@ k_s32 kd_mpi_venc_get_2d_osd_param(k_u32 chn_num, k_u8 index, [k_venc_2d_osd_att
 
 【语法】
 
-k_s32 kd_mpi_venc_set_2d_border_param(k_u32 chn_num, k_u8 index, const [k_venc_2d_border_attr](#k_venc_2d_border_attr) \*attr);
+```c
+k_s32 kd_mpi_venc_set_2d_border_param(k_u32 chn_num, k_u8 index, const [k_venc_2d_border_attr](#k_venc_2d_border_attr) *attr);
+```
 
 【参数】
 
@@ -1132,7 +1175,7 @@ k_s32 kd_mpi_venc_set_2d_border_param(k_u32 chn_num, k_u8 index, const [k_venc_2
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1163,7 +1206,9 @@ k_s32 kd_mpi_venc_set_2d_border_param(k_u32 chn_num, k_u8 index, const [k_venc_2
 
 【语法】
 
-k_s32 kd_mpi_venc_get_2d_border_param(k_u32 chn_num, k_u8 index, [k_venc_2d_border_attr](#k_venc_2d_border_attr) \*attr);
+```c
+k_s32 kd_mpi_venc_get_2d_border_param(k_u32 chn_num, k_u8 index, [k_venc_2d_border_attr](#k_venc_2d_border_attr) *attr);
+```
 
 【参数】
 
@@ -1178,7 +1223,7 @@ k_s32 kd_mpi_venc_get_2d_border_param(k_u32 chn_num, k_u8 index, [k_venc_2d_bord
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1209,21 +1254,23 @@ k_s32 kd_mpi_venc_get_2d_border_param(k_u32 chn_num, k_u8 index, [k_venc_2d_bord
 
 【语法】
 
-k_s32 kd_mpi_venc_set_2d_custom_coef(k_u32 chn_num, const k_s16 \*coef);
+```c
+k_s32 kd_mpi_venc_set_2d_custom_coef(k_u32 chn_num, const k_s16 *coef);
+```
 
 【参数】
 
 | 参数名称 | 描述                                                                 | 输入/输出 |
 | -------- | -------------------------------------------------------------------- | --------- |
 | chn_num  | 通道号。 取值范围：[0,[VENC_MAX_CHN_NUMS](#venc_max_chn_nums))。 | 输入      |
-| coef     | 转换系数指针。参考[2D转换系数的计算](#2d转换系数的计算)        | 输入      |
+| coef     | 转换系数指针。参考[2D转换系数的计算](#venc-2d-conversion-coefficients)        | 输入      |
 
 【返回值】
 
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1238,7 +1285,7 @@ k_s32 kd_mpi_venc_set_2d_custom_coef(k_u32 chn_num, const k_s16 \*coef);
 
 - 内核态有一组默认的转换系数，如需自定义转换系数，可通过本接口配置。
 - 本接口调用应该在设置运算模式之后。
-- 转换系数的说明，详见[2D转换系数的计算](#2d转换系数的计算)
+- 转换系数的说明，详见[2D转换系数的计算](#venc-2d-conversion-coefficients)
 - 在运算模式为K_VENC_2D_CALC_MODE_BORDER时，不适用转换系数，调用本接口会报错。
 
 【举例】
@@ -1257,21 +1304,23 @@ k_s32 kd_mpi_venc_set_2d_custom_coef(k_u32 chn_num, const k_s16 \*coef);
 
 【语法】
 
-k_s32 kd_mpi_venc_get_2d_custom_coef(k_u32 chn_num, k_s16 \*coef);
+```c
+k_s32 kd_mpi_venc_get_2d_custom_coef(k_u32 chn_num, k_s16 *coef);
+```
 
 【参数】
 
 | 参数名称 | 描述                                                                 | 输入/输出 |
 | -------- | -------------------------------------------------------------------- | --------- |
 | chn_num  | 通道号。 取值范围：[0,[VENC_MAX_CHN_NUMS](#venc_max_chn_nums))。 | 输入      |
-| coef     | 转换系数指针。参考[2D转换系数的计算](#2d转换系数的计算)        | 输出      |
+| coef     | 转换系数指针。参考[2D转换系数的计算](#venc-2d-conversion-coefficients)        | 输出      |
 
 【返回值】
 
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1303,7 +1352,9 @@ k_s32 kd_mpi_venc_get_2d_custom_coef(k_u32 chn_num, k_s16 \*coef);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_2d_color_gamut(k_u32 chn_num, const [k_venc_2d_color_gamut](#k_venc_2d_color_gamut) color_gamut);
+```
 
 【参数】
 
@@ -1317,7 +1368,7 @@ k_s32 kd_mpi_venc_set_2d_color_gamut(k_u32 chn_num, const [k_venc_2d_color_gamut
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1350,7 +1401,9 @@ k_s32 kd_mpi_venc_set_2d_color_gamut(k_u32 chn_num, const [k_venc_2d_color_gamut
 
 【语法】
 
-k_s32 kd_mpi_venc_get_2d_color_gamut(k_u32 chn_num, [k_venc_2d_color_gamut](#k_venc_2d_color_gamut) \*color_gamut);
+```c
+k_s32 kd_mpi_venc_get_2d_color_gamut(k_u32 chn_num, [k_venc_2d_color_gamut](#k_venc_2d_color_gamut) *color_gamut);
+```
 
 【参数】
 
@@ -1364,7 +1417,7 @@ k_s32 kd_mpi_venc_get_2d_color_gamut(k_u32 chn_num, [k_venc_2d_color_gamut](#k_v
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1397,7 +1450,9 @@ k_s32 kd_mpi_venc_get_2d_color_gamut(k_u32 chn_num, [k_venc_2d_color_gamut](#k_v
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_attach_2d(k_u32 chn_num);
+```
 
 【参数】
 
@@ -1410,7 +1465,7 @@ k_s32 kd_mpi_venc_attach_2d(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1441,7 +1496,9 @@ k_s32 kd_mpi_venc_attach_2d(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_detach_2d(k_u32 chn_num);
+```
 
 【参数】
 
@@ -1454,7 +1511,7 @@ k_s32 kd_mpi_venc_detach_2d(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1485,7 +1542,9 @@ k_s32 kd_mpi_venc_detach_2d(k_u32 chn_num);
 
 【语法】
 
-| k_s32 kd_mpi_venc_send_2d_frame(k_u32 chn_num, k_video_frame_info \*frame);
+```c
+k_s32 kd_mpi_venc_send_2d_frame(k_u32 chn_num, k_video_frame_info *frame);
+```
 
 【参数】
 
@@ -1499,7 +1558,7 @@ k_s32 kd_mpi_venc_detach_2d(k_u32 chn_num);
 | 返回值 | 描述                          |
 | ------ | ----------------------------- |
 | 0      | 成功。                        |
-| 非0    | 失败，返回[错误码](#错误码) |
+| 非0    | 失败，返回[错误码](#error-code) |
 
 【芯片差异】
 
@@ -1530,7 +1589,9 @@ k_s32 kd_mpi_venc_detach_2d(k_u32 chn_num);
 
 【语法】
 
-k_s32 kd_mpi_venc_get_2d_frame(k_u32 chn_num, k_video_frame_info \*frame);
+```c
+k_s32 kd_mpi_venc_get_2d_frame(k_u32 chn_num, k_video_frame_info *frame);
+```
 
 【参数】
 
@@ -1544,7 +1605,7 @@ k_s32 kd_mpi_venc_get_2d_frame(k_u32 chn_num, k_video_frame_info \*frame);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1575,7 +1636,9 @@ k_s32 kd_mpi_venc_get_2d_frame(k_u32 chn_num, k_video_frame_info \*frame);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_start_2d_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -1588,7 +1651,7 @@ k_s32 kd_mpi_venc_start_2d_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1618,7 +1681,9 @@ k_s32 kd_mpi_venc_start_2d_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_stop_2d_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -1631,7 +1696,7 @@ k_s32 kd_mpi_venc_stop_2d_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1662,7 +1727,9 @@ k_s32 kd_mpi_venc_stop_2d_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_request_idr(k_u32 chn_num);
+```
 
 【参数】
 
@@ -1675,7 +1742,7 @@ k_s32 kd_mpi_venc_request_idr(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1706,7 +1773,9 @@ k_s32 kd_mpi_venc_request_idr(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_h265_sao(k_u32 chn_num, const [k_venc_h265_sao](#k_venc_h265_sao) *h265_sao);
+```
 
 【参数】
 
@@ -1720,7 +1789,7 @@ k_s32 kd_mpi_venc_set_h265_sao(k_u32 chn_num, const [k_venc_h265_sao](#k_venc_h2
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1751,7 +1820,9 @@ k_s32 kd_mpi_venc_set_h265_sao(k_u32 chn_num, const [k_venc_h265_sao](#k_venc_h2
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_get_h265_sao(k_u32 chn_num, [k_venc_h265_sao](#k_venc_h265_sao) *h265_sao);
+```
 
 【参数】
 
@@ -1765,7 +1836,7 @@ k_s32 kd_mpi_venc_get_h265_sao(k_u32 chn_num, [k_venc_h265_sao](#k_venc_h265_sao
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1796,7 +1867,9 @@ k_s32 kd_mpi_venc_get_h265_sao(k_u32 chn_num, [k_venc_h265_sao](#k_venc_h265_sao
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_dblk(k_u32 chn_num, const k_bool dblk_en);
+```
 
 【参数】
 
@@ -1810,7 +1883,7 @@ k_s32 kd_mpi_venc_set_dblk(k_u32 chn_num, const k_bool dblk_en);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1841,7 +1914,9 @@ k_s32 kd_mpi_venc_set_dblk(k_u32 chn_num, const k_bool dblk_en);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_get_dblk(k_u32 chn_num, k_bool *dblk_en);
+```
 
 【参数】
 
@@ -1855,7 +1930,7 @@ k_s32 kd_mpi_venc_get_dblk(k_u32 chn_num, k_bool *dblk_en);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1886,7 +1961,9 @@ k_s32 kd_mpi_venc_get_dblk(k_u32 chn_num, k_bool *dblk_en);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_intbuf_size(k_u32 chn_num, k_u32 size)
+```
 
 【参数】
 
@@ -1900,7 +1977,7 @@ k_s32 kd_mpi_venc_set_intbuf_size(k_u32 chn_num, k_u32 size)
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1931,7 +2008,9 @@ k_s32 kd_mpi_venc_set_intbuf_size(k_u32 chn_num, k_u32 size)
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_get_2d_csc_param(k_u32 chn_num, k_venc_2d_csc_attr *attr);
+```
 
 【参数】
 
@@ -1945,7 +2024,7 @@ k_s32 kd_mpi_venc_get_2d_csc_param(k_u32 chn_num, k_venc_2d_csc_attr *attr);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -1976,7 +2055,9 @@ k_s32 kd_mpi_venc_get_2d_csc_param(k_u32 chn_num, k_venc_2d_csc_attr *attr);
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_h264_entropy(k_u32 chn_num, const [k_venc_h264_entropy](#k_venc_h264_entropy) *h264_entropy);
+```
 
 【参数】
 
@@ -1990,7 +2071,7 @@ k_s32 kd_mpi_venc_set_h264_entropy(k_u32 chn_num, const [k_venc_h264_entropy](#k
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2021,7 +2102,9 @@ k_s32 kd_mpi_venc_set_h264_entropy(k_u32 chn_num, const [k_venc_h264_entropy](#k
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_get_h264_entropy(k_u32 chn_num, [k_venc_h264_entropy](#k_venc_h264_entropy) *h264_entropy);
+```
 
 【参数】
 
@@ -2035,7 +2118,7 @@ k_s32 kd_mpi_venc_get_h264_entropy(k_u32 chn_num, [k_venc_h264_entropy](#k_venc_
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2066,7 +2149,9 @@ k_s32 kd_mpi_venc_get_h264_entropy(k_u32 chn_num, [k_venc_h264_entropy](#k_venc_
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_set_h265_entropy(k_u32 chn_num, const [k_venc_h265_entropy](#k_venc_h265_entropy) *h265_entropy);
+```
 
 【参数】
 
@@ -2080,7 +2165,7 @@ k_s32 kd_mpi_venc_set_h265_entropy(k_u32 chn_num, const [k_venc_h265_entropy](#k
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2111,7 +2196,9 @@ k_s32 kd_mpi_venc_set_h265_entropy(k_u32 chn_num, const [k_venc_h265_entropy](#k
 
 【语法】
 
+```c
 k_s32 kd_mpi_venc_get_h265_entropy(k_u32 chn_num, [k_venc_h265_entropy](#k_venc_h265_entropy) *h265_entropy);
+```
 
 【参数】
 
@@ -2125,7 +2212,7 @@ k_s32 kd_mpi_venc_get_h265_entropy(k_u32 chn_num, [k_venc_h265_entropy](#k_venc_
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，返回[错误码](#错误码)。 |
+| 非0    | 失败，返回[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2176,7 +2263,9 @@ k_s32 kd_mpi_venc_get_h265_entropy(k_u32 chn_num, [k_venc_h265_entropy](#k_venc_
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_request_chn(k_u32* chn_num);
+```
 
 【参数】
 
@@ -2189,7 +2278,7 @@ k_s32 kd_mpi_vdec_request_chn(k_u32* chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2216,7 +2305,9 @@ k_s32 kd_mpi_vdec_request_chn(k_u32* chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_release_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -2229,7 +2320,7 @@ k_s32 kd_mpi_vdec_release_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2260,7 +2351,9 @@ k_s32 kd_mpi_vdec_release_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_attach_vb_pool(k_u32 chn_num, k_u32 pool_id);
+```
 
 【参数】
 
@@ -2274,7 +2367,7 @@ k_s32 kd_mpi_vdec_attach_vb_pool(k_u32 chn_num, k_u32 pool_id);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2301,7 +2394,9 @@ k_s32 kd_mpi_vdec_attach_vb_pool(k_u32 chn_num, k_u32 pool_id);
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_detach_vb_pool(k_u32 chn_num);
+```
 
 【参数】
 
@@ -2314,7 +2409,7 @@ k_s32 kd_mpi_vdec_detach_vb_pool(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2341,7 +2436,9 @@ k_s32 kd_mpi_vdec_detach_vb_pool(k_u32 chn_num);
 
 【语法】
 
-k_s32 kd_mpi_vdec_create_chn(k_u32 chn_num, [k_vdec_chn_attr](#k_vdec_chn_attr) \*attr);
+```c
+k_s32 kd_mpi_vdec_create_chn(k_u32 chn_num, [k_vdec_chn_attr](#k_vdec_chn_attr) *attr);
+```
 
 【参数】
 
@@ -2355,7 +2452,7 @@ k_s32 kd_mpi_vdec_create_chn(k_u32 chn_num, [k_vdec_chn_attr](#k_vdec_chn_attr) 
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2386,7 +2483,9 @@ k_s32 kd_mpi_vdec_create_chn(k_u32 chn_num, [k_vdec_chn_attr](#k_vdec_chn_attr) 
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_destroy_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -2399,7 +2498,7 @@ k_s32 kd_mpi_vdec_destroy_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2430,7 +2529,9 @@ k_s32 kd_mpi_vdec_destroy_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_start_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -2443,7 +2544,7 @@ k_s32 kd_mpi_vdec_start_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2474,7 +2575,9 @@ k_s32 kd_mpi_vdec_start_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_stop_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -2487,7 +2590,7 @@ k_s32 kd_mpi_vdec_stop_chn(k_u32 chn_num);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2518,7 +2621,9 @@ k_s32 kd_mpi_vdec_stop_chn(k_u32 chn_num);
 
 【语法】
 
-k_s32 kd_mpi_vdec_query_status(k_u32 chn_num, [k_vdec_chn_status](#k_vdec_chn_status) \*status);
+```c
+k_s32 kd_mpi_vdec_query_status(k_u32 chn_num, [k_vdec_chn_status](#k_vdec_chn_status) *status);
+```
 
 【参数】
 
@@ -2532,7 +2637,7 @@ k_s32 kd_mpi_vdec_query_status(k_u32 chn_num, [k_vdec_chn_status](#k_vdec_chn_st
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2563,7 +2668,9 @@ k_s32 kd_mpi_vdec_query_status(k_u32 chn_num, [k_vdec_chn_status](#k_vdec_chn_st
 
 【语法】
 
-k_s32 kd_mpi_vdec_send_stream(k_u32 chn_num, [k_vdec_stream](#k_vdec_stream) \*stream, k_s32 milli_sec);
+```c
+k_s32 kd_mpi_vdec_send_stream(k_u32 chn_num, [k_vdec_stream](#k_vdec_stream) *stream, k_s32 milli_sec);
+```
 
 【参数】
 
@@ -2578,7 +2685,7 @@ k_s32 kd_mpi_vdec_send_stream(k_u32 chn_num, [k_vdec_stream](#k_vdec_stream) \*s
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2609,7 +2716,9 @@ k_s32 kd_mpi_vdec_send_stream(k_u32 chn_num, [k_vdec_stream](#k_vdec_stream) \*s
 
 【语法】
 
-k_s32 kd_mpi_vdec_get_frame(k_u32 chn_num, k_video_frame_info \*frame_info, [k_vdec_supplement_info](#k_vdec_supplement_info) \*supplement, k_s32 milli_sec);
+```c
+k_s32 kd_mpi_vdec_get_frame(k_u32 chn_num, k_video_frame_info *frame_info, [k_vdec_supplement_info](#k_vdec_supplement_info) *supplement, k_s32 milli_sec);
+```
 
 【参数】
 
@@ -2625,7 +2734,7 @@ k_s32 kd_mpi_vdec_get_frame(k_u32 chn_num, k_video_frame_info \*frame_info, [k_v
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2656,7 +2765,9 @@ k_s32 kd_mpi_vdec_get_frame(k_u32 chn_num, k_video_frame_info \*frame_info, [k_v
 
 【语法】
 
-k_s32 kd_mpi_vdec_release_frame(k_u32 chn_num, k_video_frame_info \*frame_info);
+```c
+k_s32 kd_mpi_vdec_release_frame(k_u32 chn_num, k_video_frame_info *frame_info);
+```
 
 【参数】
 
@@ -2670,7 +2781,7 @@ k_s32 kd_mpi_vdec_release_frame(k_u32 chn_num, k_video_frame_info \*frame_info);
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2701,7 +2812,9 @@ k_s32 kd_mpi_vdec_release_frame(k_u32 chn_num, k_video_frame_info \*frame_info);
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_set_downscale(k_u32 chn_num, const  [k_vdec_downscale](#k_vdec_downscale)  *downscale)
+```
 
 【参数】
 
@@ -2715,7 +2828,7 @@ k_s32 kd_mpi_vdec_set_downscale(k_u32 chn_num, const  [k_vdec_downscale](#k_vdec
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2746,7 +2859,9 @@ k_s32 kd_mpi_vdec_set_downscale(k_u32 chn_num, const  [k_vdec_downscale](#k_vdec
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_set_rotation(k_u32 chn_num, [k_rotation](#k_rotation) rotation)
+```
 
 【参数】
 
@@ -2760,7 +2875,7 @@ k_s32 kd_mpi_vdec_set_rotation(k_u32 chn_num, [k_rotation](#k_rotation) rotation
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2791,7 +2906,9 @@ k_s32 kd_mpi_vdec_set_rotation(k_u32 chn_num, [k_rotation](#k_rotation) rotation
 
 【语法】
 
+```c
 k_s32 kd_mpi_vdec_close_fd()
+```
 
 【参数】
 无
@@ -2801,7 +2918,7 @@ k_s32 kd_mpi_vdec_close_fd()
 | 返回值 | 描述                            |
 | ------ | ------------------------------- |
 | 0      | 成功。                          |
-| 非0    | 失败，参见[错误码](#错误码)。 |
+| 非0    | 失败，参见[错误码](#error-code)。 |
 
 【芯片差异】
 
@@ -2871,9 +2988,11 @@ k_s32 kd_mpi_vdec_close_fd()
 
 【定义】
 
-\#define VENC_MAX_CHN_NUMS 4
+```c
+#define VENC_MAX_CHN_NUMS 4
+```
 
-【注意事项】
+【注意事项】FV
 
 无。
 
@@ -2889,7 +3008,9 @@ k_s32 kd_mpi_vdec_close_fd()
 
 【定义】
 
-\#define K_VENC_MAX_2D_OSD_REGION_NUM 8
+```c
+#define K_VENC_MAX_2D_OSD_REGION_NUM 8
+```
 
 【注意事项】
 
@@ -2907,7 +3028,9 @@ k_s32 kd_mpi_vdec_close_fd()
 
 【定义】
 
-\#define K_VENC_MAX_2D_BORDER_NUM 32
+```c
+#define K_VENC_MAX_2D_BORDER_NUM 32
+```
 
 【注意事项】
 
@@ -2925,7 +3048,9 @@ k_s32 kd_mpi_vdec_close_fd()
 
 【定义】
 
-\#define K_VENC_2D_COEF_NUM 12
+```c
+#define K_VENC_2D_COEF_NUM 12
+```
 
 【注意事项】
 
@@ -3135,8 +3260,9 @@ typedef enum {
 
 【定义】
 
+```c
 typedef enum {
-/\* bottom ------\> top \*/
+/* bottom ------> top */
 &emsp;K_VENC_2D_ADD_ORDER_VIDEO_OSD= 0,
 &emsp;K_VENC_2D_ADD_ORDER_OSD_VIDEO,
 &emsp;K_VENC_2D_ADD_ORDER_VIDEO_BG,
@@ -3149,6 +3275,7 @@ typedef enum {
 &emsp;K_VENC_2D_ADD_ORDER_OSD_BG_VIDEO,
 &emsp;K_VENC_2D_ADD_ORDER_BUTT
 } k_venc_2d_add_order;
+```
 
 【成员】
 
@@ -4170,6 +4297,8 @@ typedef struct {
 【相关数据类型及接口】
 
 无。
+
+<a id="error-code"></a>
 
 ## 错误码
 

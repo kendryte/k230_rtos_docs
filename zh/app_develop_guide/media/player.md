@@ -59,7 +59,7 @@ Demo 源码位置：`src/rtsmart/examples/mpp/sample_player`
 | 参数名 | 说明 |
 |--------|------|
 | file_path | 要播放的mp4文件路径 |
-| connect_type | 连接类型，如LCD(20), HDMI(101) |
+| connect_type | VO 连接器类型，可在板端运行 `list_connector` 查看支持的类型 |
 
 ### 查看结果
 

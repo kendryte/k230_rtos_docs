@@ -18,4 +18,5 @@ advanced_development_guide/index.md
 api_reference/index.md
 ai_dev_doc.md
 faq.md
+hardware_compatibility/index.md
 ```

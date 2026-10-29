@@ -10,11 +10,11 @@ DPU 主要负责 3D 结构光的深度计算，为 3D 人脸识别提供深度�
 
 #### 绑定模式调用流程
 
-![图示, 示意图 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/b85b814d3911bf8b3802ba97751ff941.png)
+![图示, 示意图 描述已自动生成](https://download.kendryte.com/developer/pictures/b85b814d3911bf8b3802ba97751ff941.png)
 
 #### 非绑定模式调用流程
 
-![图示 描述已自动生成](https://kendryte-download.canaan-creative.com/developer/pictures/dca3cfa887a526c493abced31b59afd2.png)
+![图示 描述已自动生成](https://download.kendryte.com/developer/pictures/dca3cfa887a526c493abced31b59afd2.png)
 
 ## API 参考
 
@@ -47,7 +47,9 @@ DPU 主要负责 3D 结构光的深度计算，为 3D 人脸识别提供深度�
 
 【语法】
 
-k_s32 kd_mpi_dpu_init(k_dpu_init_t \*init);
+```c
+k_s32 kd_mpi_dpu_init(k_dpu_init_t *init);
+```
 
 【参数】
 
@@ -91,7 +93,9 @@ k_s32 kd_mpi_dpu_init(k_dpu_init_t \*init);
 
 【语法】
 
+```c
 k_s32 kd_mpi_dpu_delete();
+```
 
 【参数】
 
@@ -135,7 +139,9 @@ k_s32 kd_mpi_dpu_delete();
 
 【语法】
 
-k_s32 kd_mpi_dpu_parse_file(const k_char \*param_path, k_dpu_dev_param_t \*param, k_dpu_lcn_param_t \*lcn_param, k_dpu_ir_param_t \*ir_param, k_dpu_user_space_t \*g_temp_space);
+```c
+k_s32 kd_mpi_dpu_parse_file(const k_char *param_path, k_dpu_dev_param_t *param, k_dpu_lcn_param_t *lcn_param, k_dpu_ir_param_t *ir_param, k_dpu_user_space_t *g_temp_space);
+```
 
 【参数】
 
@@ -185,7 +191,9 @@ k_s32 kd_mpi_dpu_parse_file(const k_char \*param_path, k_dpu_dev_param_t \*param
 
 【语法】
 
-k_s32 kd_mpi_dpu_set_dev_attr(k_dpu_dev_attr_t \*attr);
+```c
+k_s32 kd_mpi_dpu_set_dev_attr(k_dpu_dev_attr_t *attr);
+```
 
 【参数】
 
@@ -230,7 +238,9 @@ k_s32 kd_mpi_dpu_set_dev_attr(k_dpu_dev_attr_t \*attr);
 
 【语法】
 
-k_s32 kd_mpi_dpu_set_dev_attr(k_dpu_dev_attr_t \*attr);
+```c
+k_s32 kd_mpi_dpu_get_dev_attr(k_dpu_dev_attr_t *attr);
+```
 
 【参数】
 
@@ -274,7 +284,9 @@ k_s32 kd_mpi_dpu_set_dev_attr(k_dpu_dev_attr_t \*attr);
 
 【语法】
 
-k_s32 kd_mpi_dpu_set_ref_image(const k_char \*ref_path);
+```c
+k_s32 kd_mpi_dpu_set_ref_image(const k_char *ref_path);
+```
 
 【参数】
 
@@ -318,7 +330,9 @@ k_s32 kd_mpi_dpu_set_ref_image(const k_char \*ref_path);
 
 【语法】
 
-k_s32 kd_mpi_dpu_set_processed_ref_image(const k_char \*ref_path);
+```c
+k_s32 kd_mpi_dpu_set_processed_ref_image(const k_char *ref_path);
+```
 
 【参数】
 
@@ -362,7 +376,9 @@ k_s32 kd_mpi_dpu_set_processed_ref_image(const k_char \*ref_path);
 
 【语法】
 
-k_s32 kd_mpi_dpu_set_template_image(k_dpu_user_space_t \*temp_space);
+```c
+k_s32 kd_mpi_dpu_set_template_image(k_dpu_user_space_t *temp_space);
+```
 
 【参数】
 
@@ -408,7 +424,9 @@ k_s32 kd_mpi_dpu_set_template_image(k_dpu_user_space_t \*temp_space);
 
 【语法】
 
+```c
 k_s32 kd_mpi_dpu_start_dev();
+```
 
 【参数】
 
@@ -452,7 +470,9 @@ k_s32 kd_mpi_dpu_start_dev();
 
 【语法】
 
-k_s32 kd_mpi_dpu_set_chn_attr(k_dpu_chn_lcn_attr_t \*lcn_attr, k_dpu_chn_ir_attr_t \*ir_attr);
+```c
+k_s32 kd_mpi_dpu_set_chn_attr(k_dpu_chn_lcn_attr_t *lcn_attr, k_dpu_chn_ir_attr_t *ir_attr);
+```
 
 【参数】
 
@@ -500,7 +520,9 @@ k_s32 kd_mpi_dpu_set_chn_attr(k_dpu_chn_lcn_attr_t \*lcn_attr, k_dpu_chn_ir_attr
 
 【语法】
 
-k_s32 kd_mpi_dpu_get_chn_attr(k_dpu_chn_lcn_attr_t \*lcn_attr, k_dpu_chn_ir_attr_t \*ir_attr);
+```c
+k_s32 kd_mpi_dpu_get_chn_attr(k_dpu_chn_lcn_attr_t *lcn_attr, k_dpu_chn_ir_attr_t *ir_attr);
+```
 
 【参数】
 
@@ -546,7 +568,9 @@ k_s32 kd_mpi_dpu_get_chn_attr(k_dpu_chn_lcn_attr_t \*lcn_attr, k_dpu_chn_ir_attr
 
 【语法】
 
+```c
 k_s32 kd_mpi_dpu_start_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -590,7 +614,9 @@ k_s32 kd_mpi_dpu_start_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_dpu_stop_chn(k_u32 chn_num);
+```
 
 【参数】
 
@@ -634,7 +660,9 @@ k_s32 kd_mpi_dpu_stop_chn(k_u32 chn_num);
 
 【语法】
 
+```c
 k_s32 kd_mpi_dpu_send_frame(k_u32 chn_num, k_u64 addr, k_s32 s32_millisec);
+```
 
 【参数】
 
@@ -642,7 +670,7 @@ k_s32 kd_mpi_dpu_send_frame(k_u32 chn_num, k_u64 addr, k_s32 s32_millisec);
 |--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
 | chn_num      | 通道号                                                                                                                                                                                      | 输入      |
 | addr         | 发送数据的物理地址                                                                                                                                                                          | 输入      |
-| s32_millisec | 等待时间。 当此参数设置为 -1 时，阻塞模式，直到发送成功才会返回； 当此参数设置为 0 时，非阻塞模式，发送成功立即返回零，发送失败立即返回其他值，具体失败信息参考 [dpu 错误码](#dpu-错误码)； | 输入      |
+| s32_millisec | 等待时间。 当此参数设置为 -1 时，阻塞模式，直到发送成功才会返回； 当此参数设置为 0 时，非阻塞模式，发送成功立即返回零，发送失败立即返回其他值，具体失败信息参考 [dpu 错误码](#dpu-error-code)； | 输入      |
 
 【返回值】
 
@@ -680,7 +708,9 @@ k_s32 kd_mpi_dpu_send_frame(k_u32 chn_num, k_u64 addr, k_s32 s32_millisec);
 
 【语法】
 
-k_s32 kd_mpi_dpu_get_frame(k_u32 chn_num, k_dpu_chn_result_u \*result, k_s32 s32_millisec);
+```c
+k_s32 kd_mpi_dpu_get_frame(k_u32 chn_num, k_dpu_chn_result_u *result, k_s32 s32_millisec);
+```
 
 【参数】
 
@@ -688,7 +718,7 @@ k_s32 kd_mpi_dpu_get_frame(k_u32 chn_num, k_dpu_chn_result_u \*result, k_s32 s32
 |--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
 | chn_num      | 通道号                                                                                                                                                                                                   | 输入      |
 | result       | dpu 输出结果联合体，其成员变量分别是 k_dpu_chn_lcn_result_t 和 k_dpu_chn_ir_result_t 。选择哪个成员作为该通道的输出结果由用户根据 [kd_mpi_dpu_set_chn_attr](#kd_mpi_dpu_set_chn_attr) 的配置来自行决定。 | 输出      |
-| s32_millisec | 等待时间。 当此参数设置为 -1 时，阻塞模式，直到获取成功才会返回； 当此参数设置为 0 时，非阻塞模式，获取成功立即返回零，获取失败立即返回其他值，具体失败信息参考 [dpu 错误码](#dpu-错误码)；              | 输入      |
+| s32_millisec | 等待时间。 当此参数设置为 -1 时，阻塞模式，直到获取成功才会返回； 当此参数设置为 0 时，非阻塞模式，获取成功立即返回零，获取失败立即返回其他值，具体失败信息参考 [dpu 错误码](#dpu-error-code)；              | 输入      |
 
 【返回值】
 
@@ -732,7 +762,9 @@ k_s32 kd_mpi_dpu_get_frame(k_u32 chn_num, k_dpu_chn_result_u \*result, k_s32 s32
 
 【语法】
 
+```c
 k_s32 kd_mpi_dpu_release_frame();
+```
 
 【参数】
 
@@ -1362,6 +1394,8 @@ dpu 短周期参数结构体
 [kd_mpi_dpu_get_dev_attr](#kd_mpi_dpu_get_dev_attr)
 
 ## 错误码
+
+<a id="dpu-error-code"></a>
 
 ### dpu 错误码
 

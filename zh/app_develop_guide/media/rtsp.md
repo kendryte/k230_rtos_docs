@@ -16,7 +16,7 @@
 - **RTSP Client**：`/src/rtsmart/examples/mpp/sample_rtspclient`
 - **RTSP Pusher**：`/src/rtsmart/examples/mpp/sample_rtsppusher`
 
-假设 demo 已正确编译，启动开发板后进入 `/sdcard/app/middleware` 目录，您将看到以下可执行文件：
+假设 demo 已正确编译，启动开发板后进入 `/sdcard/app/examples/mpp` 目录，您将看到以下可执行文件：
 
 - `sample_rtspserver.elf`：对应 RTSP Server demo
 - `sample_rtspclient.elf`：对应 RTSP Client demo
@@ -39,6 +39,7 @@
 | w | 视频编码宽度 | `[128, 1920]` | 1280 |
 | h | 视频编码高度 | `[64, 1080]` |720 |
 | b | 视频编码码率 | - | 2000 |
+| L | Sensor 探测时的 MIPI lane 偏好 | 2 / 4 | ANY |
 
 #### 运行程序
 
@@ -51,8 +52,10 @@
 确保客户端设备与服务器在同一网络下，并将 `<server_ip>` 替换为实际的服务器IP地址。
 按下 `ctrl+c` 退出程序。
 
+需要指定探测 lane 时可追加 `-L 2` 或 `-L 4`。4LANE 仅支持 CSI0；CSI1 / CSI2 应省略此选项或使用 `-L 2`。
+
 ```text
-msh /sdcard/app/middleware>./sample_rtspserver.elf -t h264 -w 1280 -h 720
+msh /sdcard/app/examples/mpp>./sample_rtspserver.elf -t h264 -w 1280 -h 720
 ./rtsp_server -H to show usage
 Validate the input config, not implemented yet, TODO.
 probe sensor type 7, mirror 0
@@ -62,7 +65,7 @@ with_audio
 g711liveSubSession
 
 "test" stream
-Play this stream using the URL "rtsp://10.100.228.46:8554/test"
+Play this stream using the URL "rtsp://192.168.1.101:8554/test"
 vb_set_config ok
 debug: _ai_i2s_set_pitch_shift : semitones = 0
 kd_mpi_venc_init start 0
@@ -147,13 +150,13 @@ vpu_exit>q_wm 118
 按下 `ctrl+c` 退出程序。
 
 ```text
-msh /sdcard/app/middleware>./sample_rtspclient.elf rtsp://10.10.1.94:8554/canaan.264 1
+msh /sdcard/app/examples/mpp>./sample_rtspclient.elf rtsp://192.168.1.100:8554/canaan.264 1
 vb_set_config ok
 debug: _ai_i2s_set_pitch_shift : semitones = 0
 Created new TCP socket 9 for connection
-Connecting to 10.10.1.94, port 8554 on socket 9...
+Connecting to 192.168.1.100, port 8554 on socket 9...
 ...remote connection opened
-Sending request: DESCRIBE rtsp://10.10.1.94:8554/canaan.264 RTSP/1.0
+Sending request: DESCRIBE rtsp://192.168.1.100:8554/canaan.264 RTSP/1.0
 CSeq: 2
 User-Agent: BackChannel RTSP Client (LIVE555 Streaming Media v2023.01.19)
 Accept: application/sdp
@@ -164,12 +167,12 @@ Received a complete DESCRIBE response:
 RTSP/1.0 200 OK
 CSeq: 2
 Date: Tue, Mar 04 2025 08:14:16 GMT
-Content-Base: rtsp://10.10.1.94:8554/canaan.264/
+Content-Base: rtsp://192.168.1.100:8554/canaan.264/
 Content-Type: application/sdp
 Content-Length: 524
 
 v=0
-o=- 1741076056720017 1 IN IP4 10.10.1.94
+o=- 1741076056720017 1 IN IP4 192.168.1.100
 s=H.264 Video, streamed by the LIVE555 Media Server
 i=canaan.264
 t=0 0
@@ -186,9 +189,9 @@ a=rtpmap:96 H264/90000
 a=fmtp:96 packetization-mode=1;profile-level-id=640028;sprop-parameter-sets=Z2QAKKzZQHgCJ+XARAAAAwAEAAADAPA8YMZY,aOvjyyLA
 a=control:track1
 
-[URL:"rtsp://10.10.1.94:8554/canaan.264/"]: Got a SDP description:
+[URL:"rtsp://192.168.1.100:8554/canaan.264/"]: Got a SDP description:
 v=0
-o=- 1741076056720017 1 IN IP4 10.10.1.94
+o=- 1741076056720017 1 IN IP4 192.168.1.100
 s=H.264 Video, streamed by the LIVE555 Media Server
 i=canaan.264
 t=0 0
@@ -206,8 +209,8 @@ a=fmtp:96 packetization-mode=1;profile-level-id=640028;sprop-parameter-sets=Z2QA
 a=control:track1
 
 MediaSubsession::initiate()  FLAG_RECVONLY
-[URL:"rtsp://10.10.1.94:8554/canaan.264/"]: Initiated the "video/H264" subsession (client ports 49154-49155)
-Sending request: SETUP rtsp://10.10.1.94:8554/canaan.264/track1 RTSP/1.0
+[URL:"rtsp://192.168.1.100:8554/canaan.264/"]: Initiated the "video/H264" subsession (client ports 49154-49155)
+Sending request: SETUP rtsp://192.168.1.100:8554/canaan.264/track1 RTSP/1.0
 CSeq: 3
 User-Agent: BackChannel RTSP Client (LIVE555 Streaming Media v2023.01.19)
 Transport: RTP/AVP;unicast;client_port=49154-49155
@@ -218,12 +221,12 @@ Received a complete SETUP response:
 RTSP/1.0 200 OK
 CSeq: 3
 Date: Tue, Mar 04 2025 08:14:16 GMT
-Transport: RTP/AVP;unicast;destination=10.100.228.46;source=10.10.1.94;client_port=49154-49155;server_port=6970-6971
+Transport: RTP/AVP;unicast;destination=192.168.1.101;source=192.168.1.100;client_port=49154-49155;server_port=6970-6971
 Session: 5F0B692D;timeout=65
 
 
-[URL:"rtsp://10.10.1.94:8554/canaan.264/"]: Set up the "video/H264" subsession (client ports 49154-49155)
-[URL:"rtsp://10.10.1.94:8554/canaan.264/"]: Created a data sink for the "video/H264" subsession
+[URL:"rtsp://192.168.1.100:8554/canaan.264/"]: Set up the "video/H264" subsession (client ports 49154-49155)
+[URL:"rtsp://192.168.1.100:8554/canaan.264/"]: Created a data sink for the "video/H264" subsession
 OnVideoType() called, type H264
 input_pool_id = 2
 output_pool_id = 3
@@ -231,7 +234,7 @@ VDEC: pool_id 3, frame_buf_pool_id 3
 connector_fd  is 13 ret is 0
 [D/lt9611] vtotal 1125 vactive 1080 htotal_sys 400
 
-Sending request: PLAY rtsp://10.10.1.94:8554/canaan.264/ RTSP/1.0
+Sending request: PLAY rtsp://192.168.1.100:8554/canaan.264/ RTSP/1.0
 CSeq: 4
 User-Agent: BackChannel RTSP Client (LIVE555 Streaming Media v2023.01.19)
 Session: 5F0B692D
@@ -245,12 +248,12 @@ CSeq: 4
 Date: Tue, Mar 04 2025 08:14:17 GMT
 Range: npt=0.000-
 Session: 5F0B692D
-RTP-Info: url=rtsp://10.10.1.94:8554/canaan.264/track1;seq=14854;rtptime=980441214
+RTP-Info: url=rtsp://192.168.1.100:8554/canaan.264/track1;seq=14854;rtptime=980441214
 
 
-[URL:"rtsp://10.10.1.94:8554/canaan.264/"]: continueAfterPLAY
-[URL:"rtsp://10.10.1.94:8554/canaan.264/"]: Started playing session...
-[URL:"rtsp://10.10.1.94:8554/canaan.264/"]: continueAfterPLAY done
+[URL:"rtsp://192.168.1.100:8554/canaan.264/"]: continueAfterPLAY
+[URL:"rtsp://192.168.1.100:8554/canaan.264/"]: Started playing session...
+[URL:"rtsp://192.168.1.100:8554/canaan.264/"]: continueAfterPLAY done
 VDEC: first pts 156696845161140, frame_interval 0
 VDEC: first pts 156696845161140, frame_interval 3000
 ^CKdRtspClient thread exit
@@ -277,6 +280,7 @@ vpu_exit>q_wm 16
 | h | 视频编码高度 | `[64, 1080]` |720 |
 | b | 视频编码码率 | - | 2000 |
 | o | rtsp 推流地址 | - | - |
+| L | Sensor 探测时的 MIPI lane 偏好 | 2 / 4 | ANY |
 
 #### 运行程序
 
@@ -288,8 +292,10 @@ vpu_exit>q_wm 16
 
 确保客户端设备与服务器在同一网络下，并将 `<rtsp_url>` 替换为实际的RTSP流地址。按下 `ctrl+c` 退出程序。
 
+需要指定探测 lane 时可追加 `-L 2` 或 `-L 4`。4LANE 仅支持 CSI0；CSI1 / CSI2 应省略此选项或使用 `-L 2`。
+
 ```text
-msh /sdcard/app/middleware>./sample_rtsppusher.elf -w 1280 -h 720 -o rtsp://10.10.1.94:10554/live/test
+msh /sdcard/app/examples/mpp>./sample_rtsppusher.elf -w 1280 -h 720 -o rtsp://192.168.1.100:10554/live/test
 ./rtsp_server -H to show usage
 Validate the input config, not implemented yet, TODO.
 probe sensor type 7, mirror 0
@@ -299,8 +305,8 @@ debug: _ai_i2s_set_pitch_shift : semitones = 0
 kd_mpi_venc_init start 0
 venc[0] 1280*720 size:462848 cnt:30 srcfps:30 dstfps:30 rate:4000 rc_mode:1 type:96 profile:3
 kd_mpi_venc_init end
-rtsp_pusher url:rtsp://10.10.1.94:10554/live/test
-zlmedia url: rtsp://10.10.1.94:10554/live/test, w: 1280, h: 720
+rtsp_pusher url:rtsp://192.168.1.100:10554/live/test
+zlmedia url: rtsp://192.168.1.100:10554/live/test, w: 1280, h: 720
 audio i2s set clk freq is 512000(512000),ret:1
 audio init codec dac clk freq is 11289600
 audio set codec dac clk freq is 2048000(2048000)
@@ -308,10 +314,10 @@ adec_bind_call_back dev_id:0 chn_id:0
 [libx264 @ 0x300015340] using cpu capabilities: none!
 [libx264 @ 0x300015340] profile Constrained High, level 3.2, 4:2:0, 8-bit
 [libx264 @ 0x300015340] 264 - core 157 - H.264/MPEG-4 AVC codec - Copyleft 2003-2019 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=1 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=0 weightp=2 keyint=25 keyint_min=2 scenecut=40 intra_refresh=0 rc_lookahead=0 rc=cbr mbtree=0 bitrate=20000 ratetol=1.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 vbv_maxrate=20000 vbv_bufsize=20000 nal_hrd=none filler=0 ip_ratio=1.40 aq=1:1.00
-url: rtsp://10.10.1.94:10554/live/test pusher extradata: 0x300170640, size: 36
+url: rtsp://192.168.1.100:10554/live/test pusher extradata: 0x300170640, size: 36
 extradata: 0x300171a20, size: 36
------rtsp://10.10.1.94:10554/live/test: 00 00 00 01 67 64 0c 20 ac b2 00 a0 0b 74 20 00 00 03 00 20 00 00 06 51 e3 06 49 00 00 00 01 68 eb cc b2 2c
-rtsp pusher init success, url: rtsp://10.10.1.94:10554/live/test
+-----rtsp://192.168.1.100:10554/live/test: 00 00 00 01 67 64 0c 20 ac b2 00 a0 0b 74 20 00 00 03 00 20 00 00 06 51 e3 06 49 00 00 00 01 68 eb cc b2 2c
+rtsp pusher init success, url: rtsp://192.168.1.100:10554/live/test
 audio i2s set clk freq is 512000(512000),ret:1
 audio codec adc clk freq is 2048000(2048000)
 set output err, set default format ISP_PIX_FMT_YUV420SP
@@ -351,11 +357,11 @@ kd_mpi_isp_set_output_chn_format, width(1920), height(1080), pix_format(5)
 [dw] LUT: 121x69=33396 phy(130ac000)
 [dw] input:     1920x1080@YUV420SP align 0 bit 8
 [dw] output[0]: 1280x720@YUV420SP align 12 bit 8 crop(0,0,0,0)
-[100]rtsp://10.10.1.94:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
-[200]rtsp://10.10.1.94:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
-[300]rtsp://10.10.1.94:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
-[400]rtsp://10.10.1.94:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
-[500]rtsp://10.10.1.94:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
+[100]rtsp://192.168.1.100:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
+[200]rtsp://192.168.1.100:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
+[300]rtsp://192.168.1.100:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
+[400]rtsp://192.168.1.100:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
+[500]rtsp://192.168.1.100:10554/live/test fLiveFrameQueue_ size:1,free framequeue size:24
 ^Cexit_flag true
 kd_mpi_isp_stop_stream chn enable is 1
 kd_mpi_isp_stop_stream chn enable is 0

@@ -31,6 +31,7 @@ Sensor API 用于完成图像传感器设备的打开、上电、初始化、模
 - [kd_mpi_sensor_caps_get](#kd_mpi_sensor_caps_get)
 - [kd_mpi_sensor_connection_check](#kd_mpi_sensor_connection_check)
 - [kd_mpi_sensor_adapt_get](#kd_mpi_sensor_adapt_get)
+- [kd_mpi_sensor_adapt_get_ex](#kd_mpi_sensor_adapt_get_ex)
 
 ### 寄存器访问
 
@@ -436,6 +437,55 @@ k_s32 kd_mpi_sensor_adapt_get(k_vicap_probe_config *config, k_vicap_sensor_info 
 |--------|------|
 | `0` | 成功 |
 | 非 `0` | 失败，返回错误码 |
+
+---
+
+#### kd_mpi_sensor_adapt_get_ex
+
+按配置和显式指定的 MIPI lane 偏好获取传感器信息。`k_vicap_probe_config` 只包含 CSI、分辨率和帧率等探测条件，lane 偏好通过第三个参数传入。旧接口 `kd_mpi_sensor_adapt_get` 保留兼容性，始终按 `VICAP_MIPI_LANE_PREF_ANY` 探测。
+
+**函数原型**
+
+```c
+k_s32 kd_mpi_sensor_adapt_get_ex(k_vicap_probe_config *config,
+                                  k_vicap_sensor_info *info,
+                                  k_vicap_mipi_lane_pref lane_pref);
+```
+
+**参数**
+
+| 参数 | 类型 | 说明 | 输入/输出 |
+|------|------|------|-----------|
+| `config` | `k_vicap_probe_config*` | 探测配置（CSI 编号、分辨率、帧率） | 输入 |
+| `info` | `k_vicap_sensor_info*` | 输出传感器信息 | 输出 |
+| `lane_pref` | `k_vicap_mipi_lane_pref` | `ANY`、`2LANE` 或 `4LANE` 探测偏好 | 输入 |
+
+**说明**
+
+- `ANY` 不按 lane 过滤；同分辨率时固件排序优先 2LANE。
+- 非法的 `lane_pref` 按 `ANY` 处理。
+- 4LANE 仅支持 CSI0；在 CSI1/CSI2 上传入 `VICAP_MIPI_LANE_PREF_4LANE` 会失败。
+
+**返回值**
+
+| 返回值 | 说明 |
+|--------|------|
+| `0` | 成功 |
+| 非 `0` | 失败，返回错误码 |
+
+**示例**
+
+```c
+k_vicap_probe_config probe_cfg = {0};
+k_vicap_sensor_info sensor_info = {0};
+probe_cfg.csi_num = 0;
+probe_cfg.width = 2592;
+probe_cfg.height = 1944;
+probe_cfg.fps = 30;
+
+k_s32 ret = kd_mpi_sensor_adapt_get_ex(
+    &probe_cfg, &sensor_info, VICAP_MIPI_LANE_PREF_4LANE);
+```
 
 ---
 

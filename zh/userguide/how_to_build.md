@@ -2,23 +2,106 @@
 
 ## 概述
 
-K230 RTOS SDK 是基于 repo 管理的多仓库集成开发套件，包含 U-Boot、OpenSBI、RT-Smart、MPP 等核心组件。本文档提供完整的开发环境搭建、代码下载与编译流程说明。
+K230 RTOS SDK 是基于 repo 管理的多仓库集成开发套件，包含 U-Boot、OpenSBI、RT-Smart、MPP 等核心组件。本文档提供两种构建方式：
 
-## 开发环境要求
+- **使用 Docker 编译**（推荐）：无需安装任何编译依赖，一条命令即可完成编译
+- **直接本机编译**：在 Ubuntu 20.04 上手动搭建环境
 
-> 推荐使用虚拟机或者 Docker, 并随时备份修改，防止资料丢失。
+## 使用 Docker 编译（推荐）
+
+使用预配置的 [k230-builder](https://github.com/huangzhenming/k230-builder) 镜像，内置所需工具链的下载工具、repo、genimage 及所有编译依赖。前提条件仅需安装 Docker。
+
+### 前提条件
+
+- **安装 Docker**
+
+  请参考 [Docker 官方文档](https://docs.docker.com/engine/install/) 安装适合您操作系统的 Docker。
+
+  - 对于 **Windows** 用户，建议使用 WSL（Windows Subsystem for Linux），并在 WSL 中安装 Docker，或使用 Docker Desktop 并启用 WSL 2 后端。
+  - 安装完成后，**务必**执行以下命令将当前用户添加到 `docker` 用户组，以避免每次执行 `docker` 命令都需使用 `sudo`（否则后续编译可能因权限问题出错）：
+
+    ```bash
+    sudo usermod -aG docker $USER
+    newgrp docker   # 或直接重新登录终端
+    ```
+
+- **配置 Gitee SSH 密钥**（代码下载需要）
+  在 [Gitee](https://gitee.com) 注册账号并[添加 SSH 公钥](https://gitee.com/profile/sshkeys)。
+
+- **配置 Git 用户信息**
+
+  ```bash
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+  ```
+
+### 安装 k230 命令
+
+```bash
+curl -fsSL https://www.kendryte.com/misc/install.sh | bash
+source ~/.bashrc
+```
+
+安装后执行 `k230 pull` 拉取 Docker 镜像（首次耗时取决于网络，约 1GB+）。
+
+### 快速开始
+
+```bash
+# 1) 创建工作目录
+mkdir -p ~/rtos_k230 && cd ~/rtos_k230
+
+# 2) 拉取 docker 镜像
+k230 pull
+
+# 3) 下载工具链（仅需首次执行一次）
+k230 download-toolchains TC1 TC3
+
+# 4) 下载代码（容器内置 repo，自动挂载宿主 SSH 密钥）
+k230 repo init -u git@gitee.com:canmv-k230/manifest.git --repo-url=git@gitee.com:canmv-k230/git-repo.git
+
+# 从 GitHub 下载（国际）
+# k230 repo init -u https://github.com/canmv-k230/manifest --repo-url=https://github.com/canmv-k230/git-repo.git
+
+k230 repo sync -j$(nproc)
+
+# 5) 选择您所需要的板级配置, 此处以 k230_rtos_01studio_defconfig 举例
+k230 make list-def             # 查看所有板级配置
+k230 make k230_rtos_01studio_defconfig
+
+# 6) 编译
+k230 make
+
+# 7) 查看输出镜像
+ls -lh output/k230_rtos_01studio_defconfig/images/
+```
+
+### 常用命令
+
+```bash
+k230 list-toolchains                  # 查看可用工具链列表
+k230 make                             # 编译（增量构建）
+k230 make list-def                    # 查看所有板级配置
+k230 make menuconfig                  # 交互式配置
+k230 bash                             # 进入容器终端
+k230 repo sync -j$(nproc)            # 更新代码
+k230 pull                             # 更新 k230-builder 镜像
+```
+
+### Git 与 SSH
+
+`k230` 自动挂载宿主 `~/.ssh` 和 `~/.gitconfig` 到容器，`repo init` / `git clone` 直接可用，无需额外配置。
+
+---
+
+## 直接本机编译
+
+> 推荐使用 Docker 编译。仅在无法使用 Docker 时，参考以下手动搭建流程。
 
 ### 系统要求
 
-- **操作系统**：Ubuntu 20.04 LTS (x86_64)  
-  *其他 Linux 发行版未经充分测试，可能存在兼容性问题。*
-
-### 硬件要求
-
-- 内存：建议 ≥ 2GB
-- 磁盘空间：建议预留 ≥ 10GB
-
-## 开发环境搭建
+- **操作系统**：Ubuntu 20.04 LTS (x86_64)
+- **内存**：≥ 2GB
+- **磁盘**：≥ 10GB
 
 ### 配置 APT 源（可选，推荐国内用户）
 
@@ -32,29 +115,21 @@ sudo apt update
 ### 安装系统依赖
 
 ```bash
-# 添加 i386 架构支持
 sudo dpkg --add-architecture i386
 sudo apt update
-
-# 安装编译工具链及依赖库
 sudo apt install -y --no-install-recommends \
     sudo vim wget curl git git-lfs openssh-client net-tools sed tzdata expect \
     make cmake binutils build-essential gcc g++ bash patch perl tar cpio unzip \
     file bc bison flex autoconf automake python3 python3-pip python3-dev \
     lib32z1 libncurses5-dev fakeroot pigz tree doxygen gawk pkg-config \
     libssl-dev libc6-dev-i386 libncurses5:i386 libconfuse-dev python-is-python3 scons libyaml-dev mtools
-
-# 清理缓存
 sudo apt clean
 ```
 
 ### 配置 Python 环境
 
 ```bash
-# 配置 PIP 国内镜像源（推荐）
 pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-
-# 安装 Python 依赖库
 pip3 install -U pyyaml pycryptodome gmssl jsonschema jinja2
 ```
 
@@ -68,253 +143,127 @@ echo 'export PATH="$HOME/.bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## 代码获取与编译
-
-## 10 分钟首次成功路径（推荐）
-
-如果你是第一次接触 K230 RTOS SDK，建议先按下面这条最短路径完成一次成功编译：
+### 下载代码与编译
 
 ```bash
-# 1) 下载代码, gitee需要注册账号并配置私钥。
-mkdir -p ~/rtos_k230 && cd ~/rtos_k230
-repo init -u git@gitee.com:canmv-k230/manifest.git --repo-url=git@gitee.com:canmv-k230/git-repo.git
-repo sync -j $(nproc)
-
-# 2) 下载工具链（首次一次）
-make dl_toolchain
-
-# 3) 选择板级配置（示例：01Studio）
-make k230_rtos_01studio_defconfig
-
-# 4) 编译
-time make log
-
-# 5) 查看输出镜像
-ls -lh output/k230_rtos_01studio_defconfig/images/
-```
-
-如果你的板子不是 01Studio，请先执行 `make list-def`，再选择对应的 `k230_rtos_*_defconfig`。
-
-### 初始化git配置
-
-```bash
-#根据申请的git账号配置你的用户名和密码
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
-```
-
-### 下载 SDK 源码
-
-```bash
-# 创建工作目录
 mkdir -p ~/rtos_k230 && cd ~/rtos_k230
 
-# 从 Gitee 下载代码（推荐国内用户，需配置 SSH 密钥）
+# 从 Gitee 下载（国内，需 SSH 密钥）
 repo init -u git@gitee.com:canmv-k230/manifest.git --repo-url=git@gitee.com:canmv-k230/git-repo.git
 
-# 从 GitHub 下载代码（国际用户）
+# 从 GitHub 下载（国际）
 # repo init -u https://github.com/canmv-k230/manifest --repo-url=https://github.com/canmv-k230/git-repo.git
 
-# 同步代码仓库
 repo sync -j $(nproc)
-```
 
-### 初始化工具链
-
-```bash
-# 首次编译需下载工具链（仅需执行一次）
+# 下载工具链（首次一次）
 make dl_toolchain
-```
 
-### 选择目标硬件配置
-
-```bash
-# 查看所有支持的硬件配置
-make list-def
-
-# 示例：01Studio 开发板
+# 选择板级配置并编译
 make k230_rtos_01studio_defconfig
-
-# 示例：立创开发板
-make k230_rtos_lckfb_defconfig
+time make
 ```
 
-### 仅有 CanMV defconfig 时，如何构建 RTOS 镜像
+---
 
-部分板卡可能只有 `k230_canmv_*_defconfig`，没有对应的 `k230_rtos_*_defconfig`。这种情况下，也可以基于 CanMV defconfig 构建 RTOS 镜像：
+## CanMV defconfig 构建 RTOS 镜像
+
+部分板卡只有 `k230_canmv_*_defconfig`，没有对应的 `k230_rtos_*_defconfig`，可基于 CanMV defconfig 构建纯 RTOS 镜像：
 
 ```bash
-# 1) 先选择一个可用的 canmv defconfig
 make k230_canmv_xxx_defconfig
-
-# 2) 进入 menuconfig 调整功能开关
 make menuconfig
 ```
 
-在 `menuconfig` 中建议至少调整以下项：
+在 `menuconfig` 中：
 
-1. 关闭 CanMV 组件：
+1. 关闭 `CanMV Components Configuration`
+2. 按需开启 `RT-Smart UserSpace Examples Configuration > Enable xxxx examples`
+3. 如需编译自定义应用，在 `Applications Configuration` 中开启对应开关
 
-```text
-CanMV Components Configuration
-```
-
-把该选项关闭（对应 `CONFIG_SDK_ENABLE_CANMV` 不使能）。
-
-1. 按需编译示例：
-
-```text
-RT-Smart UserSpace Examples Configuration > Enable xxxx examples
-```
-
-1. 如果需要编译自定义应用，开启应用开关：
-
-```text
-Applications Configuration > (选择你的应用开关)
-```
-
-例如内置示例：`Enable Application HelloWorld`。
-
-保存配置后执行编译：
+保存后编译：
 
 ```bash
-time make log
+make
 ```
 
-如果你希望把当前调整固化成新的 defconfig，可执行：
+如需固化为新的 defconfig：
 
 ```bash
 make savedefconfig
+# 将生成的配置保存到 configs/，便于团队复用
 ```
 
-然后将生成的配置保存到 `configs/` 下，便于团队复用。
+---
 
-### 执行编译
+## 编译输出
 
-```bash
-# 开始完整编译（耗时较长，建议使用 `time` 记录时间）
-time make log
-```
+生成的固件镜像位于 `output/<defconfig>/images/`，常见文件：
 
-**编译输出**  
-生成的固件镜像位于：  
-`./output/<defconfig>/images/`
+- `*.img`：SD 卡烧录或命令行烧录
+- `*.kdimg`：K230BurningTool USB 烧录或 OTA 升级
 
-常见文件包括：
+---
 
-- `*.img`：用于 SD 卡烧录或部分命令行烧录场景
-- `*.kdimg`：用于 K230BurningTool USB 烧录，或者 OTA 升级使用
-
-## 目录结构说明
+## 目录结构
 
 ```text
 rtos_k230/
-├── boards/          # 板级支持包（BSP），包含板卡电源、引脚、启动介质、DDR 等配置
-├── configs/         # defconfig 配置集合（入口配置）
-├── output/          # 编译输出目录（按 defconfig 分目录）
+├── boards/          # 板级支持包（BSP），电源、引脚、DDR 等配置
+├── configs/         # defconfig 配置入口
+├── output/          # 编译输出（按 defconfig 分目录）
 ├── src/
-│   ├── applications # 用户应用（自定义 app，打包到 /sdcard/app）
+│   ├── applications # 用户自定义应用
 │   ├── opensbi/     # OpenSBI（二级引导）
-│   ├── rtsmart/     # RT-Smart 内核、驱动、MPP、示例等
-│   ├── uboot/       # U-Boot（启动加载、分区/镜像装载）
-│   └── canmv/       # CanMV 组件（开启 CONFIG_SDK_ENABLE_CANMV 时参与构建）
-└── tools/           # 构建脚本、kconfig、工具链管理脚本
+│   ├── rtsmart/     # RT-Smart 内核、驱动、MPP、示例
+│   ├── uboot/       # U-Boot
+│   └── canmv/       # CanMV 组件
+└── tools/           # 构建脚本、kconfig、工具链管理
 ```
 
-### 关键目录详解
+### 关键目录
 
-#### boards/
+| 目录 | 说明 |
+|------|------|
+| `output/<defconfig>/images/` | 最终可烧录镜像 |
+| `configs/` | 默认配置模板（`make list-def` 看到的所有选项） |
+| `src/rtsmart/examples/` | 官方示例源码 |
+| `src/applications/` | 用户自定义应用入口 |
+| `tools/` | 构建基础设施（`make menuconfig`、`make list-def` 等） |
 
-- 作用：存放板级差异配置（BSP），例如内存规格、启动介质、外设复用、镜像布局关联配置。
-- 典型场景：新增板卡、调整板级硬件参数（如某些 GPIO/电源/DDR 相关设置）。
-
-#### configs/
-
-- 作用：存放 `*_defconfig`，是整个工程的配置入口。
-- 使用方式：执行 `make <board>_defconfig` 后，配置会展开到根目录 `.config`，后续 `make menuconfig` 在此基础上增改。
-- 建议：团队内固定使用一份已验证的 defconfig，避免口口相传导致配置漂移。
-
-#### output/
-
-- 作用：每次构建的产物输出目录。
-- 结构：`output/<defconfig>/...`
-- 常见子目录：
-  - `output/<defconfig>/images/`：最终可烧录镜像（常见 `*.img`、`*.kdimg`）
-  - `output/<defconfig>/rtsmart/`：RT-Smart 相关中间产物
-  - `output/<defconfig>/uboot/`、`opensbi/`、`applications/`：各模块独立构建产物
-
-#### src/rtsmart/
-
-- 作用：RTOS 主体目录，是大多数运行时能力和示例的核心来源。
-- 顶层关键子目录：
-  - `rtsmart/`：RT-Smart 主体（内核、系统组件、工具）
-  - `mpp/`：多媒体处理平台（视频/音频/图像相关内核与用户态能力）
-  - `examples/`：官方示例工程（外设、MPP、AI、集成样例）
-  - `libs/`：公共库与 HAL（如 `rtsmart_hal`、3rd-party、nncase、opencv 等）
-
-- 常见开发场景与修改入口：
-  - 调整 RT-Smart 系统行为：优先查看 `src/rtsmart/rtsmart/`
-  - 调整媒体链路或驱动相关接口：优先查看 `src/rtsmart/mpp/`
-  - 验证硬件或功能：优先从 `src/rtsmart/examples/` 选择对应样例
-  - 增加底层驱动封装或公共能力：优先查看 `src/rtsmart/libs/`
-
-- 与镜像内容关系：
-  - `src/rtsmart/examples/` 编译后会安装到镜像中的示例目录（通常为 `/sdcard/app/examples/`）
-  - `src/rtsmart/mpp/` 与 `src/rtsmart/libs/` 的改动会影响相应运行库和示例行为
-
-#### src/applications/
-
-- 作用：用户自定义应用入口（相对于示例，更适合项目化交付）。
-- 常见流程：新增应用目录 -> 在 `apps.mk`/Kconfig 中注册 -> `menuconfig` 使能 -> `make` 编译打包。
-
-#### src/canmv/
-
-- 作用：CanMV 相关组件与资源。
-- 说明：当关闭 `CONFIG_SDK_ENABLE_CANMV` 时，该目录不会参与构建，适合纯 RTOS 镜像场景。
-
-#### tools/
-
-- 作用：构建系统基础设施，如工具链下载、Kconfig 解析、辅助脚本等。
-- 常见命令入口：`make dl_toolchain`、`make menuconfig`、`make list-def`。
-
-### 新手常用定位
-
-- 找可烧录镜像：`output/<defconfig>/images/`
-- 找当前可改配置：根目录 `.config`（由 defconfig + menuconfig 生成）
-- 找默认配置模板：`configs/`
-- 找示例源码：`src/rtsmart/examples/`
-- 找自定义应用源码：`src/applications/`
+---
 
 ## 常见问题
 
-### 代码同步失败
+### `k230` 命令未找到
 
-- **现象**：`repo sync` 报错或卡顿  
-- **解决方案**：  
-  1. 检查网络连接，国内用户优先使用 Gitee 仓库。  
-  1. 重试命令：`repo sync -j4 --fail-fast`。
+执行 `source ~/.bashrc` 或重新登录终端。确认 `~/.local/bin` 在 `$PATH` 中。
 
-### 编译工具链缺失
+### `repo sync` 失败
 
-- **现象**：`make` 报错提示工具链未找到  
-- **解决方案**：  
-  确保已执行 `make dl_toolchain`，并检查 `~/.kendryte/k230_toolchains` 目录下是否包含工具链文件。
+1. 检查网络连接，国内用户使用 Gitee 仓库
+2. 重试：`k230 repo sync -j4 --fail-fast`
+3. 确认 Gitee SSH 密钥已配置，`~/.ssh` 下存在对应私钥
 
-### 依赖冲突
+### 工具链下载失败
 
-- **现象**：编译过程中提示库版本不兼容  
-- **解决方案**：  
-  1. 使用 `apt list --installed` 检查依赖版本。  
-  1. 通过 `sudo apt install <package>=<version>` 安装指定版本。
+工具链存储在 Docker Volume `k230_toolchains` 中，首次下载量较大，网络不稳定时可分批下载：
 
-### 打包镜像失败
+```bash
+k230 download-toolchains TC1     # 先下 TC1
+k230 download-toolchains TC3     # 再下 TC3
+```
 
-- **现象**：最后打包提示分区太小
-- **解决方案**：减少使能的 example ，或者修改对应板子的镜像配置文件，增大对应分区的文件大小
+### Docker 无权限
+
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+---
 
 ## 下一步
 
-- [烧录固件至开发板](./how_to_flash.md)  
+- [烧录固件至开发板](./how_to_flash.md)
 - [运行示例程序](./how_to_run_samples.md)
-
-通过本指南，您已完成 K230 RTOS SDK 的开发环境搭建与固件编译。如有其他问题，请参考官方文档或提交 Issue 至代码仓库。

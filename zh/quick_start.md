@@ -21,6 +21,10 @@
 - 已连接开发板、串口线、USB 线（或 SD 卡读卡器）
 - 有可用网络（用于 `repo sync` 和工具链下载）
 
+```{warning}
+如果使用外置 USB 转串口模块连接板卡 UART，请先阅读 [串口电平与转接模块安全](./app_develop_guide/peripheral/uart.md)。必须匹配板卡的 1.8 V 或 3.3 V I/O 电平，禁止使用 5 V 信号及文中图片所示的劣质 CH340G 模块。
+```
+
 ## 15 分钟上手路径
 
 ### 1. 下载源码
@@ -85,7 +89,7 @@ find . -name "*.elf" | head
 ## 常见入口
 
 - 新增/修改应用：[`userguide/helloworld.md`](./userguide/helloworld.md)
-- 查看支持的 Sensor 与使能方式：[`userguide/sensor_list.md`](./userguide/sensor_list.md)
+- 查看支持的 Sensor 与使能方式：[`hardware_compatibility/sensor_list.md`](./hardware_compatibility/sensor_list.md)
 - 应用开发指南：[`app_develop_guide/index.md`](./app_develop_guide/index.md)
 - API 手册：[`api_reference/index.md`](./api_reference/index.md)
 

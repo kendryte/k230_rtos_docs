@@ -2,7 +2,9 @@
 
 ## 概述
 
-网络管理HAL提供了全面的网络连接管理接口，包括Wi-Fi(STA和AP模式)、LAN和通用网络工具。本文档描述了可用功能及其使用方法。
+网络管理 HAL 提供 Wi-Fi（STA 和 AP 模式）、LAN、网络设备发现与默认路由管理
+接口。网卡由驱动自动注册，应用通过逻辑接口或动态设备名访问，不应依赖固定的
+硬件设备名。
 
 ---
 
@@ -12,17 +14,36 @@
 
 ```c
 enum rt_netif_t {
-    RT_NET_DEV_WLAN_STA = 0,  // Wi-Fi站点模式
-    RT_NET_DEV_WLAN_AP  = 1,  // Wi-Fi接入点模式
-    RT_NET_DEV_USB      = 2   // USB网络接口
+    RT_NET_DEV_WLAN_STA = 0,  // Wi-Fi 站点模式
+    RT_NET_DEV_WLAN_AP  = 1,  // Wi-Fi 接入点模式
+    RT_NET_DEV_LAN      = 2,  // 通用 LAN（RTL8152/ECM/NCM）
+
+    // 兼容旧源码，均等价于 RT_NET_DEV_LAN
+    RT_NET_DEV_USB_RTL8152 = RT_NET_DEV_LAN,
+    RT_NET_DEV_USB_ECM     = RT_NET_DEV_LAN,
+    RT_NET_DEV_USB_NCM     = RT_NET_DEV_LAN,
 };
 ```
+
+### WLAN 物理设备类型
+
+```c
+enum netmgmt_wlan_device {
+    NETMGMT_WLAN_DEVICE_AUTO = 0,
+    NETMGMT_WLAN_DEVICE_USB,
+    NETMGMT_WLAN_DEVICE_SDIO,
+    NETMGMT_WLAN_DEVICE_SPI,
+};
+```
+
+`AUTO` 优先保持当前角色已选择的设备；需要重新选择时，按 SDIO、SPI、USB、
+未知传输类型的顺序查找。仅在应用必须固定物理连接方式时显式指定类型。
 
 ### 最大长度限制
 
 ```c
 #define RT_WLAN_SSID_MAX_LENGTH 32         // SSID最大长度
-#define RT_WLAN_PASSWORD_MAX_LENGTH 32     // 密码最大长度
+#define RT_WLAN_PASSWORD_MAX_LENGTH 64     // 密码最大长度
 #define RT_WLAN_BSSID_MAX_LENGTH 6         // MAC地址长度
 #define RT_WLAN_STA_SCAN_MAX_AP 64         // 扫描结果中AP最大数量
 #define NET_DEV_MAX_CNT 8                  // 最大网络设备数量
@@ -31,6 +52,21 @@ enum rt_netif_t {
 ---
 
 ## Wi-Fi STA功能
+
+### 物理设备选择
+
+#### `netmgmt_wlan_select_device()`
+
+**功能**：选择后续角色接口所使用的物理 WLAN 设备。
+**参数**：
+
+- `device`：`NETMGMT_WLAN_DEVICE_AUTO`、`USB`、`SDIO` 或 `SPI`；
+- `itf`：`RT_NET_DEV_WLAN_STA` 或 `RT_NET_DEV_WLAN_AP`。
+
+**返回值**：成功返回 0，所选设备不可用或参数无效时返回 -1。
+
+选择会影响后续所有基于 STA/AP 角色的 `netmgmt_wlan_*` 和 `netmgmt_utils_*`
+调用。在多 Wi-Fi 设备环境中，先选择物理设备，再执行连接、扫描或 IP 配置。
 
 ### 自动重连管理
 
@@ -244,7 +280,8 @@ enum rt_netif_t {
 **功能**: 检查LAN是否连接  
 **参数**:
 
-- `status`: 存储状态的指针(1=已连接，0=未连接)  
+- `itf`: 使用 `RT_NET_DEV_LAN`
+- `status`: 存储状态的指针(1=链路已连接且已有有效 IP，0=未连接)
 **返回值**: 成功返回0，失败返回-1  
 
 #### `netmgmt_lan_get_link_status()`
@@ -252,7 +289,8 @@ enum rt_netif_t {
 **功能**: 获取LAN链路状态  
 **参数**:
 
-- `status`: 存储状态的指针(1=链路up，0=链路down)  
+- `itf`: 使用 `RT_NET_DEV_LAN`
+- `status`: 存储链路状态的指针
 **返回值**: 成功返回0，失败返回-1  
 
 ---
@@ -264,6 +302,7 @@ enum rt_netif_t {
 **功能**: 获取LAN MAC地址  
 **参数**:
 
+- `itf`: 使用 `RT_NET_DEV_LAN`
 - `mac`: 存储MAC地址的缓冲区  
 **返回值**: 成功返回0，失败返回-1  
 
@@ -272,6 +311,7 @@ enum rt_netif_t {
 **功能**: 设置LAN MAC地址  
 **参数**:
 
+- `itf`: 使用 `RT_NET_DEV_LAN`
 - `mac`: 要设置的MAC地址  
 **返回值**: 成功返回0，失败返回-1  
 
@@ -281,21 +321,29 @@ enum rt_netif_t {
 
 ### 设备管理
 
-#### `netmgmt_utils_get_defeault_dev()`
+#### `netmgmt_utils_get_default_dev()`
 
-**功能**: 获取默认网络设备  
+**功能**: 获取当前实际生效的默认网络设备
 **参数**:
 
-- `name`: 存储设备名称的缓冲区  
+- `name`: 存储设备名称的 32 字节缓冲区；当前没有可用默认上行时得到空字符串
 **返回值**: 成功返回0，失败返回-1  
 
-#### `netmgmt_utils_set_defeault_dev()`
+#### `netmgmt_utils_set_default_dev()`
 
-**功能**: 设置默认网络设备  
+**功能**: 设置首选默认上行设备
 **参数**:
 
-- `name`: 要设置为默认设备的名称  
+- `name`: `netmgmt_utils_get_dev_list()` 返回的完整设备名；传入 `NULL` 清除首选
+  设备并恢复自动选择
 **返回值**: 成功返回0，失败返回-1  
+
+只有 LAN 与 Wi-Fi STA 可以作为默认上行，Wi-Fi AP 和未知类型设备会被拒绝。
+设置首选设备不关闭自动故障转移：首选设备未就绪时系统选择其他可用上行，首选
+设备恢复后自动切回。
+
+旧拼写 `netmgmt_utils_get_defeault_dev()` 和
+`netmgmt_utils_set_defeault_dev()` 仍保留为已弃用别名，新代码应使用正确拼写。
 
 #### `netmgmt_utils_get_dev_list()`
 
@@ -306,6 +354,10 @@ enum rt_netif_t {
 - `names`: 存储设备名称的数组  
 **返回值**: 成功返回0，失败返回-1  
 
+设备名是动态分配的完整名称。USB LAN 通常为 `eth0` 到 `eth9`；WLAN STA/AP
+通常为 `wlanN`/`wlanNap`，其中 `N` 表示物理射频编号。不要把这些示例名称写死
+在应用中。
+
 #### `netmgmt_utils_probe_device()`
 
 **功能**: 探测网络接口可用性  
@@ -314,6 +366,20 @@ enum rt_netif_t {
 - `itf`: 接口类型  
 - `status`: 存储探测结果的指针  
 **返回值**: 成功返回0，失败返回-1  
+
+#### `netmgmt_utils_get_netdev_name()`
+
+**功能**：将逻辑接口解析为当前 netdev 名称。
+**参数**：
+
+- `itf`：`RT_NET_DEV_WLAN_STA`、`RT_NET_DEV_WLAN_AP` 或
+  `RT_NET_DEV_LAN`；
+- `name`：存储名称的 32 字节缓冲区。
+
+**返回值**：成功返回 0，接口当前不可用时返回 -1。
+
+对于 WLAN，该接口返回由最近一次 `netmgmt_wlan_select_device()` 选择的设备；
+未选择时会尝试自动选择。
 
 ---
 
@@ -376,5 +442,9 @@ enum rt_netif_t {
 ## 注意事项
 
 1. 除非另有说明，所有函数成功返回0，失败返回-1
-1. 调用者必须检查缓冲区大小以防止溢出
-1. 网络操作可能需要时间完成 - 如果需要，延迟后检查状态
+1. 调用者必须使用文档规定的缓冲区大小并检查返回值
+1. 默认上行必须同时满足接口启用、链路连接、非零 IP 和非零网关；默认 LAN
+   metric 为 100，Wi-Fi STA 为 600，因此自动模式优先 LAN
+1. `/etc/resolv.conf` 会按当前默认设备优先的顺序汇总所有已注册设备的 DNS；
+   设备注册、注销或 DNS 变化时自动更新
+1. 网络设备可能热插拔，设备列表和逻辑接口对应的名称应在需要时重新查询

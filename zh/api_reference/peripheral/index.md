@@ -10,6 +10,7 @@ fft.md
 fpioa.md
 gpio.md
 i2c.md
+pmu.md
 pwm.md
 sbus.md
 spi.md

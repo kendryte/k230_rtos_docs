@@ -1,258 +1,342 @@
-# 如何添加新的配置文件（新板子）
+# 如何添加新开发板
 
-在开始操作之前，首先需要下载 K230 SDK，具体的下载路径请参考 [如何编译固件](../userguide/how_to_build.md)。
+本文以 K230 CanMV 01Studio 为例，说明如何在 K230 RTOS SDK 中添加一块同时支持 U-Boot、RT-Smart 和 CanMV 的开发板。示例统一使用以下命名：
 
-接下来，我们将以 01studio 的板子为例，详细说明如何根据板子的硬件情况添加一个新的配置项。在这个过程中，涉及到改动的文件夹主要有以下几个，并且下面的每一个步骤都对应着相应目录的具体修改方法。
+| 用途 | 名称 |
+| --- | --- |
+| 板级目录名 | `k230_canmv_01studio` |
+| SDK defconfig | `k230_canmv_01studio_defconfig` |
+| SDK Kconfig 符号 | `BOARD_K230_CANMV_01STUDIO` |
+| U-Boot Kconfig 符号 | `TARGET_K230_CANMV_01STUDIO` |
+| 固件文件名前缀 | `CanMV_K230_01Studio` |
 
-| 模块        | 源文件路径                                     | 说明                                                                                     |
-| ----------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| 全局        | ./boards/Kconfig                               | 全局文件配置信息，用于对整个系统的相关配置进行管理                                       |
-| 全局        | ./boards/                                      | 存放各个板子的打包文件，这些文件包含了板子相关的各种资源和配置。                         |
-| 全局        | ./config/                                      | 各个板子的defconfig文件                                                                  |
-| canmv模块   | ./src/canmv/port/boards                        | 该目录存储了在 CanMV 中关于板子的配置信息，用于 CanMV 软件与板子的适配                   |
-| boot模块    | ./src/uboot/uboot/arch/riscv                   | 在 U-Boot 中添加板子信息的相关目录                                                       |
-| boot模块    | ./src/uboot/uboot/board/kendryte               | 存放 U-Boot 配置信息的目录                                                               |
-| boot模块    | ./src/uboot/uboot/arch/riscv/dts               | 记录板子的硬件配置信息，如电源和 GPIO 等相关配置，是硬件与软件交互的重要配置文件所在目录 |
-| boot模块    | ./src/uboot/uboot/config                       | 包含 U-Boot menuconfig 配置信息，用于配置 U-Boot 的菜单选项和功能                        |
-| rtsmart模块 | ./src/rtsmart/rtsmart/kernel/bsp/maix3/configs | 存储 RTSmart 的 menuconfig 配置信息，用于对 RTSmart 系统的配置管理                       |
+目录名、defconfig 名和 `CONFIG_BOARD` 保持一致时，SDK 会自动使用同名的 U-Boot 和 RT-Smart 配置文件。只有子系统使用不同名称时，才需要在 SDK defconfig 中设置 `CONFIG_UBOOT_CONFIG_FILE` 或 `CONFIG_RTSMART_CONFIG_FILE`。
 
-以下是具体的操作步骤：
+## 准备硬件信息
 
-## 修改KConfig文件，增加板子定义
+添加配置前，至少需要确认以下信息：
 
-在./boards/Kconfig 文件中，我们需要添加一个新的配置名字。具体的添加内容如下：
+1. 芯片型号、DDR 类型、容量、位宽和运行频率。
+1. 启动介质以及 SDIO0、SDIO1、SPI NOR 或 SPI NAND 的连接方式。
+1. 调试串口、波特率和对应的 IO 复用。
+1. 各 IO Bank 的电压。电压配置错误可能损坏芯片或外设。
+1. Camera 的 CSI、I2C、MCLK、RESET 和 POWERDOWN 连接。
+1. LCD、触摸、Wi-Fi、USB 等板载外设及其控制 GPIO。
+1. PMU_INT0、PMU_INT4 是否通过板级电阻上拉到 `VCC_RTC_1V8`。
 
-```c
-        config BOARD_K230_CANMV_LCKFB
-            bool "K230 CanMV LCKFB, Onboard 1GiB LPDDR4"
+选择硬件最接近的现有开发板作为模板，但不要直接沿用 DDR、RESET GPIO、MCLK、屏幕、启动介质和 PMU 配置。自动生成的 DTS 往往只包含 IOMUX 片段，还需要补充根节点、内存节点和需要启用的设备节点。
 
-      + config BOARD_K230_CANMV_01STUDIO
-      +     bool "K230 CanMV 01 Studio, Onboard 1GiB LPDDR4"
+完整适配涉及以下位置：
 
-        config BOARD_K230D_CANMV_BPI_ZERO
-            bool "K230D CanMV BPI-Zero, SiP 128MiB LPDDR4"
+| 模块 | 路径 | 作用 |
+| --- | --- | --- |
+| SDK | `boards/Kconfig` | 注册开发板并生成 `CONFIG_BOARD`、固件名称 |
+| SDK | `boards/k230_canmv_01studio/` | U-Boot 环境、镜像布局和可选的 OpenSBI 预编译文件 |
+| SDK | `configs/k230_canmv_01studio_defconfig` | SDK 顶层功能配置 |
+| U-Boot | `src/uboot/uboot/arch/riscv/Kconfig` | 注册 U-Boot target |
+| U-Boot | `src/uboot/uboot/board/kendryte/k230_canmv_01studio/` | 板级初始化和 DDR 配置 |
+| U-Boot | `src/uboot/uboot/arch/riscv/dts/k230_canmv_01studio.dts` | 内存、启动设备和 IOMUX |
+| U-Boot | `src/uboot/uboot/configs/k230_canmv_01studio_defconfig` | U-Boot 配置 |
+| RT-Smart | `src/rtsmart/rtsmart/kernel/bsp/maix3/configs/k230_canmv_01studio_defconfig` | 内核和驱动配置 |
+| RT-Smart | `src/rtsmart/rtsmart/kernel/bsp/maix3/board/configs/k230_canmv_01studio/` | 可选的 RT-Smart pinmux 和上电时序 |
+| CanMV | `src/canmv/port/boards/k230_canmv_01studio/` | MicroPython/CanMV 板级信息 |
+
+## 注册 SDK 开发板
+
+在 `boards/Kconfig` 的 `choice BOARD` 中增加板型，并选择正确的芯片：
+
+```kconfig
+config BOARD_K230_CANMV_01STUDIO
+    bool "K230 CanMV 01 Studio, Onboard 1GiB LPDDR4"
+    select BOARD_CHIP_K230
 ```
 
-```c
-    default "k230_canmv_lckfb" if BOARD_K230_CANMV_LCKFB
-  + default "k230_canmv_01studio" if BOARD_K230_CANMV_01STUDIO
-    default "k230d_canmv_bpi_zero" if BOARD_K230D_CANMV_BPI_ZERO
-```
+随后增加目录名、固件名和板级 Kconfig 的映射：
 
-```c
+```kconfig
+config BOARD
+    string
+    default "k230_canmv_01studio" if BOARD_K230_CANMV_01STUDIO
+
 config BOARD_NAME
-        string "Board Generate Image Name"
-        default "CanMV_K230_V1P0_P1" if BOARD_K230_CANMV
-        default "CanMV_K230_V3P0" if BOARD_K230_CANMV_V3P0
-        default "CanMV_K230_LCKFB" if BOARD_K230_CANMV_LCKFB
-      + default "CanMV_K230_01Studio" if BOARD_K230_CANMV_01STUDIO
-        default "CanMV_K230D_Zero" if BOARD_K230D_CANMV_BPI_ZERO
+    string "Board Generate Image Name"
+    default "CanMV_K230_01Studio" if BOARD_K230_CANMV_01STUDIO
+
+source "$(SDK_BOARDS_DIR)/k230_canmv_01studio/Kconfig"
 ```
 
-```c
-    source "$(SDK_BOARDS_DIR)/k230_canmv_lckfb/Kconfig"
-  + source "$(SDK_BOARDS_DIR)/k230_canmv_01studio/Kconfig"
-    source "$(SDK_BOARDS_DIR)/k230d_canmv_bpi_zero/Kconfig"
+创建 `boards/k230_canmv_01studio/`。通常可复制启动介质和分区布局相同的开发板，再逐项检查以下文件：
+
+- `Kconfig`：板级附加选项，包括硬件 RTC 支持状态。
+- `default.env`：修改 `board`、`board_name`、控制台和启动命令。
+- `genimage-sdcard.cfg`：检查 SPL、U-Boot、RT-Smart、rtapp 和文件系统的 offset、size。
+- `genimage-sdcard-ota.cfg`：检查 OTA 分区大小和镜像名称。
+- `opensbi_fw_jump.bin`：启用预编译 OpenSBI 时使用。
+
+`default.env` 中的板名示例如下：
+
+```text
+board=k230_canmv_01studio
+board_name=k230_canmv_01studio
+console_port=console=ttyS0,115200
 ```
 
-## 在board目录中增加新板子的目录
+## 配置 PMU 和 RTC
 
-新添加的目录路径需要与前面修改中`source`那段话所定义的路径保持一致。具体操作是运行以下命令：
+`PMU_INT0` 和 `PMU_INT4` 是 RTC/PMU 驱动使用的输入。若这两个引脚都没有通过板级电阻上拉到 `VCC_RTC_1V8`，不要启用 RTC/PMU 驱动，否则悬空输入可能导致启动失败。
 
-```shell
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/boards$ cp ./k230_canmv_dongshanpi ./k230_canmv_01studio -rf
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/boards/k230_canmv_01studio$ ls
-Kconfig  default.env  genimage-sdcard-kdimg.cfg  genimage-sdcard-rtos.cfg  genimage-sdcard.cfg
-```
+这种硬件设计应参考 01Studio，在板级 `boards/<board>/Kconfig` 中声明不支持硬件 RTC：
 
-添加完成后，该目录下会有 5 个文件，分别介绍如下：
-
-* Kconfig：是执行`make menuconfig`命令时必须依赖的文件，用于配置相关的选项make menuconfig必须依赖的文件
-* default：主要用于定义 U-Boot 的启动参数，对 U-Boot 的启动过程起到关键作用定义uboot启动参数
-* genimage-sdcard-kdimg.cfg：是一个分段打包文件，用于对相关内容进行分段打包处理分段打包文件
-* genimage-sdcard-rtos.cfg：RTSmart 的打包文件，与 RTSmart 系统的打包相关rtsmart打包文件
-* genimage-sdcard.cfg：MicroPython 的打包文件，用于 MicroPython 的打包操作 micropython打包文件
-
-此外，还需要对新增的 Kconfig 文件进行修改，其中`BOARD`的定义必须与第一步 KConfig 中定义内容保持一致。修改内容如下
-
-```makefile
+```kconfig
 if BOARD_K230_CANMV_01STUDIO
-
+    config BOARD_NOT_SUPPORT_HW_RTC
+        def_bool y
 endif
 ```
 
-## 在config中增加defconfig配置文件
+对应的 RT-Smart defconfig 不要包含：
 
-在`config`目录下，我们需要添加一个新板子的配置文件。可以从已有的文件中复制一份并进行重命名，具体操作命令如下：
-
-```shell
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/configs$ cp k230_canmv_dongshanpi_defconfig k230_canmv_01studio_defconfig
+```kconfig
+CONFIG_RT_USING_RTC_PMU=y
 ```
 
-复制完成后，需要对新的 config 配置文件进行修改，同时仔细检查里面的配置项是否符合实际需求（即是否需要使用这些配置项）。具体修改内容如下：
+如果应用仍需要系统时钟，可使用软件 RTC：
 
-```makefile
-#把CONFIG_BOARD_K230_CANMV_DONGSHANPAI修改成CONFIG_BOARD_K230_CANMV_01STUDIO
-CONFIG_BOARD_K230_CANMV_01STUDIO=y
-#修改CONFIG_BOARD_CONFIG_NAME
+```kconfig
+CONFIG_RT_USING_SOFT_RTC=y
+```
+
+只有原理图确认 `PMU_INT0`、`PMU_INT4` 有稳定的 `VCC_RTC_1V8` 外部上拉才移除 `BOARD_NOT_SUPPORT_HW_RTC` 并启用 `CONFIG_RT_USING_RTC_PMU=y`。
+
+## 选择预编译组件
+
+新增开发板时必须从源码编译 U-Boot，不要在 SDK defconfig 中启用：
+
+```kconfig
+CONFIG_UBOOT_USE_PREBUILT=y
+```
+
+预编译 U-Boot 已经固化了 DDR、DTS、IOMUX 和板级初始化逻辑。使用它会绕过新开发板的 U-Boot 源码修改。即使参考板目录中存在 `u-boot-spl.bin` 和 `u-boot.bin`，也不要将它们复制到新开发板目录。
+
+OpenSBI 的 `fw_jump.bin` 可以从已验证的参考板复制。参考板与新板必须使用相同芯片、内存布局、跳转地址和控制台 UART。例如：
+
+```shell
+cp boards/k230_canmv_01studio/opensbi_fw_jump.bin \
+   boards/<new_board>/opensbi_fw_jump.bin
+```
+
+然后在新板的 SDK defconfig 中启用：
+
+```kconfig
+# CONFIG_UBOOT_USE_PREBUILT is not set
+CONFIG_OPENSBI_USE_PREBUILT_FW_JUMP=y
+```
+
+若修改了 OpenSBI 跳转地址、内存保留区或控制台 UART，应重新编译 OpenSBI，不能继续使用复制的文件。
+
+## 添加 SDK defconfig
+
+创建 `configs/k230_canmv_01studio_defconfig`，先保留最少配置，再根据原理图增加 Camera、显示、网络和其他外设：
+
+```kconfig
 CONFIG_BOARD_CONFIG_NAME="k230_canmv_01studio_defconfig"
-CONFIG_MPP_DEFAULT_SENSOR_CSI_2=y
+CONFIG_BOARD_K230_CANMV_01STUDIO=y
+# CONFIG_UBOOT_USE_PREBUILT is not set
+CONFIG_OPENSBI_USE_PREBUILT_FW_JUMP=y
+CONFIG_SDK_ENABLE_CANMV=y
 ```
 
-## 在./src/canmv/port/boards下面增加配置信息
+Camera 的 `CONFIG_MPP_CSI_DEVx_RESET`、`CONFIG_MPP_CSI_DEVx_POWER` 和 MCLK 选项必须依据原理图填写。DTS 中的通用 `GPIOxx` 注释不能证明该 GPIO 就是 Sensor RESET。使用外部时钟时保留默认的 `MPP_CSI_DEVx_MCLK_INVALID`。
 
-在`boards`目录下，我们需要添加一个新板子的配置文件。可以从已有的文件中复制一份并进行重命名，具体操作命令如下：
+运行 `make k230_canmv_01studio_defconfig` 后，可以用 `make menuconfig` 调整配置，并使用 `make savedefconfig` 回写 SDK defconfig。
 
-```shell
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/canmv/port/boards$ cp -rf ./k230_canmv_dongshanpi/ ./k230_canmv_01studio
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/canmv/port/boards/k230_canmv_01studio$ ls
-manifest.py  mpconfigboard.h
+## 添加 U-Boot 支持
+
+### 注册 target
+
+在 `src/uboot/uboot/arch/riscv/Kconfig` 的 target choice 中增加：
+
+```kconfig
+config TARGET_K230_CANMV_01STUDIO
+    bool "Support k230_CANMV(01STUDIO)"
+    select SYS_CACHE_SHIFT_6
 ```
 
-该目录下有两个文件，分别是：
+并在板级 `source` 列表中增加：
 
-* manifest.py：micropython所需配置文件
-* mpconfigboard.h：micropython所需头文件
-
-需要修改mpconfigboard.h的配置：
-
-```cpp
-//根据使用的芯片选择K230或者K230D
-#define MICROPY_HW_MCU_NAME                 "K230"
-#define OMV_ARCH_STR                        ""
-//修改OMV_BOARD_TYPE
-#define OMV_BOARD_TYPE                      "CanMV K230 01Studio - %d%c"
+```kconfig
+source "board/kendryte/k230_canmv_01studio/Kconfig"
 ```
 
-## 在./src/uboot/uboot/arch/riscv下修改Kconfig文件
+### 添加板级目录
 
-```cpp
-+ config TARGET_K230_CANMV_01STUDIO
-+ bool "Support k230_CANMV(01STUDIO)"
-+ select SYS_CACHE_SHIFT_6  
+创建 `src/uboot/uboot/board/kendryte/k230_canmv_01studio/`，包含 `Kconfig`、`Makefile`、`board.c` 和板级 DDR 初始化文件。Kconfig 的关键映射如下：
 
-  source "board/kendryte/k230_canmv/Kconfig"
-+ source "board/kendryte/k230_canmv_01studio/Kconfig"
-  source "board/kendryte/k230d_canmv_bpi_zero/Kconfig"
-```
+```kconfig
+if TARGET_K230_CANMV_01STUDIO
 
-## 在./src/uboot/uboot/board/kendryte增加新板子的目录和文件
-
-新添加的目录和文件名需要与上一步`source`的路径保持一致，并且需要修改内部文件名，将其命名为`01studio`。具体操作如下：
-
-```shell
-//拷贝文件夹
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/uboot/uboot/board/kendryte$ cp -rf ./k230_canmv_dongshanpi ./k230_canmv_01studio
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/uboot/uboot/board/kendryte$ cd k230_canmv_01studio/
-//修改文件名，步骤省略(使用命令 mv canmv_dongshanpi_lpddr3_init_2133.c canmv_01studio_lpddr3_init_2133.c)
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/uboot/uboot/board/kendryte/k230_canmv_01studio$ ls
-Kconfig   board.c                            canmv_01studio_lpddr3_init_2133.c  canmv_01studio_lpddr4_init_32_swap_2667.c
-Makefile  canmv_01studio_lpddr3_init_1600.c  canmv_01studio_lpddr3_init_800.c   canmv_01studio_lpddr4_init_32_swap_3200.c
-
-```
-
-* Makefile：是编译文件，用于指导编译过程，定义了编译的规则和目标编译文件
-* Kconfig：存储配置信息的文件，用于配置相关的参数和选项配置信息文件
-* board.c：该文件包含了硬件电源和 GPIO 引脚的相关信息，需要根据实际的硬件设置进行修改
-* canmv_01studio_lpddr*.c：这是 DDR 配置文件，建议沿用参考开发板的配置信息，以确保 DDR 的正常工作。
-
-此外，还需要对 Makefile 文件根据修改后的文件名和目录进行相应的修改。同时，Kconfig 文件需要修改的信息如下：
-
-```text
-+  if TARGET_K230_CANMV_01STUDIO
-
-  config SYS_CPU
+config SYS_CPU
     default "k230"
 
-  config SYS_VENDOR
+config SYS_VENDOR
     default "kendryte"
 
-  config SYS_BOARD
-+        default "k230_canmv_01studio"
+config SYS_BOARD
+    default "k230_canmv_01studio"
 
-  config SYS_CONFIG_NAME
-+        default "k230_common"
+config SYS_CONFIG_NAME
+    default "k230_common"
 
-  config BOARD_SPECIFIC_OPTIONS
+config BOARD_SPECIFIC_OPTIONS
     def_bool y
     select KENDRYTE_K230
 
-  choice
-    prompt "DDR Type And Frequency"
-+        default CANMV_01STUDIO_LPDDR4_2667
-
-+        config CANMV_01STUDIO_LPDDR3_2133
-      bool "LPDDR3@2133"
-+        config CANMV_01STUDIO_LPDDR3_1600
-      bool "LPDDR3@1600"
-+        config CANMV_01STUDIO_LPDDR3_800
-      bool "LPDDR3@800"
-+        config CANMV_01STUDIO_LPDDR4_2667
-      bool "LPDDR4@2667"
-+        config CANMV_01STUDIO_LPDDR4_3200
-      bool "LPDDR4@3200"
-  endchoice
-
 endif
-
 ```
 
-## 在./src/uboot/uboot/arch/riscv/dts 根据硬件确定板子的配置信息
+DDR 初始化参数必须来自芯片和 DDR 的硬件验证结果，不能仅按容量复制。板上存在电源时序、复位或启动介质强制选择时，在 `board_early_init_f()` 或 `board_late_init()` 中增加对应逻辑。
+
+### 添加 DTS
+
+将 IOMUX 工具生成的配置放入 `src/uboot/uboot/arch/riscv/dts/`。除 pinctrl 外，至少补充板级身份、内存和启动设备：
+
+```dts
+#include "k230.dtsi"
+#include "k230_canmv_01studio_iomux.dtsi"
+
+/ {
+    model = "kendryte k230 canmv 01studio sdcard";
+    compatible = "kendryte,k230_canmv_01studio_sdcard";
+
+    memory@0 {
+        device_type = "memory";
+        reg = <0x0 0x0 0x0 0x40000000>;
+    };
+};
+
+&mmc0 {
+    status = "okay";
+};
+```
+
+注意事项：
+
+1. `0x40000000` 表示 1 GiB，必须与实际 DDR 和 SDK 内存布局一致。
+1. 只启用实际存在的 `mmc0`、`mmc1`、`usbotg0` 等节点。
+1. 更换控制台时，U-Boot、RT-Smart、OpenSBI 和 `default.env` 必须同步修改。
+1. 每个 IO Bank 的电压必须与原理图一致。
+1. DTS 和板级 DDR 初始化代码都必须参与源码编译，不能由预编译 U-Boot 替代。
+
+### 添加 U-Boot defconfig
+
+创建 `src/uboot/uboot/configs/k230_canmv_01studio_defconfig`。可复制同芯片、同 DDR 和同启动介质的配置，并至少修改：
+
+```kconfig
+CONFIG_DEFAULT_DEVICE_TREE="k230_canmv_01studio"
+CONFIG_TARGET_K230_CANMV_01STUDIO=y
+```
+
+SDK defconfig 保持 `CONFIG_UBOOT_USE_PREBUILT` 关闭后，构建系统会使用该 defconfig 编译 U-Boot。
+
+## 添加 RT-Smart 支持
+
+创建 `src/rtsmart/rtsmart/kernel/bsp/maix3/configs/k230_canmv_01studio_defconfig`。建议通过以下命令修改配置：
 
 ```shell
-#拷贝一份原始文件
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/uboot/uboot/arch/riscv/dts$ cp k230_canmv_dongshanpi.dts k230_canmv_01studio.dts
+make k230_canmv_01studio_defconfig
+make rtsmart-menuconfig
 ```
 
-我们提供了自动化配置工具[IOMAX生成工具](https://www.kendryte.com/zh/tools/dts_config_generation_tool)。
+需要根据硬件检查：
 
-## 在./src/uboot/uboot/config增加uboot配置文件
+- `CONFIG_RT_CONSOLE_DEVICE_NAME` 与 SDK 的 `CONFIG_RTT_CONSOLE_UARTx`。
+- SDIO0、SDIO1 的用途、电压和总线宽度。
+- Wi-Fi 使用的 SDIO Host 和 REG_ON GPIO。
+- I2C、SPI、USB Device/Host、触摸和显示驱动。
+- PMU 引脚没有外部上拉时，使用 `CONFIG_RT_USING_SOFT_RTC=y`，不要启用 `CONFIG_RT_USING_RTC_PMU`。
+- 强制启动介质 `CONFIG_DRV_SYSCTL_BOOT_FORCE_MODE` 是否确实需要。
+
+U-Boot 配置的 IOMUX 会保留到 RT-Smart。只有 RT-Smart 需要重新配置全部 pinmux 或执行板级上电时序时，才启用 `CONFIG_RT_BOARD_ENABLE_PINMUX` 或 `CONFIG_RT_BOARD_ENABLE_PIN_INIT_SEQUENCE`，并创建：
+
+```text
+src/rtsmart/rtsmart/kernel/bsp/maix3/board/configs/k230_canmv_01studio/pinmux_config.c
+```
+
+该文件的 IO 选择、电压、IE、OE、上下拉、驱动能力和施密特触发配置必须与 U-Boot DTS 保持一致。
+
+## 添加 CanMV 支持
+
+创建 `src/canmv/port/boards/k230_canmv_01studio/manifest.py`：
+
+```python
+include("../manifest.py")
+```
+
+创建 `src/canmv/port/boards/k230_canmv_01studio/mpconfigboard.h`：
+
+```c
+#define MICROPY_HW_BOARD_NAME               CONFIG_BOARD
+#define MICROPY_HW_MCU_NAME                 "K230"
+#define OMV_ARCH_STR                        ""
+#define OMV_BOARD_TYPE                      "CanMV K230 01Studio - %d%c"
+```
+
+SDK 的 `CONFIG_BOARD` 会自动选择同名的 CanMV 板级目录，不需要修改 CanMV 的公共 Makefile。
+
+## 配置和编译验证
+
+首先确认新配置可被发现并正确展开：
 
 ```shell
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/uboot/uboot/configs$ cp k230_canmv_dongshanpi_defconfig k230_canmv_01studio_defconfig
+make list-def
+make k230_canmv_01studio_defconfig
+grep -E 'CONFIG_(BOARD|UBOOT_USE_PREBUILT|OPENSBI_USE_PREBUILT)' .config
 ```
 
-复制完成后，需要进行以下修改：
+新开发板的关键结果应包含：
 
-* 修改CONFIG_DEFAULT_DEVICE_TREE="k230_canmv_01studio"
-* 修改CONFIG_TARGET_K230_CANMV_DONGSHANPAI为CONFIG_K230_CANMV_01STUDIO
+```text
+CONFIG_BOARD_K230_CANMV_01STUDIO=y
+CONFIG_BOARD="k230_canmv_01studio"
+# CONFIG_UBOOT_USE_PREBUILT is not set
+CONFIG_OPENSBI_USE_PREBUILT_FW_JUMP=y
+```
 
-## ./src/rtsmart/rtsmart/kernel/bsp/maix3/configs./src/rtsmart/boards下面增加新板子menuconfig文件
+然后分阶段编译，便于定位问题：
 
 ```shell
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/src/rtsmart/rtsmart/kernel/bsp/maix3/configs$ cp k230_canmv_dongshanpi_defconfig k230_canmv_01studio_defconfig
+make uboot
+make rtsmart
+make opensbi
+make canmv
+make
 ```
 
-也需要根据硬件的情况对config文件进行配置。
+最终镜像位于：
 
-## 编译运行
+```text
+output/k230_canmv_01studio_defconfig/CanMV_K230_01Studio_*.img
+```
 
-以上步骤就完成配置，接下来我们进入系统的编译和运行：
+烧录前还应检查：
+
+1. U-Boot 日志确认使用了新板的 defconfig、DTS 和 DDR 初始化代码。
+1. SPL、U-Boot、OpenSBI 和 RT-Smart 均从预期 UART 输出日志。
+1. 系统识别到正确的 DDR 容量和启动介质。
+1. Sensor I2C 可以探测，RESET、POWERDOWN 和 MCLK 时序正确。
+1. 不支持硬件 RTC 的板上没有注册 RTC/PMU 驱动，软件 RTC 工作正常。
+1. 镜像各分区没有超出 `genimage-sdcard.cfg` 定义的大小。
+
+## 多仓库变更检查
+
+该 SDK 使用 `repo` 管理多个 Git 项目。新增开发板通常同时修改 superproject、U-Boot、RT-Smart 和 CanMV。提交前使用：
 
 ```shell
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard$ make list-def
-Available configs:
-1 [ ] k230_canmv_01studio_defconfig
-2 [ ] k230_canmv_defconfig
-3 [ ] k230_canmv_dongshanpi_defconfig
-4 [ ] k230_canmv_labplus_1956_defconfig
-5 [ ] k230_canmv_lckfb_defconfig
-6 [ ] k230_canmv_v3p0_defconfig
-7 [ ] k230_rtos_01studio_defconfig
-8 [ ] k230_rtos_aihardware_defconfig
-9 [ ] k230_rtos_evb_defconfig
-10 [ ] k230_rtos_lckfb_defconfig
-11 [ ] k230d_canmv_atk_dnk230d_defconfig
-12 [ ] k230d_canmv_bpi_zero_defconfig
-13 [ ] k230d_canmv_labplus_ai_camera_defconfig
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard$ make k230_canmv_01studio_defconfig
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard$ make
-#等待生成IMG文件
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard$ cd output/k230_canmv_01studio_defconfig/
-aaa@DESKTOP-OSN5BJK:~/canmv_k230_demoboard/output/k230_canmv_01studio_defconfig$ ls
-CanMV_K230_01Studio_micropython_local_nncase_v2.9.0.img         Kconfig.app           applications  opensbi        rtsmart
-CanMV_K230_01Studio_micropython_local_nncase_v2.9.0.img.gz      Kconfig.canmv         canmv         repo_info      uboot
-CanMV_K230_01Studio_micropython_local_nncase_v2.9.0.img.gz.md5  Kconfig.rtt_examples  images        repo_info.tmp
+repo status
+git status --short
+git -C src/uboot/uboot status --short
+git -C src/rtsmart/rtsmart status --short
+git -C src/canmv status --short
 ```
 
-编译完成后，可以将生成的*.img文件拷贝出来，用于对设备进行升级操作。
+确认所有新文件都位于正确的 Git 项目中，且没有把构建产物或本地 `.config` 一并提交。

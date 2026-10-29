@@ -130,15 +130,15 @@ find . -name "*.elf" | head
 
 分两种配置：
 
-1. **运行时自启动命令（Startup command）**
+1. **运行时自启动命令**
 
 在 `menuconfig` 中设置：
 
 ```text
-RT-Smart Configuration > Startup command
+RT-Smart Configuration > Rtsmart auto execute command string
 ```
 
-这里是运行时命令字符串（`CONFIG_RTT_AUTO_EXEC_CMD`），建议使用**绝对路径**，例如：
+这里是运行时命令字符串（`CONFIG_RTT_AUTO_EXEC_CMD`）。普通文件系统自启动使用板端绝对路径，例如：
 
 ```text
 /sdcard/app/examples/integrated_poc/smart_ipc.elf
@@ -158,6 +158,8 @@ Fast Boot Configuration > Fast boot file path
 ${SDK_BUILD_IMAGES_DIR}/sdcard/app/examples/integrated_poc/smart_ipc.elf
 ```
 
+Fast Boot 还需要把 `CONFIG_RTT_AUTO_EXEC_CMD` 设置为 `@preload`，或设置为 `@preload` 后跟应用参数；不要使用旧入口 `/bin/preload`。完整说明见[如何使用 Fast Boot 与配置 RT-Smart 自动运行](./userguide/how_to_use_fast_boot.md)。
+
 ---
 
 ### Q11：如何确认当前固件支持哪些 Sensor？
@@ -168,9 +170,20 @@ ${SDK_BUILD_IMAGES_DIR}/sdcard/app/examples/integrated_poc/smart_ipc.elf
 list_sensor
 ```
 
-若看不到目标 sensor，需在 `menuconfig` 的 Sensor 相关选项中使能后重新编译烧录。
+输出会按 CSI 列出检测到的驱动、模式和 lane 数，并在汇总中标记 `SUPPORTED` / `NOT DETECTED`。若看不到目标 sensor / 4LANE 模式，需在 `menuconfig` → `Sensor Configuration` 中：
 
-参考：[`userguide/sensor_list.md`](./userguide/sensor_list.md)
+- 勾选对应 `Enable <Sensor>`
+- 需要 CSI0 4-lane 时，将 **`CSI0 LANE NUM` 设为 `4LANE`**，并打开该 Sensor 的 `Enable 4LANE Configure`
+- CSI1 可编译启用，但运行时不能与 CSI0 4LANE 同时初始化；原厂接线请勿同时使用两者
+- 重新编译烧录后再查 `list_sensor`
+
+同分辨率 2L/4L 运行时用 `sample_vicap_sensor -lane 2|4` 或 `-stype` 区分。完整 demo 参数（含 `-ofmt` / `-dump` / `-tile`）见 [VICAP Sensor Demo](./app_develop_guide/media/vicap.md)。
+
+参考：
+
+- [`如何配置 Sensor`](./userguide/how_to_configure_sensor.md)
+- [`VICAP Sensor Demo`](./app_develop_guide/media/vicap.md)
+- [`图像传感器支持列表`](./hardware_compatibility/sensor_list.md)
 
 ## 仍未解决？
 

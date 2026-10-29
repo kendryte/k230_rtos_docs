@@ -31,7 +31,7 @@ Opus 为新一代开源高效音频编码格式，兼顾低时延与高压缩比
 
 通过上述工作模式，音频模块在语音通话业务中实现了高效、稳定的音频数据处理和传输，为用户提供了优质的语音通信体验。
 
-![img](https://kendryte-download.canaan-creative.com/developer/pictures/b96e2ea6fe9536e76af33afe46b2069e.png)
+![img](https://download.kendryte.com/developer/pictures/b96e2ea6fe9536e76af33afe46b2069e.png)
 
 ### 功能描述
 
@@ -135,7 +135,9 @@ K230 板子配备了一个板载麦克风和一个 3.5mm 耳机接口。用户�
 
 【语法】
 
-k_s32 kd_mpi_ai_set_pub_attr([k_audio_dev](#k_audio_dev) ai_dev, const [k_aio_dev_attr](#k_aio_dev_attr) \*attr);
+```c
+k_s32 kd_mpi_ai_set_pub_attr([k_audio_dev](#k_audio_dev) ai_dev, const [k_aio_dev_attr](#k_aio_dev_attr) *attr);
+```
 
 【参数】
 
@@ -198,7 +200,9 @@ return K_FAILED;
 
 【语法】
 
-k_s32 kd_mpi_ai_get_pub_attr([k_audio_dev](#k_audio_dev) ai_dev, [k_aio_dev_attr](#k_aio_dev_attr) \*attr);
+```c
+k_s32 kd_mpi_ai_get_pub_attr([k_audio_dev](#k_audio_dev) ai_dev, [k_aio_dev_attr](#k_aio_dev_attr) *attr)
+```
 
 【参数】
 
@@ -227,7 +231,9 @@ k_s32 kd_mpi_ai_get_pub_attr([k_audio_dev](#k_audio_dev) ai_dev, [k_aio_dev_attr
 
 【语法】
 
+```c
 k_s32 kd_mpi_ai_enable([k_audio_dev](#k_audio_dev) ai_dev);
+```
 
 【参数】
 
@@ -255,7 +261,9 @@ k_s32 kd_mpi_ai_enable([k_audio_dev](#k_audio_dev) ai_dev);
 
 【语法】
 
+```c
 k_s32 kd_mpi_ai_disable([k_audio_dev](#k_audio_dev) ai_dev);
+```
 
 【参数】
 
@@ -283,7 +291,9 @@ k_s32 kd_mpi_ai_disable([k_audio_dev](#k_audio_dev) ai_dev);
 
 【语法】
 
+```c
 k_s32 kd_mpi_ai_enable_chn([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_chn) ai_chn);
+```
 
 【参数】
 
@@ -312,7 +322,9 @@ k_s32 kd_mpi_ai_enable_chn([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_c
 
 【语法】
 
+```c
 k_s32 kd_mpi_ai_disable_chn([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_chn) ai_chn);
+```
 
 【参数】
 
@@ -341,12 +353,14 @@ k_s32 kd_mpi_ai_disable_chn([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_
 
 【语法】
 
-k_s32 kd_mpi_ai_get_frame([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_chn) ai_chn,[k_audio_frame](#k_audio_frame)\*frame, k_u32 milli_sec);
+```c
+k_s32 kd_mpi_ai_get_frame([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_chn) ai_chn,[k_audio_frame](#k_audio_frame)*frame, k_u32 milli_sec);
+```
 
 【参数】
 
 | 参数名称  | 描述                                                                                                                                        | 输入/输出 |
-|-----------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+|-----------|-----------------------------------------------------------------------------|-----------|
 | ai_dev    | 音频设备号。                                                                                                                                | 输入      |
 | ai_chn    | 音频通道号。                                                                                                                                | 输入      |
 | frame     | 音频帧数据。                                                                                                                                | 输出      |
@@ -399,7 +413,11 @@ kd_mpi_ai_release_frame(dev_num, channel, &audio_frame);
 
 【语法】
 
-k_s32 kd_mpi_ai_release_frame([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_chn) ai_chn,const [k_audio_frame](#k_audio_frame) *frame);【参数】
+```c
+k_s32 kd_mpi_ai_release_frame([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_ai_chn) ai_chn,const [k_audio_frame](#k_audio_frame) *frame);
+```
+
+【参数】
 
 | 参数名称 | 描述          | 输入/输出 |
 |----------|---------------|-----------|
@@ -427,7 +445,9 @@ k_s32 kd_mpi_ai_release_frame([k_audio_dev](#k_audio_dev) ai_dev,[k_ai_chn](#k_a
 
 【语法】
 
+```c
 k_s32 kd_mpi_ai_set_vqe_attr([k_audio_dev](#k_audio_dev) ai_dev, [k_ai_chn](#k_ai_chn) ai_chn, const [k_ai_vqe_enable](#k_ai_vqe_enable) vqe_enable);
+```
 
 【参数】
 
